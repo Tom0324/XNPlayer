@@ -34,6 +34,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -133,13 +134,15 @@ object NetworkStreamingScreen : Screen {
             backstack.add(app.marlboroadvance.mpvex.ui.preferences.PreferencesScreen)
           },
           additionalActions = {
-            IconButton(onClick = {
-              try {
-                context.startActivity(Intent(context, OpenListActivity::class.java))
-              } catch (t: Throwable) {
-                // OpenList entry never crashes Network page
-              }
-            }) {
+            IconButton(
+              onClick = {
+                try {
+                  context.startActivity(Intent(context, OpenListActivity::class.java))
+                } catch (t: Throwable) {
+                  // OpenList entry never crashes Network page
+                }
+              },
+            ) {
               Icon(Icons.Filled.Cloud, contentDescription = "OpenList")
             }
           },
