@@ -275,18 +275,28 @@ object AboutScreen : Screen {
                 ) {
                   Icon(
                     imageVector = Icons.Filled.Info,
-                    contentDescription = "Device Info",
+                    contentDescription = "设备与软件信息",
                     modifier = Modifier.size(20.dp),
                     tint = cs.onPrimaryContainer,
                   )
                   Spacer(modifier = Modifier.width(8.dp))
                   Text(
-                    text = "Device Info",
+                    text = "设备与软件信息",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = cs.onPrimaryContainer,
                   )
                 }
+                Text(
+                  text = "软件：NeoPlayerRebuild v$versionName $buildType (${BuildConfig.VERSION_CODE})",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = cs.onPrimaryContainer.copy(alpha = 0.85f),
+                )
+                Text(
+                  text = "包名：${context.packageName}",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = cs.onPrimaryContainer.copy(alpha = 0.85f),
+                )
                 Text(
                   text = collectDeviceInfo(),
                   style = MaterialTheme.typography.bodySmall,
