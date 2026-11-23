@@ -42,14 +42,14 @@ object OpenListController {
     try {
       Openlistlib.shutdown(5000L)
     } catch (t: Throwable) {
-      Log.w(TAG, "OpenList shutdown failed", t)
+      Log.w("OpenListController", "OpenList shutdown failed", t)
     }
     OpenListRuntimeState.status = "idle"
     OpenListRuntimeState.error = null
     try {
       context.stopService(Intent(context, AlistService::class.java))
     } catch (t: Throwable) {
-      Log.w(TAG, "Stop service failed", t)
+      Log.w("OpenListController", "Stop service failed", t)
     }
   }
 }
