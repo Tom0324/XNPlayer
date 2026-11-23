@@ -67,7 +67,7 @@ class OpenListActivity : Activity() {
     try {
       startForegroundService(Intent(this, AlistService::class.java))
     } catch (t: Throwable) {
-      status.text = "启动服务失败：${'$'}{t}"
+      status.text = "启动服务失败：" + t.toString()
       return
     }
     if (started) return
@@ -83,7 +83,7 @@ class OpenListActivity : Activity() {
             return
           }
           "error" -> {
-            status.text = "OpenList 启动失败：${'$'}{OpenListRuntimeState.error}"
+            status.text = "OpenList 启动失败：" + (OpenListRuntimeState.error ?: "未知错误")
             started = false
             return
           }

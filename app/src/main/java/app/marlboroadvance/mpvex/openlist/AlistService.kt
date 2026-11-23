@@ -17,6 +17,43 @@ import openlistlib.Openlistlib
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
+object OpenListController {
+  private const val PREFS = "openlist_settings"
+  private const val KEY_AUTO_START = "auto_start"
+
+  fun isAutoStart(context: Context): Boolean =
+    context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_AUTO_START, false)
+
+  fun setAutoStart(context: Context, value: Boolean) {
+    context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+      .putBoolean(KEY_AUTO_START, value).apply()
+  }
+
+  fun start(context: Context) {
+    try {
+      context.startForegroundService(Intent(context, AlistService::class.java))
+    } catch (t: Throwable) {
+      OpenListRuntimeState.status = "error"
+      OpenListRuntimeState.error = t.toString()
+    }
+  }
+
+  fun stop(context: Context) {
+    try {
+      Openlistlib.shutdown(5000L)
+    } catch (t: Throwable) {
+      Log.w(TAG, "OpenList shutdown failed", t)
+    }
+    OpenListRuntimeState.status = "idle"
+    OpenListRuntimeState.error = null
+    try {
+      context.stopService(Intent(context, AlistService::class.java))
+    } catch (t: Throwable) {
+      Log.w(TAG, "Stop service failed", t)
+    }
+  }
+}
+
 object OpenListRuntimeState {
   @Volatile var status: String = "idle"
   @Volatile var error: String? = null

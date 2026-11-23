@@ -2,6 +2,7 @@ package app.marlboroadvance.mpvex
 
 import android.app.Application
 import app.marlboroadvance.mpvex.database.repository.VideoMetadataCacheRepository
+import app.marlboroadvance.mpvex.openlist.OpenListController
 import app.marlboroadvance.mpvex.di.DatabaseModule
 import app.marlboroadvance.mpvex.di.FileManagerModule
 import app.marlboroadvance.mpvex.di.PreferencesModule
@@ -40,6 +41,12 @@ class App : Application() {
     Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler(applicationContext, CrashActivity::class.java))
 
     FastThumbnails.initialize(this)
+
+    try {
+      if (OpenListController.isAutoStart(this)) OpenListController.start(this)
+    } catch (t: Throwable) {
+      android.util.Log.w("App", "OpenList autostart failed", t)
+    }
 
     // Perform cache maintenance on app startup (non-blocking)
     applicationScope.launch {
