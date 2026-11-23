@@ -318,29 +318,21 @@ object PreferencesScreen : Screen {
           item {
             PreferenceCard {
               Preference(
-                title = { Text(text = "OpenList 服务") },
-                summary = { Text(text = "启动本地服务并打开 Web 管理页", color = MaterialTheme.colorScheme.outline) },
-                icon = { Icon(Icons.Filled.Cloud, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                onClick = {
-                  try {
-                    context.startActivity(Intent(context, OpenListActivity::class.java))
-                  } catch (t: Throwable) {
-                    // never crash settings
-                  }
+                title = { Text(text = "OpenList 管理") },
+                summary = {
+                  Text(
+                    text = "服务控制、核心管理与文档",
+                    color = MaterialTheme.colorScheme.outline
+                  )
                 },
-              )
-              PreferenceDivider()
-              Preference(
-                title = { Text(text = "OpenList 管理地址") },
-                summary = { Text(text = "http://127.0.0.1:5244", color = MaterialTheme.colorScheme.outline) },
-                icon = { Icon(Icons.Filled.Cloud, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                onClick = {
-                  try {
-                    context.startActivity(Intent(context, OpenListActivity::class.java))
-                  } catch (t: Throwable) {
-                    // never crash settings
-                  }
+                icon = {
+                  Icon(
+                    Icons.Filled.Cloud,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                  )
                 },
+                onClick = { backstack.add(OpenListSettingsScreen) },
               )
             }
           }
