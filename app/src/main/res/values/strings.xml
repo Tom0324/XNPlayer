@@ -344,7 +344,7 @@
   <string name="toast_sleep_timer_ended">Sleep timer ended</string>
   <string name="toast_file_no_longer_exists">File no longer exists</string>
   <string name="volume_slider_absolute_value">%d</string>
-  <string name="github_repo_url">https://github.com/Tom0324/NeoPlayerRebuild</string>
+  <string name="github_repo_url">https://github.com/Tom0324/mpvEx</string>
   <string name="swap_the_volume_and_brightness_slider">Swap volume and brightness slider</string>
   <string name="pref_player_display_reduce_player_animation">Reduce player animation</string>
   <string name="pref_player_display_hide_player_control_time">Hide player control time</string>
@@ -1663,7 +1663,7 @@
 <string name="gesture_speed_swipe_up_to_lock">↑ Swipe up to lock %s playback</string>
 <string name="get_favorite_music">Get your favorite music</string>
 <string name="get_music_failed_cannot_play">Failed to get music, cannot play</string>
-<string name="github_repo_url_gp">https://github.com/Tom0324/NeoPlayerRebuild</string>
+<string name="github_repo_url_gp">https://github.com/Tom0324/mpvEx</string>
 <string name="google_api_key">AIzaSyAKV_dbAz-jAHSwCE-5Hx_YCioWnY8VSK4</string>
 <string name="google_app_id">1:623937435988:android:e5fc0d6a434e6c6b97b0c1</string>
 <string name="google_storage_bucket">neoplayer-d9aee.firebasestorage.app</string>
