@@ -1194,8 +1194,8 @@
     <string name="gesture_speed_swipe_up_to_lock">↑ 上滑锁定 %s 播放</string>
     <string name="get_favorite_music">获取收藏音乐</string>
     <string name="get_music_failed_cannot_play">获取音乐失败,无法播放</string>
-    <string name="github_repo_url">https://github.com/NextPlayerCloud/NextPlayerCloud</string>
-    <string name="github_repo_url_gp">https://github.com/neoplayerdev-ops/NeoPlayer</string>
+    <string name="github_repo_url">https://github.com/Tom0324/NeoPlayerRebuild</string>
+    <string name="github_repo_url_gp">https://github.com/Tom0324/NeoPlayerRebuild</string>
     <string name="got_it">知道了</string>
     <string name="grant_delete_permission_tip">请授予删除音频文件的权限</string>
     <string name="hdr_linear_enable_vulkan_action">开启</string>
@@ -2128,7 +2128,7 @@
     <string name="poxy_config">代理设置</string>
     <string name="pref_about_copyright_footer">© 2026 NeoPlayer Project • 开源与社区驱动</string>
     <string name="pref_about_crafted_with_love">为极致发烧友与影音爱好者用心打造</string>
-    <string name="pref_about_donate_quark_url">https://pan.quark.cn/s/a85b0b5fbee1</string>
+    <string name="pref_about_donate_quark_url"></string>
     <string name="pref_about_donate_title">捐赠</string>
     <string name="pref_about_donate_wechat">微信</string>
     <string name="pref_about_donate_wechat_summary">微信扫码赞赏支持开发者</string>
