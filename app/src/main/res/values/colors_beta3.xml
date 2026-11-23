@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<color name="appwidget_artist_color_dark_1f">#a8a8a8</color>
+<color name="appwidget_artist_color_white_1f">#a9a9a9</color>
+<color name="appwidget_btn_color_dark_1f">#b4b4b4</color>
+<color name="appwidget_btn_color_white_1f">#b4b4b4</color>
+<color name="appwidget_progress_color_dark_1f">#c4c4c4</color>
+<color name="appwidget_progress_color_white_1f">#a8a8a8</color>
+<color name="appwidget_title_color_dark_1f">#ececec</color>
+<color name="appwidget_title_color_white_1f">#252525</color>
+<color name="appwidget_track_color">#e3e3e3</color>
+<color name="appwidget_track_end_color">#5179f5</color>
+<color name="appwidget_track_start_color">#96b9ff</color>
+</resources>
