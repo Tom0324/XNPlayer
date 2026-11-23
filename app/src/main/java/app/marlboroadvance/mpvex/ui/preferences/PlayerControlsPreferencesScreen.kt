@@ -378,7 +378,7 @@ object PlayerControlsPreferencesScreen : Screen {
     ) {
       if (buttons.isEmpty()) {
         Text(
-          "None", // TODO: strings
+          "无", // TODO: strings
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.outline,
         )

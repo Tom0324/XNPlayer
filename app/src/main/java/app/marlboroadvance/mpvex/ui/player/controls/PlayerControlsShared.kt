@@ -243,7 +243,7 @@ fun RenderPlayerButton(
           ) {
             Icon(
               imageVector = Icons.Default.Speed,
-              contentDescription = "Playback Speed",
+              contentDescription = "播放速度",
               tint = MaterialTheme.colorScheme.primary,
               modifier = Modifier.size(20.dp),
             )
@@ -496,7 +496,7 @@ fun RenderPlayerButton(
           ) {
             Icon(
               imageVector = Icons.Default.ZoomIn,
-              contentDescription = "Video Zoom",
+              contentDescription = "视频缩放",
               tint = MaterialTheme.colorScheme.primary,
               modifier = Modifier.size(20.dp),
             )

@@ -150,7 +150,7 @@ class SmbClient(private val connection: NetworkConnection) : NetworkClient {
         } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
           Result.failure(Exception("Connection timeout. Server not responding."))
         } catch (e: Exception) {
-          Result.failure(Exception("Connection failed: ${e.message ?: "Unknown error"}"))
+          Result.failure(Exception("Connection failed: ${e.message ?: "未知错误"}"))
         }
 
         connectionResult

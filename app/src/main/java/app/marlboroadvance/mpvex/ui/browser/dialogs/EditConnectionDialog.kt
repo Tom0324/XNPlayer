@@ -84,7 +84,7 @@ fun EditConnectionSheet(
     modifier = Modifier.widthIn(min = 400.dp, max = 600.dp),
     title = {
       Text(
-        text = "Edit Connection",
+        text = "编辑连接",
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Medium,
       )
@@ -105,7 +105,7 @@ fun EditConnectionSheet(
               OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                label = { Text("名称", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 modifier = Modifier.weight(0.60f),
                 singleLine = true,
               )
@@ -173,7 +173,7 @@ fun EditConnectionSheet(
               OutlinedTextField(
                 value = path,
                 onValueChange = { path = it },
-                label = { Text("Path", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                label = { Text("路径", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 modifier = Modifier.weight(0.7f),
                 singleLine = true,
                 placeholder = { Text("/", maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -249,7 +249,7 @@ fun EditConnectionSheet(
         enabled = host.isNotBlank() && (isAnonymous || username.isNotBlank()),
       ) {
         Text(
-          text = "Save",
+          text = "保存",
           fontWeight = FontWeight.SemiBold,
         )
       }
@@ -257,7 +257,7 @@ fun EditConnectionSheet(
     dismissButton = {
       TextButton(onClick = handleDismiss) {
         Text(
-          text = "Cancel",
+          text = "取消",
           fontWeight = FontWeight.Medium,
         )
       }

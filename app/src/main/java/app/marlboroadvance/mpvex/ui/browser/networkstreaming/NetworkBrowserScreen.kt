@@ -255,7 +255,7 @@ private fun NetworkBrowserContent(
             if (folders.isNotEmpty()) {
               item {
                 Text(
-                  text = "Folders",
+                  text = "文件夹",
                   style = MaterialTheme.typography.titleMedium,
                   color = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),

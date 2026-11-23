@@ -342,7 +342,7 @@ object SearchablePreferences {
                 titleRes = R.string.pref_folders_title,
                 summaryRes = R.string.pref_folders_summary,
                 keywords = listOf("folders", "blacklist", "hide", "exclude", "manage"),
-                category = "Folders",
+                category = "文件夹",
                 screen = FoldersPreferencesScreen,
             ))
 
@@ -400,40 +400,40 @@ object SearchablePreferences {
                 titleRes = R.string.pref_subtitles,
                 summaryRes = R.string.pref_subtitles_summary,
                 keywords = listOf("subtitles", "subs", "language", "fonts", "text"),
-                category = "Subtitles",
+                category = "字幕",
                 screen = SubtitlesPreferencesScreen,
             ))
             add(SearchablePreference(
                 titleRes = R.string.pref_preferred_languages,
                 keywords = listOf("language", "preferred", "subtitle", "audio", "locale", "code"),
-                category = "Subtitles",
+                category = "字幕",
                 screen = SubtitlesPreferencesScreen,
             ))
             add(SearchablePreference(
                 titleRes = R.string.pref_subtitles_autoload_title,
                 summaryRes = R.string.pref_subtitles_autoload_summary,
                 keywords = listOf("autoload", "automatic", "subtitles", "external", "load"),
-                category = "Subtitles",
+                category = "字幕",
                 screen = SubtitlesPreferencesScreen,
             ))
             add(SearchablePreference(
                 titleRes = R.string.player_sheets_sub_override_ass,
                 summaryRes = R.string.player_sheets_sub_override_ass_subtitle,
                 keywords = listOf("ass", "override", "subtitle", "ssa", "format", "style"),
-                category = "Subtitles",
+                category = "字幕",
                 screen = SubtitlesPreferencesScreen,
             ))
             add(SearchablePreference(
                 titleRes = R.string.player_sheets_sub_scale_by_window,
                 summaryRes = R.string.player_sheets_sub_scale_by_window_summary,
                 keywords = listOf("scale", "window", "subtitle", "size", "resize", "fit"),
-                category = "Subtitles",
+                category = "字幕",
                 screen = SubtitlesPreferencesScreen,
             ))
             add(SearchablePreference(
                 titleRes = R.string.pref_subtitles_fonts_dir,
                 keywords = listOf("fonts", "directory", "subtitle", "custom", "folder"),
-                category = "Subtitles",
+                category = "字幕",
                 screen = SubtitlesPreferencesScreen,
             ))
 
@@ -577,7 +577,7 @@ object SearchablePreferences {
                 titleRes = R.string.pref_about_title,
                 summaryRes = R.string.pref_about_summary,
                 keywords = listOf("about", "version", "licenses", "acknowledgments", "info", "app"),
-                category = "About",
+                category = "关于",
                 screen = AboutScreen,
             ))
         }

@@ -202,7 +202,7 @@ private fun SortTypeSelector(
     verticalArrangement = Arrangement.spacedBy(12.dp),
   ) {
     Text(
-      text = "Sort by",
+      text = "排序方式",
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.Medium,
       color = MaterialTheme.colorScheme.onSurface,
@@ -525,7 +525,7 @@ private fun GridColumnsSection(
           verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
           Text(
-            text = "Folder Grid",
+            text = "文件夹网格",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
@@ -551,7 +551,7 @@ private fun GridColumnsSection(
           verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
           Text(
-            text = "Video Grid",
+            text = "视频网格",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )

@@ -40,7 +40,7 @@ fun DeleteConfirmationDialog(
     onDismissRequest = onDismiss,
     title = {
       Text(
-        text = "Delete $itemCount $itemText?",
+        text = "删除 $itemCount $itemText？",
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
       )
@@ -125,7 +125,7 @@ fun DeleteConfirmationDialog(
         shape = MaterialTheme.shapes.extraLarge,
       ) {
         Text(
-          text = "Delete",
+          text = "删除",
           fontWeight = FontWeight.Bold,
         )
       }
@@ -135,7 +135,7 @@ fun DeleteConfirmationDialog(
         onClick = onDismiss,
         shape = MaterialTheme.shapes.extraLarge,
       ) {
-        Text("Cancel", fontWeight = FontWeight.Medium)
+        Text("取消", fontWeight = FontWeight.Medium)
       }
     },
     containerColor = MaterialTheme.colorScheme.surface,

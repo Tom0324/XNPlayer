@@ -198,11 +198,11 @@ data class PlaylistDetailScreen(val playlistId: Int) : Screen {
                 onSearch = { },
                 expanded = false,
                 onExpandedChange = { },
-                placeholder = { Text("Search videos...") },
+                placeholder = { Text("搜索视频...") },
                 leadingIcon = {
                   Icon(
                     imageVector = Icons.Filled.Search,
-                    contentDescription = "Search",
+                    contentDescription = "搜索",
                   )
                 },
                 trailingIcon = {
@@ -214,7 +214,7 @@ data class PlaylistDetailScreen(val playlistId: Int) : Screen {
                   ) {
                     Icon(
                       imageVector = Icons.Filled.Close,
-                      contentDescription = "Cancel",
+                      contentDescription = "取消",
                     )
                   }
                 },
@@ -293,7 +293,7 @@ data class PlaylistDetailScreen(val playlistId: Int) : Screen {
                   ) {
                     Icon(
                       imageVector = Icons.Filled.Check,
-                      contentDescription = "Done reordering",
+                      contentDescription = "完成排序",
                       tint = MaterialTheme.colorScheme.primary,
                     )
                   }
@@ -309,7 +309,7 @@ data class PlaylistDetailScreen(val playlistId: Int) : Screen {
                     ) {
                       Icon(
                         imageVector = Icons.Filled.Search,
-                        contentDescription = "Search videos",
+                        contentDescription = "搜索视频",
                         tint = MaterialTheme.colorScheme.onSurface,
                       )
                     }
@@ -397,7 +397,7 @@ data class PlaylistDetailScreen(val playlistId: Int) : Screen {
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                          text = "Play",
+                          text = "播放",
                           style = MaterialTheme.typography.labelLarge,
                           fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         )
@@ -431,7 +431,7 @@ data class PlaylistDetailScreen(val playlistId: Int) : Screen {
               tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-              text = "No videos found",
+              text = "未找到视频",
               style = MaterialTheme.typography.titleMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -592,7 +592,7 @@ private fun PlaylistVideoListContent(
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
           )
           Text(
-            text = "No videos in playlist",
+            text = "播放列表中没有视频",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
@@ -732,7 +732,7 @@ private fun StreamUrlDialog(
           contentDescription = null,
           modifier = Modifier.padding(end = 4.dp).size(18.dp)
         )
-        Text("Copy")
+        Text("复制")
       }
     },
     dismissButton = {
@@ -798,7 +798,7 @@ private fun RemoveFromPlaylistDialog(
         shape = MaterialTheme.shapes.extraLarge,
       ) {
         Text(
-          text = "Remove from Playlist",
+          text = "从播放列表移除",
           fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
         )
       }
@@ -808,7 +808,7 @@ private fun RemoveFromPlaylistDialog(
         onClick = onDismiss,
         shape = MaterialTheme.shapes.extraLarge,
       ) {
-        Text("Cancel", fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
+        Text("取消", fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
       }
     },
     containerColor = MaterialTheme.colorScheme.surface,

@@ -78,14 +78,14 @@ fun NetworkConnectionCard(
           IconButton(onClick = { onEdit(connection) }) {
             Icon(
               Icons.Filled.Edit,
-              contentDescription = "Edit",
+              contentDescription = "编辑",
               tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
           IconButton(onClick = { onDelete(connection) }) {
             Icon(
               Icons.Filled.Delete,
-              contentDescription = "Delete",
+              contentDescription = "删除",
               tint = MaterialTheme.colorScheme.error,
             )
           }

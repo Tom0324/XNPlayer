@@ -132,7 +132,7 @@ object SubtitlesPreferencesScreen : Screen {
         // Load fonts when folder changes or trigger is fired
         LaunchedEffect(fontsFolder, fontLoadTrigger) {
           customFontEntries = loadCustomFontEntries(context)
-          availableFonts = listOf("Default") + customFontEntries.map { it.familyName }
+          availableFonts = listOf("默认") + customFontEntries.map { it.familyName }
         }
 
         // Auto-refresh fonts on app restart if directory is set

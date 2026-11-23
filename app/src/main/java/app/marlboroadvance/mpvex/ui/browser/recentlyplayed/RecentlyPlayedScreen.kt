@@ -253,7 +253,7 @@ object RecentlyPlayedScreen : Screen {
               filePicker.launch(arrayOf("video/*"))
             },
             icon = { Icon(Icons.Filled.FileOpen, contentDescription = null) },
-            text = { Text(text = "Open File") },
+            text = { Text(text = "打开文件") },
           )
 
           FloatingActionButtonMenuItem(
@@ -277,7 +277,7 @@ object RecentlyPlayedScreen : Screen {
               showLinkDialog.value = true
             },
             icon = { Icon(Icons.Filled.Link, contentDescription = null) },
-            text = { Text(text = "Open Link") },
+            text = { Text(text = "打开链接") },
           )
         }
       },
@@ -321,7 +321,7 @@ object RecentlyPlayedScreen : Screen {
           ) {
             EmptyState(
               icon = Icons.Filled.History,
-              title = "No recently played videos",
+              title = "暂无最近播放",
               message = "Videos you play will appear here",
             )
           }
@@ -357,7 +357,7 @@ object RecentlyPlayedScreen : Screen {
         val deleteFiles = deleteFilesCheckbox.value
 
         val title = if (deleteFiles) {
-          "Delete $itemCount $itemText?"
+          "删除 $itemCount $itemText？"
         } else {
           "Remove $itemCount $itemText from history?"
         }

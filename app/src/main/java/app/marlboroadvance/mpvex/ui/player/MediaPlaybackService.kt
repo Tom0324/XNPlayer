@@ -240,7 +240,7 @@ class MediaPlaybackService :
   private fun updateMediaSession() {
     try {
       // Ensure we have valid media title
-      val title = mediaTitle.ifBlank { "Unknown Video" }
+      val title = mediaTitle.ifBlank { "未知视频" }
       
       // Update metadata
       val duration = runCatching { 
@@ -316,7 +316,7 @@ class MediaPlaybackService :
     val previousAction =
       NotificationCompat.Action(
         android.R.drawable.ic_media_previous,
-        "Previous",
+        "上一个",
         MediaButtonReceiver.buildMediaButtonPendingIntent(
           this,
           PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS,
@@ -326,7 +326,7 @@ class MediaPlaybackService :
     val playPauseAction =
       NotificationCompat.Action(
         if (paused) android.R.drawable.ic_media_play else android.R.drawable.ic_media_pause,
-        if (paused) "Play" else "Pause",
+        if (paused) "播放" else "暂停",
         MediaButtonReceiver.buildMediaButtonPendingIntent(
           this,
           PlaybackStateCompat.ACTION_PLAY_PAUSE,
@@ -336,7 +336,7 @@ class MediaPlaybackService :
     val nextAction =
       NotificationCompat.Action(
         android.R.drawable.ic_media_next,
-        "Next",
+        "下一个",
         MediaButtonReceiver.buildMediaButtonPendingIntent(
           this,
           PlaybackStateCompat.ACTION_SKIP_TO_NEXT,
@@ -345,7 +345,7 @@ class MediaPlaybackService :
 
     return NotificationCompat
       .Builder(this, NOTIFICATION_CHANNEL_ID)
-      .setContentTitle(mediaTitle.ifBlank { "Unknown Video" })
+      .setContentTitle(mediaTitle.ifBlank { "未知视频" })
       .setContentText(mediaArtist.ifBlank { getString(R.string.notification_playing) })
       .setSmallIcon(R.drawable.ic_launcher_foreground)
       .setLargeIcon(thumbnail)

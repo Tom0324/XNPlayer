@@ -131,7 +131,7 @@ fun PermissionDeniedState(
 
         // Title
         Text(
-          text = "Storage Access Required",
+          text = "需要存储访问权限",
           style = MaterialTheme.typography.headlineMedium,
           fontWeight = FontWeight.Bold,
           textAlign = TextAlign.Center,

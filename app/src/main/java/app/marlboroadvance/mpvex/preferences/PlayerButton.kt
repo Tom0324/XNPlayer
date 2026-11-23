@@ -79,18 +79,18 @@ val allPlayerButtons =
 fun getPlayerButtonLabel(button: PlayerButton): String =
   when (button) {
     PlayerButton.BACK_ARROW -> "Back Arrow" // stringResource(R.string.btn_label_back)
-    PlayerButton.VIDEO_TITLE -> "Video Title" // stringResource(R.string.btn_label_title)
+    PlayerButton.VIDEO_TITLE -> "视频标题" // stringResource(R.string.btn_label_title)
     PlayerButton.BOOKMARKS_CHAPTERS -> "Chapters / Bookmarks" // stringResource(R.string.btn_label_bookmarks)
-    PlayerButton.PLAYBACK_SPEED -> "Playback Speed" // stringResource(R.string.btn_label_speed)
+    PlayerButton.PLAYBACK_SPEED -> "播放速度" // stringResource(R.string.btn_label_speed)
     PlayerButton.DECODER -> "Decoder" // stringResource(R.string.btn_label_decoder)
-    PlayerButton.SCREEN_ROTATION -> "Screen Rotation" // stringResource(R.string.btn_label_rotation)
+    PlayerButton.SCREEN_ROTATION -> "屏幕旋转" // stringResource(R.string.btn_label_rotation)
     PlayerButton.FRAME_NAVIGATION -> "Frame Navigation" // stringResource(R.string.btn_label_frame_nav)
-    PlayerButton.VIDEO_ZOOM -> "Video Zoom" // stringResource(R.string.btn_label_zoom)
-    PlayerButton.PICTURE_IN_PICTURE -> "Picture-in-Picture" // stringResource(R.string.btn_label_pip)
-    PlayerButton.ASPECT_RATIO -> "Aspect Ratio" // stringResource(R.string.btn_label_aspect)
+    PlayerButton.VIDEO_ZOOM -> "视频缩放" // stringResource(R.string.btn_label_zoom)
+    PlayerButton.PICTURE_IN_PICTURE -> "画中画" // stringResource(R.string.btn_label_pip)
+    PlayerButton.ASPECT_RATIO -> "画面比例" // stringResource(R.string.btn_label_aspect)
     PlayerButton.LOCK_CONTROLS -> "Lock Controls" // stringResource(R.string.btn_label_lock)
-    PlayerButton.AUDIO_TRACK -> "Audio Track" // stringResource(R.string.btn_label_audio)
-    PlayerButton.SUBTITLES -> "Subtitles" // stringResource(R.string.btn_label_subtitles)
+    PlayerButton.AUDIO_TRACK -> "音轨" // stringResource(R.string.btn_label_audio)
+    PlayerButton.SUBTITLES -> "字幕" // stringResource(R.string.btn_label_subtitles)
     PlayerButton.MORE_OPTIONS -> "More Options" // stringResource(R.string.btn_label_more)
     PlayerButton.CURRENT_CHAPTER -> "Current Chapter" // stringResource(R.string.btn_label_chapter)
     PlayerButton.REPEAT_MODE -> "Repeat Mode" // stringResource(R.string.btn_label_repeat_mode)
@@ -99,6 +99,6 @@ fun getPlayerButtonLabel(button: PlayerButton): String =
     PlayerButton.VERTICAL_FLIP -> "Vertical Flip"
     PlayerButton.AB_LOOP -> "A-B Loop"
     PlayerButton.CUSTOM_SKIP -> "Custom Skip"
-    PlayerButton.BACKGROUND_PLAYBACK -> "Background Playback"
-    PlayerButton.NONE -> "None"
+    PlayerButton.BACKGROUND_PLAYBACK -> "后台播放"
+    PlayerButton.NONE -> "无"
   }

@@ -83,7 +83,7 @@ fun AddConnectionSheet(
     modifier = Modifier.widthIn(min = 400.dp, max = 600.dp),
     title = {
       Text(
-        text = "Add Network Connection",
+        text = "添加网络连接",
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Medium,
       )
@@ -105,7 +105,7 @@ fun AddConnectionSheet(
               OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                label = { Text("名称", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 modifier = Modifier.weight(0.50f),
                 singleLine = true,
               )
@@ -173,7 +173,7 @@ fun AddConnectionSheet(
               OutlinedTextField(
                 value = path,
                 onValueChange = { path = it },
-                label = { Text("Path", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                label = { Text("路径", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 modifier = Modifier.weight(0.7f),
                 singleLine = true,
                 placeholder = { Text("/", maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -250,7 +250,7 @@ fun AddConnectionSheet(
         enabled = host.isNotBlank() && (isAnonymous || username.isNotBlank()),
       ) {
         Text(
-          text = "Save",
+          text = "保存",
           fontWeight = FontWeight.SemiBold,
         )
       }
@@ -258,7 +258,7 @@ fun AddConnectionSheet(
     dismissButton = {
       TextButton(onClick = handleDismiss) {
         Text(
-          text = "Cancel",
+          text = "取消",
           fontWeight = FontWeight.Medium,
         )
       }
