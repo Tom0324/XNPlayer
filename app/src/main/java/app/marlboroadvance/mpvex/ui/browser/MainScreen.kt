@@ -1,6 +1,5 @@
 package app.marlboroadvance.mpvex.ui.browser
 
-import android.content.Intent
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -18,12 +17,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -43,7 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import app.marlboroadvance.mpvex.openlist.OpenListActivity
 import app.marlboroadvance.mpvex.presentation.Screen
 import app.marlboroadvance.mpvex.ui.browser.folderlist.FolderListScreen
 import app.marlboroadvance.mpvex.ui.browser.networkstreaming.NetworkStreamingScreen
@@ -254,20 +250,6 @@ object MainScreen : Screen {
             }
           }
 
-          FloatingActionButton(
-            onClick = {
-              try {
-                context.startActivity(Intent(context, OpenListActivity::class.java))
-              } catch (t: Throwable) {
-                // 云朵入口永不直接崩溃
-              }
-            },
-            modifier = Modifier
-              .align(Alignment.TopEnd)
-              .padding(16.dp),
-          ) {
-            Icon(Icons.Filled.Cloud, contentDescription = "OpenList")
-          }
         }
       }
     }

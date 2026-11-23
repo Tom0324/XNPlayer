@@ -1,5 +1,6 @@
 package app.marlboroadvance.mpvex.ui.preferences
 
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ViewQuilt
 import androidx.compose.material.icons.outlined.Audiotrack
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Gesture
@@ -33,10 +35,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.marlboroadvance.mpvex.R
+import app.marlboroadvance.mpvex.openlist.OpenListActivity
 import app.marlboroadvance.mpvex.presentation.Screen
 import app.marlboroadvance.mpvex.ui.utils.LocalBackStack
 import kotlinx.serialization.Serializable
@@ -49,6 +53,7 @@ object PreferencesScreen : Screen {
   @Composable
   override fun Content() {
     val backstack = LocalBackStack.current
+    val context = LocalContext.current
     Scaffold(
       topBar = {
         TopAppBar(
@@ -306,6 +311,41 @@ object PreferencesScreen : Screen {
             }
           }
           
+          // OpenList Section
+          item {
+            PreferenceSectionHeader(title = "OpenList")
+          }
+
+          item {
+            PreferenceCard {
+              Preference(
+                title = { Text(text = "OpenList 服务") },
+                summary = { Text(text = "启动本地服务并打开 Web 管理页", color = MaterialTheme.colorScheme.outline) },
+                icon = { Icon(Icons.Filled.Cloud, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                onClick = {
+                  try {
+                    context.startActivity(Intent(context, OpenListActivity::class.java))
+                  } catch (t: Throwable) {
+                    // never crash settings
+                  }
+                },
+              )
+              PreferenceDivider()
+              Preference(
+                title = { Text(text = "OpenList 管理地址") },
+                summary = { Text(text = "http://127.0.0.1:5244", color = MaterialTheme.colorScheme.outline) },
+                icon = { Icon(Icons.Filled.Cloud, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                onClick = {
+                  try {
+                    context.startActivity(Intent(context, OpenListActivity::class.java))
+                  } catch (t: Throwable) {
+                    // never crash settings
+                  }
+                },
+              )
+            }
+          }
+
           // Advanced & About Section
           item {
             PreferenceSectionHeader(title = "高级与关于")

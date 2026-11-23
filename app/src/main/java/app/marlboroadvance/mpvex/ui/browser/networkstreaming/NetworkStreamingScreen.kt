@@ -1,5 +1,7 @@
 package app.marlboroadvance.mpvex.ui.browser.networkstreaming
 
+import android.content.Intent
+import app.marlboroadvance.mpvex.openlist.OpenListActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.PlayArrow
@@ -128,6 +131,17 @@ object NetworkStreamingScreen : Screen {
           onSearchClick = null,
           onSettingsClick = {
             backstack.add(app.marlboroadvance.mpvex.ui.preferences.PreferencesScreen)
+          },
+          additionalActions = {
+            IconButton(onClick = {
+              try {
+                context.startActivity(Intent(context, OpenListActivity::class.java))
+              } catch (t: Throwable) {
+                // OpenList entry never crashes Network page
+              }
+            }) {
+              Icon(Icons.Filled.Cloud, contentDescription = "OpenList")
+            }
           },
           onDeleteClick = null,
           onRenameClick = null,

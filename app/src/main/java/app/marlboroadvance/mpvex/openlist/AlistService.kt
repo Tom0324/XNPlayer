@@ -13,7 +13,13 @@ import android.util.Log
 import openlistlib.Event
 import openlistlib.LogCallback
 import openlistlib.Openlistlib
+import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
+
+object OpenListRuntimeState {
+  @Volatile var status: String = "idle"
+  @Volatile var error: String? = null
+}
 
 class AlistService : Service() {
   companion object {
@@ -21,19 +27,25 @@ class AlistService : Service() {
     private const val CHANNEL_ID = "neoplayer_openlist"
     private const val NOTIFICATION_ID = 2001
     private val initialized = AtomicBoolean(false)
-    private val started = AtomicBoolean(false)
   }
 
   private val event = object : Event {
-    override fun onProcessExit(code: Long) { Log.w(TAG, "OpenList process exit: $code") }
-    override fun onShutdown(reason: String) { Log.w(TAG, "OpenList shutdown: $reason") }
-    override fun onStartError(a: String, b: String) { Log.e(TAG, "OpenList start error: $a $b") }
+    override fun onProcessExit(code: Long) {
+      OpenListRuntimeState.status = "error"
+      OpenListRuntimeState.error = "OpenList process exited: $code"
+    }
+    override fun onShutdown(reason: String) {
+      OpenListRuntimeState.status = "error"
+      OpenListRuntimeState.error = "OpenList shutdown: $reason"
+    }
+    override fun onStartError(a: String, b: String) {
+      OpenListRuntimeState.status = "error"
+      OpenListRuntimeState.error = "$a $b"
+    }
   }
 
   private val logCallback = object : LogCallback {
-    override fun onLog(level: Short, time: Long, msg: String) {
-      Log.d(TAG, msg)
-    }
+    override fun onLog(level: Short, time: Long, msg: String) { Log.d(TAG, msg) }
   }
 
   override fun onBind(intent: Intent?): IBinder? = null
@@ -45,21 +57,48 @@ class AlistService : Service() {
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-    Thread { startOpenListSafely() }.start()
+    if (OpenListRuntimeState.status != "running") {
+      OpenListRuntimeState.status = "starting"
+      OpenListRuntimeState.error = null
+      Thread { startOpenListSafely() }.start()
+    }
     return START_STICKY
   }
 
   private fun startOpenListSafely() {
     try {
       if (!initialized.get()) {
+        val base = File(filesDir, "openlist").apply { mkdirs() }
+        File(base, "data").mkdirs()
+        val config = """
+          {
+            "scheme": {
+              "http_port": 5244,
+              "https_port": -1,
+              "force_https": false
+            },
+            "temp_dir": "${base.absolutePath}/temp",
+            "database": {
+              "path": "${base.absolutePath}/data.db"
+            }
+          }
+        """.trimIndent()
+        Openlistlib.setConfigData(config)
+        Openlistlib.setConfigLogStd(true)
+        Openlistlib.setConfigDebug(false)
+        Openlistlib.setConfigNoPrefix(false)
+        Openlistlib.setAdminPassword("123456")
         Openlistlib.init(event, logCallback)
         initialized.set(true)
       }
-      if (!started.get()) {
+      if (!Openlistlib.isRunning("")) {
         Openlistlib.start()
-        started.set(true)
       }
+      OpenListRuntimeState.status = "running"
+      OpenListRuntimeState.error = null
     } catch (t: Throwable) {
+      OpenListRuntimeState.status = "error"
+      OpenListRuntimeState.error = t.toString()
       Log.e(TAG, "OpenList init/start failed", t)
     }
   }
@@ -68,8 +107,7 @@ class AlistService : Service() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     if (nm.getNotificationChannel(CHANNEL_ID) == null) {
-      val channel = NotificationChannel(CHANNEL_ID, "OpenList 服务", NotificationManager.IMPORTANCE_LOW)
-      nm.createNotificationChannel(channel)
+      nm.createNotificationChannel(NotificationChannel(CHANNEL_ID, "OpenList 服务", NotificationManager.IMPORTANCE_LOW))
     }
   }
 
