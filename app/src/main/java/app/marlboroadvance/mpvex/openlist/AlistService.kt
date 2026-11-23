@@ -79,7 +79,7 @@ class AlistService : Service() {
   }
 
   private val logCallback = object : LogCallback {
-    override fun onLog(level: Short, time: Long, msg: String) { Log.d(TAG, msg) }
+    override fun onLog(level: Short, msg: String) { Log.d(TAG, msg) }
   }
 
   override fun onBind(intent: Intent?): IBinder? = null
