@@ -53,7 +53,6 @@ android {
       buildConfigField("boolean", "SCOPED_STORAGE_ONLY", "false")
 
       ndk {
-        abiFilters += "arm64-v8a"
       }
     }
   }
