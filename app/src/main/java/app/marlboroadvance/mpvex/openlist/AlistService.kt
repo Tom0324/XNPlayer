@@ -7,8 +7,8 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
-import android.os.Environment
 import android.os.IBinder
 import android.util.Log
 import alistlib.Alistlib
@@ -87,7 +87,21 @@ class AlistService : Service() {
   override fun onCreate() {
     super.onCreate()
     createChannel()
-    startForeground(NOTIFICATION_ID, buildNotification())
+    try {
+      if (android.os.Build.VERSION.SDK_INT >= 34) {
+        startForeground(
+          NOTIFICATION_ID,
+          buildNotification(),
+          ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+        )
+      } else {
+        @Suppress("DEPRECATION")
+        startForeground(NOTIFICATION_ID, buildNotification())
+      }
+    } catch (t: Throwable) {
+      Log.e(TAG, "startForeground failed", t)
+      stopSelf()
+    }
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -102,15 +116,8 @@ class AlistService : Service() {
   private fun startOpenListSafely() {
     try {
       if (!initialized.get()) {
-        val externalBase = File(Environment.getExternalStorageDirectory(), "NeoPlayerOpenList")
-        val base = try {
-          externalBase.mkdirs()
-          if (!externalBase.canWrite()) throw IllegalStateException("external dir not writable")
-          externalBase
-        } catch (t: Throwable) {
-          File(filesDir, "openlist").apply { mkdirs() }
-        }
-        File(base, "data").mkdirs()
+        // Match AListLiteAndroid: internal filesDir/data avoids Go/SELinux issues.
+        val base = File(filesDir, "data").apply { mkdirs() }
         Alistlib.setConfigData(base.absolutePath)
         Alistlib.setConfigLogStd(true)
         Alistlib.init(event, logCallback)
@@ -118,7 +125,6 @@ class AlistService : Service() {
       }
       if (!Alistlib.isRunning("")) {
         Alistlib.start()
-        Alistlib.setAdminPassword("123456")
       }
       OpenListRuntimeState.status = "running"
       OpenListRuntimeState.error = null
