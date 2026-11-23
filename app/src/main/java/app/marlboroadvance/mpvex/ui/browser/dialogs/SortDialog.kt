@@ -508,7 +508,7 @@ private fun GridColumnsSection(
     verticalArrangement = Arrangement.spacedBy(12.dp),
   ) {
     Text(
-      text = "Grid Columns",
+      text = "网格 Columns",
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.Medium,
       color = MaterialTheme.colorScheme.onSurface,

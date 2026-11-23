@@ -487,7 +487,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
             title = if (isAtRoot) {
               stringResource(app.marlboroadvance.mpvex.R.string.app_name)
             } else {
-              breadcrumbs.lastOrNull()?.name ?: "Tree View"
+              breadcrumbs.lastOrNull()?.name ?: "树状视图"
             },
             isInSelectionMode = isInSelectionMode,
             selectedCount = selectedCount,
@@ -1476,8 +1476,8 @@ fun FileSystemSortDialog(
     ),
     layoutModeSelector = ViewModeSelector(
       label = "Layout",
-      firstOptionLabel = "List",
-      secondOptionLabel = "Grid",
+      firstOptionLabel = "列表",
+      secondOptionLabel = "网格",
       firstOptionIcon = Icons.AutoMirrored.Filled.ViewList,
       secondOptionIcon = Icons.Filled.GridView,
       isFirstOptionSelected = true, // Always list mode

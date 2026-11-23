@@ -109,7 +109,7 @@ fun AspectRatioSheet(
       // Custom ratios
       if (customRatios.isNotEmpty()) {
         Text(
-          text = "Custom",
+          text = "自定义",
           style = MaterialTheme.typography.titleSmall,
           modifier =
             Modifier

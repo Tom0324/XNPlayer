@@ -111,7 +111,7 @@ class FtpClient(private val connection: NetworkConnection) : NetworkClient {
 
         // Check if connection is still alive
         if (!client.isConnected) {
-          return@withContext Result.failure(Exception("Connection lost"))
+          return@withContext Result.failure(Exception("连接ion lost"))
         }
 
         // Send NOOP to check connection health
@@ -121,7 +121,7 @@ class FtpClient(private val connection: NetworkConnection) : NetworkClient {
           // Try to reconnect
           val reconnectResult = connect()
           if (reconnectResult.isFailure) {
-            return@withContext Result.failure(Exception("Connection broken and reconnect failed"))
+            return@withContext Result.failure(Exception("连接ion broken and reconnect failed"))
           }
         }
 

@@ -565,12 +565,12 @@ fun PlayerControls(
               val enabled = (currentPlayerUpdate as PlayerUpdates.Shuffle).enabled
               val text = if (enabled) {
                 if (playlistMode && viewModel.hasPlaylistSupport()) {
-                  "Shuffle: On"
+                  "随机播放: On"
                 } else {
-                  "Shuffle: Not available"
+                  "随机播放: Not available"
                 }
               } else {
-                "Shuffle: Off"
+                "随机播放: Off"
               }
               TextPlayerUpdate(text)
             }

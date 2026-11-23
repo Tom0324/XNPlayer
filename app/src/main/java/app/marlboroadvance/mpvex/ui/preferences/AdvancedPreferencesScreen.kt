@@ -237,7 +237,7 @@ object AdvancedPreferencesScreen : Screen {
                   }
                 }
               }.onFailure { e ->
-                android.util.Log.e("AdvancedPrefs", "Error creating MPV directory structure", e)
+                android.util.Log.e("高级Prefs", "Error creating MPV directory structure", e)
               }
             }
           }
@@ -517,10 +517,10 @@ object AdvancedPreferencesScreen : Screen {
               val thumbnailRepository = koinInject<ThumbnailRepository>()
               
               Preference(
-                title = { Text(text = "Clear config cache") },
+                title = { Text(text = "清除 config cache") },
                 summary = { 
                   Text(
-                    text = "Clear the cached mpv.conf settings",
+                    text = "清除 the cached mpv.conf settings",
                     color = MaterialTheme.colorScheme.outline,
                   ) 
                 },
@@ -546,7 +546,7 @@ object AdvancedPreferencesScreen : Screen {
               PreferenceDivider()
 
               Preference(
-                title = { Text(text = "Clear thumbnail cache") },
+                title = { Text(text = "清除 thumbnail cache") },
                 summary = {
                   Text(
                     text = "Delete all cached video thumbnails (will regenerate as you browse folders)",
@@ -558,7 +558,7 @@ object AdvancedPreferencesScreen : Screen {
 
               if (isClearThumbsConfirmShown) {
                 ConfirmDialog(
-                  title = "Clear thumbnail cache?",
+                  title = "清除 thumbnail cache?",
                   subtitle = "This will delete cached thumbnails from storage and memory.",
                   onConfirm = {
                     scope.launch(Dispatchers.IO) {

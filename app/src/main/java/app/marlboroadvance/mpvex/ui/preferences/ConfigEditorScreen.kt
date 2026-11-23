@@ -78,8 +78,8 @@ data class ConfigEditorScreen(
       ConfigType.INPUT_CONF -> "input.conf" to preferences.inputConf.get()
     }
     val screenTitle = when (configType) {
-      ConfigType.MPV_CONF   -> "Edit mpv.conf"
-      ConfigType.INPUT_CONF -> "Edit input.conf"
+      ConfigType.MPV_CONF   -> "编辑 mpv.conf"
+      ConfigType.INPUT_CONF -> "编辑 input.conf"
     }
 
     var configText       by remember { mutableStateOf(initialValue) }
@@ -117,7 +117,7 @@ data class ConfigEditorScreen(
             val tree = DocumentFile.fromTreeUri(context, mpvConfStorageLocation.toUri())
             if (tree == null) {
               withContext(Dispatchers.Main) {
-                Toast.makeText(context, "No storage location set", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "未设置存储位置", Toast.LENGTH_LONG).show()
               }
               return@launch
             }
@@ -163,7 +163,7 @@ data class ConfigEditorScreen(
             )
             if (hasUnsavedChanges) {
               Text(
-                text  = "Unsaved changes",
+                text  = "未保存的更改",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.secondary,
               )

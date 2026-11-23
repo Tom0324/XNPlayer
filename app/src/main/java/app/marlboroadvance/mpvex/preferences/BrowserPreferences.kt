@@ -77,10 +77,10 @@ enum class FolderSortType {
   val displayName: String
     get() =
       when (this) {
-        Title -> "Title"
+        Title -> "标题"
         Date -> "日期"
         Size -> "大小"
-        VideoCount -> "Count"
+        VideoCount -> "数量"
       }
 }
 
@@ -97,7 +97,7 @@ enum class VideoSortType {
   val displayName: String
     get() =
       when (this) {
-        Title -> "Title"
+        Title -> "标题"
         Duration -> "时长"
         Date -> "日期"
         Size -> "大小"
@@ -116,7 +116,7 @@ enum class FolderViewMode {
     get() =
       when (this) {
         AlbumView -> "文件夹视图"
-        FileManager -> "Tree View"
+        FileManager -> "树状视图"
       }
 }
 
@@ -127,7 +127,7 @@ enum class MediaLayoutMode {
 
   val displayName:  String
     get() = when (this) {
-      LIST -> "List"
-      GRID -> "Grid"
+      LIST -> "列表"
+      GRID -> "网格"
     }
 }

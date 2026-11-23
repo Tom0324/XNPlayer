@@ -320,7 +320,7 @@ class PlayerActivity :
         }
 
         AudioManager.AUDIOFOCUS_REQUEST_FAILED -> {
-          Log.d(TAG, "Audio focus request failed")
+          Log.d(TAG, "音频 focus request failed")
         }
       }
     }
@@ -568,7 +568,7 @@ class PlayerActivity :
 
   @RequiresApi(Build.VERSION_CODES.P)
   override fun onDestroy() {
-    Log.d(TAG, "PlayerActivity onDestroy")
+    Log.d(TAG, "播放器Activity onDestroy")
 
     runCatching {
       // OPTIMIZATION: Prevent any further UI updates or callbacks

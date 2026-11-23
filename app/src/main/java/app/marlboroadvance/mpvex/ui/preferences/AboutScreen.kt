@@ -311,7 +311,7 @@ object AboutScreen : Screen {
 
         // Updates Section (only show if update feature is enabled)
         if (BuildConfig.ENABLE_UPDATE_FEATURE && updateViewModel != null) {
-          PreferenceSectionHeader(title = "Updates")
+          PreferenceSectionHeader(title = "更新")
           PreferenceCard {
                 val isAutoUpdateEnabled by updateViewModel.isAutoUpdateEnabled.collectAsState()
                 Column {
@@ -327,14 +327,14 @@ object AboutScreen : Screen {
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
-                                text = "Auto Check for Updates",
+                                text = "自动检查更新",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = cs.onSurface
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Check on startup",
+                                text = "启动时检查",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = cs.outline
                             )
@@ -360,7 +360,7 @@ object AboutScreen : Screen {
                         ) {
                              Icon(Icons.Default.Update, null, modifier = Modifier.size(18.dp))
                              Spacer(Modifier.width(8.dp))
-                             Text("Check for Updates Now", fontWeight = FontWeight.SemiBold)
+                             Text("立即检查更新", fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

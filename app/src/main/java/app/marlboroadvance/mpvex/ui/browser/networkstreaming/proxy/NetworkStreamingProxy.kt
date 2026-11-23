@@ -139,12 +139,12 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
       Log.e(TAG, "Error serving request for stream $streamId: ${streamInfo.filePath}", e)
       Log.e(
         TAG,
-        "Connection: ${streamInfo.connection.protocol} ${streamInfo.connection.host}:${streamInfo.connection.port}${streamInfo.connection.path}",
+        "连接ion: ${streamInfo.connection.protocol} ${streamInfo.connection.host}:${streamInfo.connection.port}${streamInfo.connection.path}",
       )
       newFixedLengthResponse(
         Response.Status.INTERNAL_ERROR,
         MIME_PLAINTEXT,
-        "Error: ${e.message}",
+        "错误：${e.message}",
       )
     }
   }

@@ -207,7 +207,7 @@ class TrackSelector(
         }
       }
     } catch (e: Exception) {
-      Log.e(TAG, "Audio selection failed", e)
+      Log.e(TAG, "音频 selection failed", e)
     }
   }
 

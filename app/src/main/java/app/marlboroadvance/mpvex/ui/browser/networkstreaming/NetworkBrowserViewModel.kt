@@ -50,7 +50,7 @@ class NetworkBrowserViewModel(
 
       try {
         val connection = repository.getConnectionById(connectionId)
-          ?: throw Exception("Connection not found")
+          ?: throw Exception("连接ion not found")
 
         repository.listFiles(connection, currentPath)
           .onSuccess { fileList ->
@@ -79,7 +79,7 @@ class NetworkBrowserViewModel(
     viewModelScope.launch {
       try {
         val connection = repository.getConnectionById(connectionId)
-          ?: throw Exception("Connection not found")
+          ?: throw Exception("连接ion not found")
 
         // Use proxy server for protocols that need seeking support
         val useProxy = connection.protocol in PROXY_PROTOCOLS

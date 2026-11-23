@@ -695,7 +695,7 @@ fun RenderPlayerButton(
         Box(contentAlignment = Alignment.Center) {
           Icon(
             imageVector = Icons.Default.Flip,
-            contentDescription = "Vertical Flip",
+            contentDescription = "垂直翻转",
             tint = vFlipColor,
             modifier = Modifier
               .padding(MaterialTheme.spacing.small)
@@ -773,7 +773,7 @@ fun RenderPlayerButton(
                 Box(contentAlignment = Alignment.Center) {
                   Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Clear Loop",
+                    contentDescription = "清除 Loop",
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(16.dp),
                   )

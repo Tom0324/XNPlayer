@@ -326,7 +326,7 @@ class PlayerViewModel(
   private var seekCoalesceJob: Job? = null
 
   private companion object {
-    const val TAG = "PlayerViewModel"
+    const val TAG = "播放器ViewModel"
     const val SEEK_COALESCE_DELAY_MS = 60L
     val VALID_SUBTITLE_EXTENSIONS =
       setOf(
@@ -388,7 +388,7 @@ class PlayerViewModel(
         withContext(Dispatchers.Main) {
           showToast("Failed to load audio: ${e.message}")
         }
-        android.util.Log.e("PlayerViewModel", "Error adding audio", e)
+        android.util.Log.e("播放器ViewModel", "Error adding audio", e)
       }
     }
   }
@@ -397,7 +397,7 @@ class PlayerViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       val uriString = uri.toString()
       if (_externalSubtitles.contains(uriString)) {
-        android.util.Log.d("PlayerViewModel", "Subtitle already tracked, skipping: $uriString")
+        android.util.Log.d("播放器ViewModel", "Subtitle already tracked, skipping: $uriString")
         return@launch
       }
 
@@ -419,7 +419,7 @@ class PlayerViewModel(
             )
           } catch (e: SecurityException) {
             // Permission already granted, not available, or not needed (e.g. from tree).
-            android.util.Log.i("PlayerViewModel", "Persistent permission not taken for $uri (may already have it via tree)")
+            android.util.Log.i("播放器ViewModel", "Persistent permission not taken for $uri (may already have it via tree)")
           }
         }
 
@@ -479,7 +479,7 @@ class PlayerViewModel(
           }
         }
       } catch (e: Exception) {
-        android.util.Log.e("PlayerViewModel", "Error scanning local subtitles: ${e.message}", e)
+        android.util.Log.e("播放器ViewModel", "Error scanning local subtitles: ${e.message}", e)
       }
     }
   }
