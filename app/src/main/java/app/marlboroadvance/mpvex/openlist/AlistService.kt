@@ -11,9 +11,9 @@ import android.os.Build
 import android.os.Environment
 import android.os.IBinder
 import android.util.Log
-import openlistlib.Event
-import openlistlib.LogCallback
-import openlistlib.Openlistlib
+import alistlib.Alistlib
+import alistlib.Event
+import alistlib.LogCallback
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -40,7 +40,7 @@ object OpenListController {
 
   fun stop(context: Context) {
     try {
-      Openlistlib.shutdown(5000L)
+      Alistlib.shutdown(5000L)
     } catch (t: Throwable) {
       Log.w("OpenListController", "OpenList shutdown failed", t)
     }
@@ -68,10 +68,6 @@ class AlistService : Service() {
   }
 
   private val event = object : Event {
-    override fun onProcessExit(code: Long) {
-      OpenListRuntimeState.status = "error"
-      OpenListRuntimeState.error = "OpenList process exited: $code"
-    }
     override fun onShutdown(reason: String) {
       OpenListRuntimeState.status = "error"
       OpenListRuntimeState.error = "OpenList shutdown: $reason"
@@ -115,14 +111,14 @@ class AlistService : Service() {
           File(filesDir, "openlist").apply { mkdirs() }
         }
         File(base, "data").mkdirs()
-        Openlistlib.setConfigData(base.absolutePath)
-        Openlistlib.setConfigLogStd(true)
-        Openlistlib.init(event, logCallback)
+        Alistlib.setConfigData(base.absolutePath)
+        Alistlib.setConfigLogStd(true)
+        Alistlib.init(event, logCallback)
         initialized.set(true)
       }
-      if (!Openlistlib.isRunning("")) {
-        Openlistlib.start()
-        Openlistlib.setAdminPassword("123456")
+      if (!Alistlib.isRunning("")) {
+        Alistlib.start()
+        Alistlib.setAdminPassword("123456")
       }
       OpenListRuntimeState.status = "running"
       OpenListRuntimeState.error = null
