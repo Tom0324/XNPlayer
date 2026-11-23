@@ -15,6 +15,7 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -24,6 +25,7 @@
         android:required="false" />
 
     <application
+    android:usesCleartextTraffic="true"
         android:name=".App"
         android:appCategory="video"
         android:enableOnBackInvokedCallback="true"
@@ -330,5 +332,13 @@
             android:authorities="${applicationId}.networkstreaming"
             android:exported="false"
             android:grantUriPermissions="true" />
-    </application>
+        <activity
+      android:name=".openlist.OpenListActivity"
+      android:exported="false"
+      android:label="OpenList" />
+    <service
+      android:name=".openlist.AlistService"
+      android:exported="false"
+      android:foregroundServiceType="dataSync" />
+  </application>
 </manifest>

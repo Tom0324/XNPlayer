@@ -211,6 +211,7 @@ dependencies {
   implementation(libs.fsaf)
   implementation(libs.mediainfo.lib)
   implementation(files("libs/mpv-android-avcfix.aar"))
+    implementation(files("libs/alistlib-arm64-slim.aar"))
 
   // Network protocol libraries
   implementation(libs.smbj)
