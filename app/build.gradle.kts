@@ -67,8 +67,8 @@ android {
     abi {
       isEnable = true
       reset()
-      include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-      isUniversalApk = true
+      include("arm64-v8a")
+      isUniversalApk = false
     }
   }
 
@@ -211,7 +211,7 @@ dependencies {
   implementation(libs.truetype.parser)
   implementation(libs.fsaf)
   implementation(libs.mediainfo.lib)
-  implementation(libs.mpv.android)
+  implementation(files("libs/mpv-android-avcfix.aar"))
 
   // Network protocol libraries
   implementation(libs.smbj)
