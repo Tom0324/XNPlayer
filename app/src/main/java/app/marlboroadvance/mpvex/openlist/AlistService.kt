@@ -8,6 +8,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Environment
 import android.os.IBinder
 import android.util.Log
 import openlistlib.Event
@@ -68,31 +69,23 @@ class AlistService : Service() {
   private fun startOpenListSafely() {
     try {
       if (!initialized.get()) {
-        val base = File(filesDir, "openlist").apply { mkdirs() }
+        val externalBase = File(Environment.getExternalStorageDirectory(), "NeoPlayerOpenList")
+        val base = try {
+          externalBase.mkdirs()
+          if (!externalBase.canWrite()) throw IllegalStateException("external dir not writable")
+          externalBase
+        } catch (t: Throwable) {
+          File(filesDir, "openlist").apply { mkdirs() }
+        }
         File(base, "data").mkdirs()
-        val config = """
-          {
-            "scheme": {
-              "http_port": 5244,
-              "https_port": -1,
-              "force_https": false
-            },
-            "temp_dir": "${base.absolutePath}/temp",
-            "database": {
-              "path": "${base.absolutePath}/data.db"
-            }
-          }
-        """.trimIndent()
-        Openlistlib.setConfigData(config)
+        Openlistlib.setConfigData(base.absolutePath)
         Openlistlib.setConfigLogStd(true)
-        Openlistlib.setConfigDebug(false)
-        Openlistlib.setConfigNoPrefix(false)
-        Openlistlib.setAdminPassword("123456")
         Openlistlib.init(event, logCallback)
         initialized.set(true)
       }
       if (!Openlistlib.isRunning("")) {
         Openlistlib.start()
+        Openlistlib.setAdminPassword("123456")
       }
       OpenListRuntimeState.status = "running"
       OpenListRuntimeState.error = null
