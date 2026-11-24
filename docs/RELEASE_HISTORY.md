@@ -366,7 +366,7 @@ alistlib = 0
 
 ```text
 https://github.com/Tom0324/mpv-android-fongmi
-https://github.com/Tom0324/mpvEx-private
+https://github.com/Tom0324/XNPlayer
 ```
 
 ## APK 信息
