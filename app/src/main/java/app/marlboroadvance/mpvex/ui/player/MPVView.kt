@@ -35,6 +35,24 @@ class MPVView(
 
   var isExiting = false
 
+  fun getSourceVideoAspect(): Double? {
+    val width = runCatching {
+      MPVLib.getPropertyInt("video-params/w")
+        ?: MPVLib.getPropertyInt("width")
+        ?: 0
+    }.getOrDefault(0)
+    val height = runCatching {
+      MPVLib.getPropertyInt("video-params/h")
+        ?: MPVLib.getPropertyInt("height")
+        ?: 0
+    }.getOrDefault(0)
+    val rotate = MPVLib.getPropertyInt("video-params/rotate") ?: 0
+    if (width <= 0 || height <= 0) return null
+    val isRotated = (rotate % 180 == 90)
+    val sourceAspect = if (isRotated) height.toDouble() / width.toDouble() else width.toDouble() / height.toDouble()
+    return sourceAspect.takeIf { it > 0.001 }
+  }
+
   fun getVideoOutAspect(): Double? {
     // Try to get aspect from video-params/aspect first
     val rawAspect = MPVLib.getPropertyDouble("video-params/aspect")
