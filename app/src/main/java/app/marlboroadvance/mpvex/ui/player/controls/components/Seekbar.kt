@@ -191,6 +191,7 @@ fun SeekbarWithTimers(
         contentAlignment = Alignment.Center,
       ) {
         if (duration > 0f && cacheTime > position) {
+          val cacheColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
           Canvas(
             modifier = Modifier
               .fillMaxWidth()
@@ -200,7 +201,7 @@ fun SeekbarWithTimers(
             val end = (cacheTime / duration).coerceIn(0f, 1f) * size.width
             if (end > start) {
               drawLine(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                color = cacheColor,
                 start = Offset(start, size.height / 2f),
                 end = Offset(end, size.height / 2f),
                 strokeWidth = 9.dp.toPx(),
