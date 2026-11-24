@@ -1,5 +1,10 @@
 package app.marlboroadvance.mpvex.ui.browser.cards
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
