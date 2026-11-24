@@ -36,5 +36,5 @@ jobs:
           APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
           test -f "$APK"
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --prerelease --title "ui-shell arm64 unsigned" --notes "XNPlayer: renamed app; fixed WebDAV network folder playlist and next/previous navigation; mpv 0.42.0 with AVC patch; FFmpeg n9.1; libplacebo v7.387.0; no built-in OpenList"
+            gh release create "$TAG" --prerelease --title "ui-shell arm64 unsigned" --notes "XNPlayer: renamed app; fixed WebDAV network folder playlist, next/previous navigation and real filenames; mpv 0.42.0 with AVC patch; FFmpeg n9.1; libplacebo v7.387.0; no built-in OpenList"
           gh release upload "$TAG" "$APK" --clobber

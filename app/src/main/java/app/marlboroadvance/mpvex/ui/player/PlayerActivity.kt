@@ -176,6 +176,12 @@ class PlayerActivity :
   internal var playlist: List<Uri> = emptyList()
 
   /**
+   * Display names aligned with [playlist], used for network proxy URIs where
+   * the URI path segment is a generated stream id instead of the real filename.
+   */
+  internal var playlistTitles: List<String> = emptyList()
+
+  /**
    * Current index in the playlist
    */
   internal var playlistIndex: Int = 0
@@ -1330,6 +1336,10 @@ class PlayerActivity :
    * @return The display name/title of the file
    */
   internal fun getPlaylistItemTitle(uri: Uri): String {
+    val index = playlist.indexOfFirst { it == uri }
+    if (index in playlistTitles.indices && playlistTitles[index].isNotBlank()) {
+      return playlistTitles[index]
+    }
     // Try content resolver first for content:// URIs
     getDisplayNameFromUri(uri)?.let { return it }
 
@@ -3055,7 +3065,11 @@ class PlayerActivity :
     playlistIndex = index
 
     // Extract and set the new file name
-    fileName = getFileNameFromUri(uri)
+    fileName = if (index in playlistTitles.indices && playlistTitles[index].isNotBlank()) {
+      playlistTitles[index]
+    } else {
+      getFileNameFromUri(uri)
+    }
     // Generate new media identifier for playback state
     mediaIdentifier = getMediaIdentifierFromUri(uri, fileName)
 

@@ -117,6 +117,7 @@ class NetworkBrowserViewModel(
         intent.putExtra("network_file_path", file.path)
         intent.putExtra("network_connection_id", connectionId)
         intent.putParcelableArrayListExtra("playlist", playlistUris)
+        intent.putStringArrayListExtra("playlist_names", ArrayList(orderedFiles.map { it.name }))
         intent.putExtra("playlist_index", currentIndex)
         intent.setDataAndType(currentUri, file.mimeType ?: "video/*")
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
