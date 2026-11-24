@@ -151,3 +151,59 @@ versionName 显示成 1.0.5 不影响覆盖安装。
 - Release assets
 - Tom0324/mpv-android-fongmi 仓库
 ```
+
+## 致谢
+
+XNPlayer 基于许多优秀开源项目和上游成果构建。这里列出主要来源与用途。
+
+### 直接基础
+
+- [mpvEx](https://github.com/marlboro-advance/mpvEx)  
+  App UI 与 Android 工程基础。XNPlayer 的界面骨架来自 mpvEx。
+
+- [mpvKt](https://github.com/mpvKt/mpvKt)  
+  Kotlin/Android 播放器上游项目之一，为 Compose UI 与 mpv 集成提供基础。
+
+- [mpv / mpv-android](https://github.com/mpv-player/mpv)  
+  核心播放器 engine 与 Android JNI 基础。XNPlayer 使用 mpv `v0.42.0` 并保留 AVC PTS patch。
+
+- [FFmpeg](https://github.com/FFmpeg/FFmpeg)  
+  音视频解码与处理基础。当前 native AAR 使用 `n9.1`。
+
+- [libplacebo](https://github.com/haasn/libplacebo)  
+  高质量视频渲染基础。当前 native AAR 使用官方稳定 `v7.387.0`。
+
+### Android / UI
+
+- [Jetpack Compose](https://developer.android.com/jetpack/compose)
+- [Material 3](https://m3.material.io/)
+- [AndroidX](https://developer.android.com/jetpack/androidx)
+- [Kotlin](https://kotlinlang.org/)
+
+### 本地 UI / 资源参考
+
+- NeoPlayer 1.7.5 Beta3  
+  部分中文字符串、颜色、主题、字体和界面布局参考来自用户提供的 Beta3 APK 反编译资源。当前项目只把这些作为本地 UI/文案参考，不等同于直接使用 Beta3 源码。
+
+### 外部配套，不内置
+
+- [OpenList-Mobile](https://github.com/OpenListTeam/OpenList-Mobile)  
+  XNPlayer 不内置 OpenList。用户单独安装 OpenList-Mobile 后，可通过 WebDAV 地址访问：
+  ```text
+  http://127.0.0.1:5244/dav
+  ```
+
+- [OpenList](https://github.com/OpenListTeam/OpenList)  
+  作为外部文件列表服务使用，不打包进 XNPlayer APK。
+
+### 历史参考，当前主线不使用
+
+- [AListLiteAndroid](https://github.com/Tom0324/AListLiteAndroid)  
+  曾用于内置 OpenList 实验。当前方案不内置 OpenList，因此不进入主线。
+
+完整致谢说明见：
+
+```text
+docs/ACKNOWLEDGEMENTS.md
+```
+
