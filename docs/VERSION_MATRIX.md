@@ -2,23 +2,34 @@
 
 Verified 2026-11-24.
 
-## Official stable
+## Official stable targets
 
 - mpv: v0.42.0
-- FFmpeg: n9.1; n9.2-dev is not stable
-- libplacebo: v7.387.0; v7.399.0 is not an official tag/release
+- FFmpeg: n9.1, full commit `74e4393595cf2b5857f0da925c4e0dd74ea306e5`
+- libplacebo: v7.387.0
 
-## Current AAR snapshot
+## Current AAR
 
-- mpv: v0.42.0
-- FFmpeg: n9.0, commit d32b387f2b0a484599d4587d651891f0c63c4238
-- libplacebo: v7.399.0 build string, official stable release is v7.387.0
-- AVC HW+: patched in native workflow
+Source: https://github.com/Tom0324/mpv-android-fongmi
+
+Release: `native-avcfix-mpv042-ffmpeg9.1-lp7.387.0`
+
+Verified strings in `libmpv.so`:
+
+```text
+mpv v0.42.0
+n9.1
+v7.387.0
+```
+
+JNI: `event(int, MPVNode)`
+
+AVC PTS patch present in workflow.
 
 ## About page
 
-FFmpeg display must be full:
-
-`FFmpeg 版本：n9.0 (d32b387f2b0a484599d4587d651891f0c63c4238)`
-
-After FFmpeg upgrade it must be changed to n9.1 and its full commit hash.
+```text
+MPV 版本：v0.42.0
+FFmpeg 版本：n9.1 (74e4393595cf2b5857f0da925c4e0dd74ea306e5)
+libplacebo 版本：v7.387.0
+```

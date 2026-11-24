@@ -4,27 +4,18 @@
 
 `https://github.com/Tom0324/mpvEx-private`
 
-Purpose: App source and UI shell, localization, arm64-only workflow, AVC-fixed local AAR, docs.
+Purpose: App source, UI shell, localization, arm64-only workflow, AVC AAR consumer, docs. Do not delete.
 
-Do not delete this repo unless the rebuild project is abandoned.
-
-## Native AAR source repo
+## Native source repo
 
 `https://github.com/Tom0324/mpv-android-fongmi`
 
 Private. Do not delete.
 
-Purpose: builds the AVC-fixed mpv Android AAR used by `Tom0324/mpvEx-private`.
+Purpose: rebuilds AVC-fixed mpv AAR, pins mpv v0.42.0, FFmpeg n9.1, libplacebo v7.387.0, keeps AVC PTS patch.
 
-Deleting this repo loses the reproducible source of `app/libs/mpv-android-avcfix.aar`.
-
-## Upstream references, read-only
-
-- https://github.com/marlboro-advance/mpvEx
-- https://github.com/mpv-player/mpv
-- https://github.com/FFmpeg/FFmpeg
-- https://github.com/haasn/libplacebo
+Release asset: `native-avcfix-mpv042-ffmpeg9.1-lp7.387.0/app-release.aar`
 
 ## OpenList
 
-Not built into this app. Use OpenList-Mobile APK separately and connect via WebDAV `http://127.0.0.1:5244/dav`.
+Not built into this app. Use OpenList-Mobile APK separately. WebDAV endpoint: `http://127.0.0.1:5244/dav`.
