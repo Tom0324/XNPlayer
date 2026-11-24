@@ -172,6 +172,7 @@ fun PlayerControls(
   val position by MPVLib.propInt["time-pos"].collectAsState()
   val precisePosition by viewModel.precisePosition.collectAsState()
   val preciseDuration by viewModel.preciseDuration.collectAsState()
+  val cacheTime by MPVLib.propDouble["demuxer-cache-time"].collectAsState()
   val playbackSpeed by MPVLib.propFloat["speed"].collectAsState()
   val doubleTapSeekAmount by viewModel.doubleTapSeekAmount.collectAsState()
   val showDoubleTapOvals by playerPreferences.showDoubleTapOvals.collectAsState()
@@ -926,6 +927,7 @@ fun PlayerControls(
             chapters = chapters.toImmutableList(),
             paused = paused ?: false,
             seekbarStyle = seekbarStyle,
+            cacheTime = cacheTime?.toFloat() ?: 0f,
             loopStart = abLoopA?.toFloat(),
             loopEnd = abLoopB?.toFloat(),
           )
