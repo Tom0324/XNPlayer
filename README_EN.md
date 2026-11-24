@@ -133,3 +133,59 @@ It:
 ```
 
 Final signed APKs are published under XNPlayer releases.
+
+## Acknowledgements
+
+XNPlayer is built on top of several excellent open-source projects. The main sources and their roles are listed below.
+
+### Direct foundation
+
+- [mpvEx](https://github.com/marlboro-advance/mpvEx)  
+  Base UI and Android project. The XNPlayer UI shell comes from mpvEx.
+
+- [mpvKt](https://github.com/mpvKt/mpvKt)  
+  Upstream Kotlin/Android player project that provided part of the Compose UI and mpv integration baseline.
+
+- [mpv / mpv-android](https://github.com/mpv-player/mpv)  
+  Core playback engine and Android JNI foundation. XNPlayer uses mpv `v0.42.0` with an AVC PTS patch.
+
+- [FFmpeg](https://github.com/FFmpeg/FFmpeg)  
+  Audio/video decoding and processing. The current native AAR uses `n9.1`.
+
+- [libplacebo](https://github.com/haasn/libplacebo)  
+  High-quality rendering library. The current native AAR uses stable `v7.387.0`.
+
+### Android / UI
+
+- [Jetpack Compose](https://developer.android.com/jetpack/compose)
+- [Material 3](https://m3.material.io/)
+- [AndroidX](https://developer.android.com/jetpack/androidx)
+- [Kotlin](https://kotlinlang.org/)
+
+### Local UI / resource reference
+
+- NeoPlayer 1.7.5 Beta3  
+  Some Chinese strings, colors, themes, fonts and layout ideas were referenced from the user-provided Beta3 APK decompilation. They are used as local UI/text references, not as direct Beta3 source code.
+
+### External companion, not bundled
+
+- [OpenList-Mobile](https://github.com/OpenListTeam/OpenList-Mobile)  
+  OpenList is not bundled into XNPlayer. Install OpenList-Mobile separately and connect through WebDAV:
+  ```text
+  http://127.0.0.1:5244/dav
+  ```
+
+- [OpenList](https://github.com/OpenListTeam/OpenList)  
+  Used as an external file-list service, not packaged into the APK.
+
+### Historical reference, not used in the current mainline
+
+- [AListLiteAndroid](https://github.com/Tom0324/AListLiteAndroid)  
+  Used only for earlier experiments with built-in OpenList. It is not part of the current mainline.
+
+Full acknowledgement notes:
+
+```text
+docs/ACKNOWLEDGEMENTS.md
+```
+
