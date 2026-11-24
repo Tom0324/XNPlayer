@@ -1,5 +1,13 @@
 package app.marlboroadvance.mpvex.ui.browser.cards
 
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.marlboroadvance.mpvex.domain.network.NetworkConnection
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NetworkConnectionCard(
   connection: NetworkConnection,
@@ -44,6 +53,7 @@ fun NetworkConnectionCard(
   isConnecting: Boolean = false,
   error: String? = null,
 ) {
+  var menuExpanded by remember { mutableStateOf(false) }
   val statusText = when {
     isConnecting -> "连接中"
     isConnected -> "已连接"
@@ -59,194 +69,109 @@ fun NetworkConnectionCard(
 
   Card(
     modifier = modifier.fillMaxWidth(),
-    shape = RoundedCornerShape(6.dp),
-    colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.surface,
-    ),
+    shape = RoundedCornerShape(10.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    border = CardDefaults.outlinedCardBorder(),
   ) {
-    Column(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp),
-    ) {
-      // Header with name and actions
+    Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
       Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
       ) {
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = connection.name,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-          )
-          Text(
-            text = "${connection.protocol.displayName} • ${connection.host}:${connection.port}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-          )
-          Text(
-            text = "● $statusText",
-            style = MaterialTheme.typography.labelMedium,
-            color = statusColor,
-            modifier = Modifier.padding(top = 4.dp),
-          )
+        Text(
+          text = connection.name.ifBlank { "无" },
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold,
+          color = MaterialTheme.colorScheme.onSurface,
+          modifier = Modifier.weight(1f),
+        )
+        IconButton(onClick = { if (isConnected) onBrowse(connection) else onConnect(connection) }) {
+          Icon(Icons.Filled.Link, contentDescription = "连接", tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-
-        Row {
-          IconButton(onClick = { onEdit(connection) }) {
-            Icon(
-              Icons.Filled.Edit,
-              contentDescription = "编辑",
-              tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        Box {
+          IconButton(onClick = { menuExpanded = true }) {
+            Icon(Icons.Filled.MoreVert, contentDescription = "更多", tint = MaterialTheme.colorScheme.onSurfaceVariant)
           }
-          IconButton(onClick = { onDelete(connection) }) {
-            Icon(
-              Icons.Filled.Delete,
-              contentDescription = "删除",
-              tint = MaterialTheme.colorScheme.error,
+          DropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false },
+          ) {
+            DropdownMenuItem(
+              text = { Text(if (isConnected) "浏览" else "连接") },
+              onClick = {
+                menuExpanded = false
+                if (isConnected) onBrowse(connection) else onConnect(connection)
+              },
+              leadingIcon = { Icon(Icons.Filled.Link, contentDescription = null) },
+            )
+            DropdownMenuItem(
+              text = { Text("编辑") },
+              onClick = { menuExpanded = false; onEdit(connection) },
+              leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+            )
+            DropdownMenuItem(
+              text = { Text("应用启动时自动连接") },
+              onClick = {
+                menuExpanded = false
+                onAutoConnectChange(connection, !connection.autoConnect)
+              },
+              leadingIcon = { Icon(Icons.Filled.Link, contentDescription = null) },
+            )
+            if (isConnected) {
+              DropdownMenuItem(
+                text = { Text("断开连接") },
+                onClick = { menuExpanded = false; onDisconnect(connection) },
+                leadingIcon = { Icon(Icons.Filled.LinkOff, contentDescription = null) },
+              )
+            }
+            DropdownMenuItem(
+              text = { Text("删除") },
+              onClick = { menuExpanded = false; onDelete(connection) },
+              leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
             )
           }
         }
       }
 
-      // Connection details
+      Spacer(modifier = Modifier.height(8.dp))
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Surface(
+          color = MaterialTheme.colorScheme.surfaceContainerHigh,
+          shape = RoundedCornerShape(6.dp),
+        ) {
+          Text(
+            text = connection.protocol.displayName,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("● $statusText", style = MaterialTheme.typography.labelMedium, color = statusColor)
+      }
+
+      Spacer(modifier = Modifier.height(6.dp))
+      Text(
+        text = "${connection.host}:${connection.port}",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
       if (connection.path != "/") {
         Text(
           text = "路径：${connection.path}",
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.padding(top = 4.dp),
         )
       }
-
-      if (connection.username.isNotEmpty() && !connection.isAnonymous) {
-        Text(
-          text = "用户：${connection.username}",
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.padding(top = 4.dp),
-        )
-      }
-
-      // Error message
       if (error != null) {
         Text(
           text = "错误：$error",
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.error,
-          modifier = Modifier.padding(top = 8.dp),
         )
-      }
-
-      // Auto-connect checkbox
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(top = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        Checkbox(
-          checked = connection.autoConnect,
-          onCheckedChange = { checked ->
-            onAutoConnectChange(connection, checked)
-          },
-        )
-        Text(
-          text = "应用启动时自动连接",
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-      }
-
-      // Connection button
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(top = 12.dp),
-        horizontalArrangement = Arrangement.End,
-      ) {
-        when {
-          isConnecting -> {
-            FilledTonalButton(
-              onClick = { },
-              enabled = false,
-            ) {
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-              ) {
-                CircularProgressIndicator(
-                  modifier = Modifier.size(16.dp),
-                  strokeWidth = 2.dp,
-                  color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                )
-                Text(
-                  "连接中",
-                  color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                )
-              }
-            }
-          }
-
-          isConnected -> {
-            Row(
-              horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-              FilledTonalButton(
-                onClick = { onBrowse(connection) },
-                colors = ButtonDefaults.filledTonalButtonColors(
-                  containerColor = MaterialTheme.colorScheme.primaryContainer,
-                  contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ),
-              ) {
-                Icon(
-                  Icons.Filled.FolderOpen,
-                  contentDescription = null,
-                  modifier = Modifier.padding(end = 8.dp),
-                )
-                Text("浏览")
-              }
-
-              FilledTonalButton(
-                onClick = { onDisconnect(connection) },
-                colors = ButtonDefaults.filledTonalButtonColors(
-                  containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                  contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                ),
-              ) {
-                Icon(
-                  Icons.Filled.LinkOff,
-                  contentDescription = null,
-                  modifier = Modifier.padding(end = 8.dp),
-                )
-                Text("断开连接")
-              }
-            }
-          }
-
-          else -> {
-            FilledTonalButton(
-              onClick = { onConnect(connection) },
-              colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-              ),
-            ) {
-              Icon(
-                Icons.Filled.Link,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp),
-              )
-              Text("连接")
-            }
-          }
-        }
       }
     }
   }
 }
+
