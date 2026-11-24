@@ -3,6 +3,13 @@ package app.marlboroadvance.mpvex.ui.preferences
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import app.marlboroadvance.mpvex.ui.browser.TabVisibilityPrefs
+import app.marlboroadvance.mpvex.ui.browser.MainScreen
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -137,6 +144,71 @@ object AppearancePreferencesScreen : Screen {
                                 },
                                 enabled = darkMode != DarkMode.Light
                             )
+                        }
+                    }
+
+                    item {
+                        PreferenceSectionHeader(title = "底部导航")
+                    }
+
+                    item {
+                        PreferenceCard {
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            var tabState by remember { mutableStateOf(TabVisibilityPrefs.load(context)) }
+                            fun update(state: TabVisibilityPrefs.State) {
+                                val safe = TabVisibilityPrefs.sanitize(state)
+                                TabVisibilityPrefs.write(context, safe)
+                                tabState = safe
+                                MainScreen.setStartupTab(safe.defaultTab)
+                            }
+
+                            SwitchPreference(
+                                value = tabState.showHome,
+                                onValueChange = { update(tabState.copy(showHome = it)) },
+                                title = { Text("显示首页") },
+                            )
+                            PreferenceDivider()
+                            SwitchPreference(
+                                value = tabState.showRecent,
+                                onValueChange = { update(tabState.copy(showRecent = it)) },
+                                title = { Text("显示最近播放") },
+                            )
+                            PreferenceDivider()
+                            SwitchPreference(
+                                value = tabState.showPlaylist,
+                                onValueChange = { update(tabState.copy(showPlaylist = it)) },
+                                title = { Text("显示播放列表") },
+                            )
+                            PreferenceDivider()
+                            SwitchPreference(
+                                value = tabState.showNetwork,
+                                onValueChange = { update(tabState.copy(showNetwork = it)) },
+                                title = { Text("显示网络") },
+                            )
+                            PreferenceDivider()
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("默认启动页", style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                val labels = listOf("首页", "最近播放", "播放列表", "网络")
+                                labels.forEachIndexed { index, label ->
+                                    val enabled = when (index) {
+                                        0 -> tabState.showHome
+                                        1 -> tabState.showRecent
+                                        2 -> tabState.showPlaylist
+                                        3 -> tabState.showNetwork
+                                        else -> true
+                                    }
+                                    TextButton(
+                                        onClick = { update(tabState.copy(defaultTab = index)) },
+                                        enabled = enabled,
+                                    ) {
+                                        Text(
+                                            text = (if (tabState.defaultTab == index) "● " else "") + label,
+                                            color = if (tabState.defaultTab == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
 
