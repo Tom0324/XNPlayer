@@ -213,9 +213,10 @@ class CrashActivity : ComponentActivity() {
       设备品牌： ${Build.BRAND}
       设备制造商： ${Build.MANUFACTURER}
       设备型号： ${Build.MODEL} (${Build.DEVICE})
-      "MPV 版本：v0.42.0",
-      "FFmpeg 版本：n9.1 (74e4393595cf2b5857f0da925c4e0dd74ea306e5)",
-      "libplacebo 版本：v7.387.0",
+MPV 版本：v0.42.0
+FFmpeg 版本：n9.1
+FFmpeg commit：74e4393595cf2b5857f0da925c4e0dd74ea306e5
+libplacebo 版本：v7.387.0
       """.trimIndent()
   }
 
