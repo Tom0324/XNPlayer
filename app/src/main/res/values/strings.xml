@@ -56,6 +56,10 @@
   <string name="theme_forest">Forest</string>
   <string name="theme_rose_gold">Rose Gold</string>
   <string name="theme_violet">Violet</string>
+  <string name="theme_luxury_gold">Luxury Gold</string>
+  <string name="theme_tycoon_gold">Tycoon Gold</string>
+  <string name="theme_obsidian_gold">Obsidian Gold</string>
+  <string name="theme_champagne_gold">Champagne Gold</string>
   <string name="theme_amber">Amber</string>
   <string name="theme_coral">Coral</string>
   <string name="theme_slate">Slate</string>
