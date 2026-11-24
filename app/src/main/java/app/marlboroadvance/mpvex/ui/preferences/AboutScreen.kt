@@ -1,6 +1,8 @@
 package app.marlboroadvance.mpvex.ui.preferences
 
 import android.content.Intent
+import android.media.MediaCodecInfo
+import android.media.MediaCodecList
 import android.content.pm.PackageManager
 import android.widget.ImageView
 import android.widget.Toast
@@ -48,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -189,7 +192,7 @@ object AboutScreen : Screen {
 
                 Column(modifier = Modifier.weight(1f)) {
                   Text(
-                    text = "NeoPlayerRebuild",
+                    text = "XNPlayer",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = cs.onPrimaryContainer,
@@ -288,7 +291,7 @@ object AboutScreen : Screen {
                   )
                 }
                 Text(
-                  text = "软件：NeoPlayerRebuild v$versionName $buildType (${BuildConfig.VERSION_CODE})",
+                  text = "软件：XNPlayer v$versionName $buildType (${BuildConfig.VERSION_CODE})",
                   style = MaterialTheme.typography.bodySmall,
                   color = cs.onPrimaryContainer.copy(alpha = 0.85f),
                 )
@@ -309,69 +312,106 @@ object AboutScreen : Screen {
 
         Spacer(Modifier.height(8.dp))
 
-        // Updates Section (only show if update feature is enabled)
-        if (BuildConfig.ENABLE_UPDATE_FEATURE && updateViewModel != null) {
-          PreferenceSectionHeader(title = "更新")
-          PreferenceCard {
-                val isAutoUpdateEnabled by updateViewModel.isAutoUpdateEnabled.collectAsState()
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { updateViewModel.toggleAutoUpdate(!isAutoUpdateEnabled) }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "自动检查更新",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = cs.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "启动时检查",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = cs.outline
-                            )
-                        }
-                        androidx.compose.material3.Switch(
-                            checked = isAutoUpdateEnabled,
-                            onCheckedChange = { updateViewModel.toggleAutoUpdate(it) }
-                        )
-                    }
-                    
-                    PreferenceDivider()
-                    
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Button(
-                            onClick = { updateViewModel.checkForUpdate(manual = true) },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = cs.secondaryContainer, 
-                                contentColor = cs.onSecondaryContainer
-                            ),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
-                        ) {
-                             Icon(Icons.Default.Update, null, modifier = Modifier.size(18.dp))
-                             Spacer(Modifier.width(8.dp))
-                             Text("立即检查更新", fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                }
+        PreferenceSectionHeader(title = "设备编解码器支持")
+        PreferenceCard {
+          Column(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(16.dp),
+          ) {
+            Text(
+              text = "查看此设备的硬件加速与软件解码能力",
+              style = MaterialTheme.typography.bodyMedium,
+              color = cs.outline,
+            )
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+              text = "HDR 功能",
+              style = MaterialTheme.typography.titleMedium,
+              fontWeight = FontWeight.Bold,
+              color = cs.primary,
+            )
+            Spacer(Modifier.height(8.dp))
+            val codecSupport = rememberCodecSupport()
+            CodecSupportRow("HDR10", codecSupport.hdr10)
+            CodecSupportRow("HDR10+", codecSupport.hdr10Plus)
+            CodecSupportRow("HLG", codecSupport.hlg)
+            CodecSupportRow("杜比视界", codecSupport.dolbyVision)
+
+            PreferenceDivider()
+
+            Text(
+              text = "10-bit 配置文件",
+              style = MaterialTheme.typography.titleMedium,
+              fontWeight = FontWeight.Bold,
+              color = cs.primary,
+            )
+            Spacer(Modifier.height(8.dp))
+            CodecSupportRow("HEVC Main 10", codecSupport.hevcMain10)
+            CodecSupportRow("AVC High 10", codecSupport.avcHigh10)
           }
-          
-          Spacer(Modifier.height(8.dp))
         }
 
         Spacer(Modifier.height(12.dp))
       }
     }
+  }
+}
+
+data class CodecSupport(
+  val hdr10: Boolean,
+  val hdr10Plus: Boolean,
+  val hlg: Boolean,
+  val dolbyVision: Boolean,
+  val hevcMain10: Boolean,
+  val avcHigh10: Boolean,
+)
+
+@Composable
+private fun rememberCodecSupport(): CodecSupport {
+  return androidx.compose.runtime.remember {
+    val mimeHdr = mutableSetOf<String>()
+    val profiles = mutableSetOf<Int>()
+    val codecInfos = MediaCodecList(MediaCodecList.ALL_CODECS).codecInfos
+      .filter { !it.isEncoder }
+    for (info in codecInfos) {
+      for (mime in info.supportedTypes) {
+        val lower = mime.lowercase()
+        if (lower.contains("hdr") || lower.contains("dolby") || lower.contains("hlg")) {
+          mimeHdr.add(lower)
+        }
+        try {
+          val caps = info.getCapabilitiesForType(mime)
+          profiles.addAll(caps.profileLevels.map { it.profile })
+        } catch (_: Exception) {
+        }
+      }
+    }
+    CodecSupport(
+      hdr10 = profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10),
+      hdr10Plus = profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus),
+      hlg = mimeHdr.any { it.contains("hlg") } || profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10),
+      dolbyVision = mimeHdr.any { it.contains("dolby") },
+      hevcMain10 = profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10),
+      avcHigh10 = profiles.contains(MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10),
+    )
+  }
+}
+
+@Composable
+private fun CodecSupportRow(label: String, supported: Boolean) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(vertical = 8.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+    val color = if (supported) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val text = if (supported) "支持" else "不支持"
+    Text(text = text, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = color)
   }
 }
 
