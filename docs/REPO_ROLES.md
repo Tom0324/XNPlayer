@@ -3,7 +3,7 @@
 ## Main app repo
 
 ```text
-https://github.com/Tom0324/mpvEx-private
+https://github.com/Tom0324/XNPlayer
 ```
 
 Role:
