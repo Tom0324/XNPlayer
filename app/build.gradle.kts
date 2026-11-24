@@ -18,8 +18,8 @@ android {
     applicationId = "app.marlboroadvance.mpvex"
     minSdk = 26
     targetSdk = 36
-    versionCode = 131
-    versionName = "1.3.1"
+    versionCode = 10005
+    versionName = "1.0.5"
 
     vectorDrawables {
       useSupportLibrary = true
@@ -88,7 +88,7 @@ android {
       initWith(getByName("release"))
       signingConfig = null
       applicationIdSuffix = ".preview"
-      versionNameSuffix = "-${getCommitCount()}"
+      versionNameSuffix = ""
     }
 
     named("debug") {
