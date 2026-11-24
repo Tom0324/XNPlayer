@@ -299,6 +299,8 @@ fun PlaylistSheet(
     modifier = Modifier.fillMaxWidth(),
     customMaxWidth = sheetWidth,
     customMaxHeight = if (isPortrait) LocalConfiguration.current.screenHeightDp.dp * 0.5f else null,
+    surfaceColor = Color.Transparent,
+    tonalElevation = 0.dp,
   ) {
     Surface(
       modifier = Modifier.fillMaxWidth(),
