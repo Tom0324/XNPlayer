@@ -571,6 +571,62 @@ private fun rememberCodecInfoList(): List<CodecInfo> = androidx.compose.runtime.
   result.sortedWith(compareBy({ it.category }, { !it.hardware }, { it.label }, { it.name }))
 }
 
+data class CodecSupport(
+  val hdr10: Boolean,
+  val hdr10Plus: Boolean,
+  val hlg: Boolean,
+  val dolbyVision: Boolean,
+  val hevcMain10: Boolean,
+  val avcHigh10: Boolean,
+)
+
+@Composable
+private fun rememberCodecSupport(): CodecSupport {
+  return androidx.compose.runtime.remember {
+    val mimeHdr = mutableSetOf<String>()
+    val profiles = mutableSetOf<Int>()
+    val codecInfos = MediaCodecList(MediaCodecList.ALL_CODECS).codecInfos
+      .filter { !it.isEncoder }
+    for (info in codecInfos) {
+      for (mime in info.supportedTypes) {
+        val lower = mime.lowercase()
+        if (lower.contains("hdr") || lower.contains("dolby") || lower.contains("hlg")) {
+          mimeHdr.add(lower)
+        }
+        try {
+          val caps = info.getCapabilitiesForType(mime)
+          profiles.addAll(caps.profileLevels.map { it.profile })
+        } catch (_: Exception) {
+        }
+      }
+    }
+    CodecSupport(
+      hdr10 = profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10),
+      hdr10Plus = profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus),
+      hlg = mimeHdr.any { it.contains("hlg") } || profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10),
+      dolbyVision = mimeHdr.any { it.contains("dolby") },
+      hevcMain10 = profiles.contains(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10),
+      avcHigh10 = profiles.contains(MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10),
+    )
+  }
+}
+
+@Composable
+private fun CodecSupportRow(label: String, supported: Boolean) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(vertical = 8.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+    val color = if (supported) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val text = if (supported) "支持" else "不支持"
+    Text(text = text, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = color)
+  }
+}
+
 @Suppress("DEPRECATION")
 @Serializable
 object LibrariesScreen : Screen {
