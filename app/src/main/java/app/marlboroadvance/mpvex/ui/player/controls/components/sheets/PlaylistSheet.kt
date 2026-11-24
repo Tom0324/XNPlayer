@@ -425,25 +425,6 @@ fun PlaylistTrackListItem(
   accentColor: Color,
   modifier: Modifier = Modifier,
 ) {
-  // Use theme colors dynamically
-  val accentSecondary = MaterialTheme.colorScheme.tertiary
-
-  // Thumbnail state - uses cache to persist across recompositions
-  val videoPath = item.path.ifBlank { item.uri.toString() }
-  var thumbnail by remember(videoPath) {
-    mutableStateOf(thumbnailCache[videoPath])
-  }
-
-  // Load thumbnail asynchronously
-  // Skip thumbnail loading for M3U playlists (network streams)
-  LaunchedEffect(videoPath) {
-    if (!skipThumbnail && !thumbnailCache.containsKey(videoPath)) {
-      val bmp = loadMediaStoreThumbnail(context, item.uri)
-      thumbnail = bmp
-      thumbnailCache[videoPath] = bmp
-    }
-  }
-
   val borderModifier = if (item.isPlaying) {
     Modifier.border(
       width = 1.dp,
@@ -474,63 +455,36 @@ fun PlaylistTrackListItem(
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(MaterialTheme.spacing.smaller),
+        .height(56.dp)
+        .padding(horizontal = MaterialTheme.spacing.smaller),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
     ) {
-      // Thumbnail with simple background, episode number, and progress
       Box(
         modifier = Modifier
-          .width(100.dp)
-          .height(56.dp)
-          .clip(RoundedCornerShape(8.dp))
-          .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+          .size(40.dp)
+          .clip(RoundedCornerShape(6.dp))
+          .background(
+            if (item.isPlaying) {
+              accentColor.copy(alpha = 0.18f)
+            } else {
+              MaterialTheme.colorScheme.surfaceContainerLow
+            },
+          ),
         contentAlignment = Alignment.Center,
       ) {
-        // Show actual thumbnail or fallback icon
-        thumbnail?.let { bmp ->
-          Image(
-            bitmap = bmp.asImageBitmap(),
-            contentDescription = "Thumbnail",
-            modifier = Modifier.matchParentSize(),
-            contentScale = ContentScale.Crop,
-          )
-        } ?: run {
-          // Movie icon as fallback placeholder
-          Icon(
-            imageVector = Icons.Outlined.Movie,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-            modifier = Modifier.size(24.dp),
-          )
-        }
-
-        // Video number badge in top-left with better visibility
-        Box(
-          modifier = Modifier
-            .align(Alignment.TopStart)
-            .padding(6.dp)
-            .background(
-              color = Color.Black.copy(alpha = 0.7f),
-              shape = RoundedCornerShape(6.dp),
-            )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        ) {
-          Text(
-            text = "${item.index + 1}",
-            style = MaterialTheme.typography.labelMedium.copy(
-              fontWeight = FontWeight.Bold,
-              fontSize = 12.sp,
-            ),
-            color = Color.White,
-          )
-        }
+        Text(
+          text = "${item.index + 1}",
+          style = MaterialTheme.typography.labelMedium.copy(
+            fontWeight = FontWeight.Bold,
+            color = if (item.isPlaying) accentColor else MaterialTheme.colorScheme.onSurfaceVariant,
+          ),
+        )
       }
 
-      // Title and info
       Column(
         modifier = Modifier.weight(1f),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.Center,
       ) {
         Text(
           text = item.title,
@@ -547,69 +501,22 @@ fun PlaylistTrackListItem(
           maxLines = 2,
           overflow = TextOverflow.Ellipsis,
         )
-
-        // Duration and resolution chips - always show with loading state if empty
-        Row(
-          horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-          // Duration chip
-          if (item.duration.isNotEmpty()) {
-            Surface(
-              color = if (item.isPlaying) accentColor.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceContainerHighest,
-              shape = RoundedCornerShape(4.dp),
-            ) {
-              Text(
-                text = item.duration,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                style = MaterialTheme.typography.labelSmall.copy(
-                  fontSize = 10.sp,
-                ),
-                color = if (item.isPlaying) accentColor else MaterialTheme.colorScheme.onSurfaceVariant,
-              )
-            }
-          } else {
-            LoadingChip(width = 40.dp)
-          }
-          
-          // Resolution chip
-          if (item.resolution.isNotEmpty()) {
-            Surface(
-              color = if (item.isPlaying) accentColor.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceContainerHighest,
-              shape = RoundedCornerShape(4.dp),
-            ) {
-              Text(
-                text = item.resolution,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                style = MaterialTheme.typography.labelSmall.copy(
-                  fontSize = 10.sp,
-                ),
-                color = if (item.isPlaying) accentColor else MaterialTheme.colorScheme.onSurfaceVariant,
-              )
-            }
-          } else {
-            LoadingChip(width = 60.dp)
-          }
-        }
       }
 
-      // Status badges
-      when {
-        item.isPlaying -> {
-          Surface(
-            color = accentColor.copy(alpha = 0.15f),
-            shape = RoundedCornerShape(16.dp),
-          ) {
-            Text(
-              text = "Playing",
-              modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-              style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.SemiBold,
-                color = accentColor,
-              ),
-            )
-          }
+      if (item.isPlaying) {
+        Surface(
+          color = accentColor.copy(alpha = 0.10f),
+          shape = RoundedCornerShape(6.dp),
+        ) {
+          Text(
+            text = "正在播放",
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = FontWeight.SemiBold,
+              color = accentColor,
+            ),
+          )
         }
-
       }
     }
   }
