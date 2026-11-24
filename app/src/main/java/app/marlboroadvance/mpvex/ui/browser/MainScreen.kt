@@ -100,14 +100,24 @@ object MainScreen : Screen {
     _shouldHideNavigationBar.value = !shouldShow
   }
 
+  fun setStartupTab(tab: Int) {
+    persistentSelectedTab = tab
+  }
+
   @Composable
   @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
   override fun Content() {
-    var selectedTab by remember {
-      mutableIntStateOf(persistentSelectedTab)
-    }
-
     val context = LocalContext.current
+    val tabState = TabVisibilityPrefs.load(context)
+    var selectedTab by remember {
+      mutableIntStateOf(
+        if (persistentSelectedTab in TabVisibilityPrefs.visibleTabs(tabState)) {
+          persistentSelectedTab
+        } else {
+          tabState.defaultTab
+        },
+      )
+    }
     val density = LocalDensity.current
 
     val hideNavigationBar by _shouldHideNavigationBar.collectAsState()
@@ -144,30 +154,38 @@ object MainScreen : Screen {
                 )
               )
           ) {
-            NavigationBarItem(
-              icon = { Icon(Icons.Filled.Home, contentDescription = "首页") },
-              label = { Text("首页") },
-              selected = selectedTab == 0,
-              onClick = { selectedTab = 0 }
-            )
-            NavigationBarItem(
-              icon = { Icon(Icons.Filled.History, contentDescription = "最近播放") },
-              label = { Text("最近播放") },
-              selected = selectedTab == 1,
-              onClick = { selectedTab = 1 }
-            )
-            NavigationBarItem(
-              icon = { Icon(Icons.AutoMirrored.Filled.PlaylistPlay, contentDescription = "播放列表") },
-              label = { Text("播放列表") },
-              selected = selectedTab == 2,
-              onClick = { selectedTab = 2 }
-            )
-            NavigationBarItem(
-              icon = { Icon(Icons.Filled.Language, contentDescription = "网络") },
-              label = { Text("网络") },
-              selected = selectedTab == 3,
-              onClick = { selectedTab = 3 }
-            )
+            if (tabState.showHome) {
+              NavigationBarItem(
+                icon = { Icon(Icons.Filled.Home, contentDescription = "首页") },
+                label = { Text("首页") },
+                selected = selectedTab == 0,
+                onClick = { selectedTab = 0 }
+              )
+            }
+            if (tabState.showRecent) {
+              NavigationBarItem(
+                icon = { Icon(Icons.Filled.History, contentDescription = "最近播放") },
+                label = { Text("最近播放") },
+                selected = selectedTab == 1,
+                onClick = { selectedTab = 1 }
+              )
+            }
+            if (tabState.showPlaylist) {
+              NavigationBarItem(
+                icon = { Icon(Icons.AutoMirrored.Filled.PlaylistPlay, contentDescription = "播放列表") },
+                label = { Text("播放列表") },
+                selected = selectedTab == 2,
+                onClick = { selectedTab = 2 }
+              )
+            }
+            if (tabState.showNetwork) {
+              NavigationBarItem(
+                icon = { Icon(Icons.Filled.Language, contentDescription = "网络") },
+                label = { Text("网络") },
+                selected = selectedTab == 3,
+                onClick = { selectedTab = 3 }
+              )
+            }
           }
         }
       }
@@ -175,6 +193,12 @@ object MainScreen : Screen {
       Box(modifier = Modifier.fillMaxSize()) {
         // Always use 80dp bottom padding regardless of navigation bar visibility
         val fabBottomPadding = 80.dp
+
+        LaunchedEffect(tabState) {
+          if (selectedTab !in TabVisibilityPrefs.visibleTabs(tabState)) {
+            selectedTab = tabState.defaultTab
+          }
+        }
 
         AnimatedContent(
           targetState = selectedTab,
