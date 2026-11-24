@@ -9,7 +9,7 @@ XNPlayer 是一个基于 mpvEx 的 Android 播放器项目，重点做了完整�
 最新 Release：
 
 ```text
-https://github.com/Tom0324/mpvEx-private/releases
+https://github.com/Tom0324/XNPlayer/releases
 ```
 
 当前 APK 基线：
