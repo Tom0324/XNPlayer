@@ -42,7 +42,7 @@ http://127.0.0.1:5244/dav
 | Project | Note |
 |---|---|
 | [AListLiteAndroid](https://github.com/Tom0324/AListLiteAndroid) | Used only for earlier built-in OpenList experiments; not in current APK |
-| [Tom0324/mpvEx](https://github.com/Tom0324/mpvEx) | Historical workspace containing localization and UI experiments; current clean mainline is `mpvEx-private` |
+| [Tom0324/mpvEx](https://github.com/Tom0324/mpvEx) | Historical workspace containing localization and UI experiments; current clean mainline is `XNPlayer` |
 | [Tom0324/fongmi-mpv-android](https://github.com/Tom0324/fongmi-mpv-android) | Earlier native experiment; not used |
 | [Tom0324/mpv-fongmi](https://github.com/Tom0324/mpv-fongmi) | Earlier FongMi AVC experiment; not used |
 
