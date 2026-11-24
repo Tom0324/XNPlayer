@@ -460,7 +460,6 @@ fun PlaylistTrackListItem(
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .height(56.dp)
         .padding(horizontal = MaterialTheme.spacing.smaller),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
@@ -503,8 +502,7 @@ fun PlaylistTrackListItem(
               MaterialTheme.colorScheme.onSurface
             },
           ),
-          maxLines = 2,
-          overflow = TextOverflow.Ellipsis,
+          maxLines = Int.MAX_VALUE,
         )
       }
 
@@ -683,7 +681,6 @@ fun PlaylistTrackGridItem(
       ) {
         Text(
           text = item.title,
-          modifier = Modifier.height(44.dp),
           style = MaterialTheme.typography.bodyMedium.copy(
             fontWeight = if (item.isPlaying) FontWeight.Bold else FontWeight.Medium,
             fontSize = 14.sp,
@@ -695,8 +692,7 @@ fun PlaylistTrackGridItem(
               MaterialTheme.colorScheme.onSurface
             },
           ),
-          maxLines = 2,
-          overflow = TextOverflow.Ellipsis,
+          maxLines = Int.MAX_VALUE,
         )
 
         // Resolution and status
