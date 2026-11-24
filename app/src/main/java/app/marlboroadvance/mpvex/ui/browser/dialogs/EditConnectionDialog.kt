@@ -1,5 +1,7 @@
 package app.marlboroadvance.mpvex.ui.browser.dialogs
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.setValue
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.padding
