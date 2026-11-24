@@ -3389,6 +3389,10 @@
     <string name="test_connection">测试连接</string>
     <string name="test_connection_failed">测试连接失败</string>
     <string name="test_connection_success">测试连接成功</string>
+    <string name="theme_luxury_gold">奢华金</string>
+    <string name="theme_tycoon_gold">土豪金</string>
+    <string name="theme_obsidian_gold">曜石金</string>
+    <string name="theme_champagne_gold">香槟金</string>
     <string name="theme_amber">琥珀</string>
     <string name="theme_catppuccin">卡布奇诺</string>
     <string name="theme_cloudflare">云海</string>
