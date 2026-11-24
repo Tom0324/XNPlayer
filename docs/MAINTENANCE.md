@@ -5,11 +5,11 @@
 | Repo | Role |
 |---|---|
 | `Tom0324/mpv-android-fongmi` | Native core / AAR source |
-| `Tom0324/mpvEx-private` | App shell / localization / APK assembly |
+| `Tom0324/XNPlayer` | App shell / localization / APK assembly |
 
 ## Branch strategy
 
-In `Tom0324/mpvEx-private`:
+In `Tom0324/XNPlayer`:
 
 ```text
 master              Our mainline. Always buildable. XNPlayer current version.
@@ -80,7 +80,7 @@ Only in `Tom0324/mpv-android-fongmi`:
 6. publish a new AAR Release tag
 ```
 
-Then in `Tom0324/mpvEx-private`:
+Then in `Tom0324/XNPlayer`:
 
 ```text
 1. replace app/libs/mpv-android-avcfix.aar
