@@ -1,21 +1,59 @@
 # Repository Roles
 
-## Main private repo
+## Main app repo
 
-`https://github.com/Tom0324/mpvEx-private`
+```text
+https://github.com/Tom0324/mpvEx-private
+```
 
-Purpose: App source, UI shell, localization, arm64-only workflow, AVC AAR consumer, docs. Do not delete.
+Role:
 
-## Native source repo
+- XNPlayer app source
+- mpvEx UI shell
+- localization
+- playlist/filename fixes
+- APK assembly
+- final signed APK releases
 
-`https://github.com/Tom0324/mpv-android-fongmi`
+Do not delete.
 
-Private. Do not delete.
+## Native AAR source repo
 
-Purpose: rebuilds AVC-fixed mpv AAR, pins mpv v0.42.0, FFmpeg n9.1, libplacebo v7.387.0, keeps AVC PTS patch.
+```text
+https://github.com/Tom0324/mpv-android-fongmi
+```
 
-Release asset: `native-avcfix-mpv042-ffmpeg9.1-lp7.387.0/app-release.aar`
+Role:
+
+- rebuilds AVC-fixed mpv AAR
+- pins mpv / FFmpeg / libplacebo
+- applies AVC PTS patch
+- publishes `app-release.aar`
+
+Do not delete.
+
+## Upstream reference
+
+```text
+https://github.com/marlboro-advance/mpvEx
+```
+
+Read-only upstream reference for future sync.
+
+## Obsolete experiment repos
+
+These are not required by the current XNPlayer build:
+
+```text
+https://github.com/Tom0324/AListLiteAndroid
+https://github.com/Tom0324/fongmi-mpv-android
+https://github.com/Tom0324/mpv-fongmi
+```
+
+They may be kept only as history.
 
 ## OpenList
 
-Not built into this app. Use OpenList-Mobile APK separately. WebDAV endpoint: `http://127.0.0.1:5244/dav`.
+Not built into the app.
+
+Use OpenList-Mobile APK separately.
