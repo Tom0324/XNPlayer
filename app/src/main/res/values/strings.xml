@@ -1664,7 +1664,7 @@
 <string name="get_favorite_music">Get your favorite music</string>
 <string name="get_music_failed_cannot_play">Failed to get music, cannot play</string>
 <string name="github_repo_url_gp">https://github.com/Tom0324/XNPlayer</string>
-<string name="google_api_key">AIzaSyAKV_dbAz-jAHSwCE-5Hx_YCioWnY8VSK4</string>
+<string name="google_api_key"></string>
 <string name="google_app_id">1:623937435988:android:e5fc0d6a434e6c6b97b0c1</string>
 <string name="google_storage_bucket">neoplayer-d9aee.firebasestorage.app</string>
 <string name="grant_delete_permission_tip">Please grant permission to delete the media file</string>
