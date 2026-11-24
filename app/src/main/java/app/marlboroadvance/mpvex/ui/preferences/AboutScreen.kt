@@ -492,12 +492,21 @@ private fun CommonCodecChip(codec: CodecInfo) {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Text(text = codec.label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
       Spacer(Modifier.width(6.dp))
-      Text(
-        text = if (codec.hardware) "HW" else "SW",
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-      )
+      Box(
+        modifier = Modifier
+          .background(
+            if (codec.hardware) Color(0xFF6A1B9A) else Color(0xFFE65100),
+            RoundedCornerShape(8.dp),
+          )
+          .padding(horizontal = 6.dp, vertical = 2.dp),
+      ) {
+        Text(
+          text = if (codec.hardware) "HW" else "SW",
+          style = MaterialTheme.typography.labelSmall,
+          fontWeight = FontWeight.Bold,
+          color = Color.White,
+        )
+      }
     }
   }
 }
@@ -533,7 +542,7 @@ private fun CodecTypeBadge(hardware: Boolean) {
   Box(
     modifier = Modifier
       .background(
-        if (hardware) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+        if (hardware) Color(0xFF6A1B9A) else Color(0xFFE65100),
         RoundedCornerShape(14.dp),
       )
       .padding(horizontal = 10.dp, vertical = 4.dp),
@@ -542,7 +551,7 @@ private fun CodecTypeBadge(hardware: Boolean) {
       text = if (hardware) "硬件加速" else "软件解码",
       style = MaterialTheme.typography.labelMedium,
       fontWeight = FontWeight.Bold,
-      color = if (hardware) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+      color = Color.White,
     )
   }
 }
