@@ -71,6 +71,7 @@ fun PlayerSheet(
   customMaxWidth: Dp? = null,
   customMaxHeight: Dp? = null,
   surfaceColor: Color? = null,
+  contentAlignment: Alignment = Alignment.BottomCenter,
   content: @Composable () -> Unit,
 ) {
   val scope = rememberCoroutineScope()
@@ -133,7 +134,7 @@ fun PlayerSheet(
             }
           anchoredDraggableState.updateAnchors(anchors)
         },
-    contentAlignment = Alignment.BottomCenter,
+    contentAlignment = contentAlignment,
   ) {
     Surface(
       modifier =
