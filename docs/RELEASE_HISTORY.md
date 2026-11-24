@@ -1,6 +1,115 @@
 # 发布历史
 
 本文件保存 XNPlayer 各 Release 的完整说明。GitHub Release 页面仅保留简短摘要。
+---
+
+## XNPlayer-v1.0.5-version-ui-codecs
+
+# XNPlayer v1.0.5
+
+## 安装信息
+
+```text
+应用名：XNPlayer
+包名：app.marlboroadvance.mpvex.preview
+ABI：arm64-v8a
+签名：CN=Trim
+versionName：1.0.5
+versionCode：100052
+```
+
+本次 versionCode 从旧的 `1312` 升级到 `100052`，可直接覆盖安装；安装器显示版本从 `1.3.1-1` 改为 `1.0.5`。
+
+## 本次改动
+
+### 1. 版本号体系改为 XNPlayer
+
+```text
+versionName：1.3.1 → 1.0.5
+versionCode：131 → 10005
+ABI 输出版本：1312 → 100052
+preview 版本后缀：移除 commitCount
+```
+
+About 页里的应用名和版本文案也同步改为 XNPlayer 体系。
+
+### 2. About 页设备编解码器支持
+
+原“更新”区域替换为：
+
+```text
+设备编解码器支持
+HDR10 / HDR10+ / HLG / 杜比视界
+HEVC Main 10 / AVC High 10
+```
+
+该区域可点击进入详情页，查看系统完整编解码器列表，包括：
+
+```text
+编解码器名称
+MIME
+硬件加速 / 软件解码
+最大支持分辨率
+```
+
+检测来源为 Android `MediaCodecList`，不访问网络，不影响播放链路。
+
+### 3. 设备信息文案清理
+
+修复版本信息显示为列表字符串的问题：
+
+```text
+去掉引号
+去掉逗号
+FFmpeg commit 单独一行
+```
+
+### 4. 播放列表面板透明化
+
+播放列表面板外层不再使用不透明背景：
+
+```text
+surfaceColor = Color.Transparent
+tonalElevation = 0.dp
+```
+
+现在面板背景透明，可透出视频画面。播放列表数据、切集逻辑、文件名显示逻辑未改动。
+
+## 保持不变的内核版本
+
+```text
+mpv：v0.42.0
+FFmpeg：n9.1 (74e4393595cf2b5857f0da925c4e0dd74ea306e5)
+libplacebo：v7.387.0
+AVC：PTS patch 已应用
+OpenList：不内置
+ABI：仅 arm64-v8a
+```
+
+## 验证结果
+
+```text
+zipalign：通过
+apksigner verify：通过
+签名：CN=Trim
+application-label：XNPlayer
+native-code：arm64-v8a
+versionName：1.0.5
+versionCode：100052
+```
+
+## Asset
+
+```text
+XNPlayer-v1.0.5-arm64-v8a-CNTrim.apk
+SHA256：6d3021289373b3edfa23dd666a625b7f19124c618981c9a74c15e7e99519e946
+```
+
+完整说明见：
+
+```text
+docs/RELEASE_HISTORY.md
+```
 
 
 ---
