@@ -9,7 +9,7 @@ XNPlayer is an Android media player project based on mpvEx, focused on full Chin
 Latest release:
 
 ```text
-https://github.com/Tom0324/mpvEx-private/releases
+https://github.com/Tom0324/XNPlayer/releases
 ```
 
 Current APK baseline:
