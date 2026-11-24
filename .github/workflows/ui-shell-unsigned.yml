@@ -13,20 +13,19 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: ui-shell
+          ref: master
 
       - name: Setup JDK 17
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 17
-          cache: 'gradle'
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Build preview APKs
-        run: ./gradlew assembleStandardPreview
+        run: ./gradlew --no-configuration-cache assembleStandardPreview
 
       - name: Upload unsigned APKs
         uses: actions/upload-artifact@v4
