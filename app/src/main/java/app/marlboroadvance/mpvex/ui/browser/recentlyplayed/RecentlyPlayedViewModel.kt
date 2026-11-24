@@ -14,6 +14,7 @@ import app.marlboroadvance.mpvex.database.repository.PlaylistRepository
 import app.marlboroadvance.mpvex.database.repository.VideoMetadataCacheRepository
 import app.marlboroadvance.mpvex.domain.media.model.Video
 import app.marlboroadvance.mpvex.domain.recentlyplayed.repository.RecentlyPlayedRepository
+import app.marlboroadvance.mpvex.utils.history.NetworkRecentUri
 import app.marlboroadvance.mpvex.utils.permission.PermissionUtils
 
 
@@ -122,7 +123,8 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
         val entity = allRecentEntities.find { it.filePath == filePath }
 
         // Check if this is a network URL
-        val isNetworkUri = filePath.startsWith("http://", ignoreCase = true) ||
+        val isNetworkUri = NetworkRecentUri.isSupported(filePath) ||
+          filePath.startsWith("http://", ignoreCase = true) ||
           filePath.startsWith("https://", ignoreCase = true) ||
           filePath.startsWith("rtmp://", ignoreCase = true) ||
           filePath.startsWith("rtsp://", ignoreCase = true)
@@ -136,7 +138,7 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
         val isContentUri = filePath.startsWith("content://", ignoreCase = true)
 
         val video = when {
-          isNetworkUri -> createNetworkVideoFromUrl(filePath, entity?.videoTitle, entity)
+          isNetworkUri -> createNetworkVideoFromUrl(filePath, entity?.fileName ?: entity?.videoTitle, entity)
           isContentUri -> createVideoFromContentUri(filePath, Uri.parse(filePath), entity?.videoTitle, entity)
           else -> {
             val file = File(filePath)
@@ -451,9 +453,14 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
   ): Video {
     // Extract URI components
     val uri = Uri.parse(url)
-    
+    val networkTarget = NetworkRecentUri.decode(url)
+    val pathForMetadata = networkTarget?.path ?: uri.path.orEmpty()
+
     // Use parsed title from database if available, otherwise fallback to URI path
-    val videoTitle = parsedVideoTitle ?: uri.lastPathSegment ?: "Stream"
+    val videoTitle = parsedVideoTitle
+      ?: pathForMetadata.substringAfterLast('/').takeIf { it.isNotBlank() }
+      ?: uri.lastPathSegment
+      ?: "Stream"
     val displayName = videoTitle
     
     // Use metadata from entity if available
@@ -471,7 +478,7 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
     val bucketDisplayName = uri.host ?: "网络串流"
     
     // Determine mime type based on URL extension, default to generic video
-    val extension = uri.lastPathSegment?.substringAfterLast('.', "")?.lowercase() ?: ""
+    val extension = pathForMetadata.substringAfterLast('/').substringAfterLast('.', "").lowercase()
     val mimeType = when (extension) {
       "mp4" -> "video/mp4"
       "mkv" -> "video/x-matroska"
@@ -528,7 +535,8 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
           // If deleteFiles is true and it's a local file, delete the actual file
           if (deleteFiles) {
             // Check if it's a local file (not a network URL)
-            val isNetworkUri = video.path.startsWith("http://", ignoreCase = true) ||
+            val isNetworkUri = NetworkRecentUri.isSupported(video.path) ||
+              video.path.startsWith("http://", ignoreCase = true) ||
               video.path.startsWith("https://", ignoreCase = true) ||
               video.path.startsWith("rtmp://", ignoreCase = true) ||
               video.path.startsWith("rtsp://", ignoreCase = true)
