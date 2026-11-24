@@ -44,8 +44,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -377,9 +379,16 @@ object CodecInfoScreen : Screen {
     val codecs = rememberCodecInfoList()
     val hardwareCount = codecs.count { it.hardware }
     val softwareCount = codecs.size - hardwareCount
-    val videoCount = codecs.count { it.category == "视频" }
-    val audioCount = codecs.count { it.category == "音频" }
-    val otherCount = codecs.size - videoCount - audioCount
+    var filter by remember { mutableStateOf("全部") }
+    val visible = when (filter) {
+      "视频" -> codecs.filter { it.category == "视频" }
+      "音频" -> codecs.filter { it.category == "音频" }
+      "仅硬件" -> codecs.filter { it.hardware }
+      else -> codecs
+    }
+    val commonLabels = listOf("H.264 / AVC", "H.265 / HEVC", "AV1", "VP9", "AAC", "Opus")
+    val common = commonLabels.mapNotNull { label -> codecs.firstOrNull { it.label == label } }
+
     Scaffold(
       topBar = {
         TopAppBar(
@@ -405,11 +414,7 @@ object CodecInfoScreen : Screen {
           .verticalScroll(rememberScrollState()),
       ) {
         PreferenceCard {
-          Column(
-            modifier = Modifier
-              .fillMaxWidth()
-              .padding(16.dp),
-          ) {
+          Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
               text = "系统编解码器总览",
               style = MaterialTheme.typography.titleMedium,
@@ -417,99 +422,127 @@ object CodecInfoScreen : Screen {
             )
             Spacer(Modifier.height(4.dp))
             Text(
-              text = "动态读取 Android MediaCodecList",
-              style = MaterialTheme.typography.bodySmall,
+              text = "${codecs.size} 个编解码器（硬件 $hardwareCount 个，软件 $softwareCount 个）",
+              style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.outline,
             )
             Spacer(Modifier.height(12.dp))
-            Row(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-              StatPill("视频", videoCount, MaterialTheme.colorScheme.primaryContainer)
-              StatPill("音频", audioCount, MaterialTheme.colorScheme.secondaryContainer)
-              StatPill("硬件", hardwareCount, MaterialTheme.colorScheme.tertiaryContainer)
-              StatPill("软件", softwareCount, MaterialTheme.colorScheme.surfaceVariant)
+            common.forEach { codec ->
+              CommonCodecChip(codec)
+              Spacer(Modifier.height(6.dp))
             }
           }
         }
 
-        Spacer(Modifier.height(8.dp))
-        CodecGroup("视频编解码器", codecs.filter { it.category == "视频" })
-        CodecGroup("音频编解码器", codecs.filter { it.category == "音频" })
-        if (otherCount > 0) CodecGroup("其他", codecs.filter { it.category == "其他" })
+        Spacer(Modifier.height(10.dp))
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+          listOf("全部", "视频", "音频", "仅硬件").forEach { item ->
+            FilterButton(
+              text = item,
+              selected = filter == item,
+              onClick = { filter = item },
+              modifier = Modifier.weight(1f),
+            )
+          }
+        }
+
+        Spacer(Modifier.height(12.dp))
+        PreferenceSectionHeader(title = "可用编解码器（${visible.size}）")
+        visible.forEach { codec ->
+          PreferenceCard {
+            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+              Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+              ) {
+                Text(text = codec.label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                CodecTypeBadge(codec.hardware)
+              }
+              Spacer(Modifier.height(4.dp))
+              Text(text = codec.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+              Text(text = codec.mime, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+              if (codec.maxWidth > 0 && codec.maxHeight > 0) {
+                Text(
+                  text = "最大：${codec.maxWidth}x${codec.maxHeight}",
+                  style = MaterialTheme.typography.labelMedium,
+                  color = MaterialTheme.colorScheme.primary,
+                )
+              }
+            }
+          }
+          Spacer(Modifier.height(8.dp))
+        }
       }
     }
   }
 }
 
 @Composable
-private fun StatPill(label: String, count: Int, color: Color) {
+private fun CommonCodecChip(codec: CodecInfo) {
   Box(
     modifier = Modifier
-      .height(36.dp)
-      .background(color, RoundedCornerShape(18.dp))
-      .padding(horizontal = 12.dp),
+      .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(18.dp))
+      .padding(horizontal = 12.dp, vertical = 6.dp),
+  ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Text(text = codec.label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+      Spacer(Modifier.width(6.dp))
+      Text(
+        text = if (codec.hardware) "HW" else "SW",
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+      )
+    }
+  }
+}
+
+@Composable
+private fun FilterButton(
+  text: String,
+  selected: Boolean,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  Box(
+    modifier = modifier
+      .height(40.dp)
+      .background(
+        if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+        RoundedCornerShape(20.dp),
+      )
+      .clickable(onClick = onClick),
     contentAlignment = Alignment.Center,
   ) {
     Text(
-      text = "$label $count",
-      style = MaterialTheme.typography.labelMedium,
-      fontWeight = FontWeight.SemiBold,
-      color = MaterialTheme.colorScheme.onSurface,
+      text = text,
+      style = MaterialTheme.typography.labelLarge,
+      fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+      color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
     )
   }
 }
 
 @Composable
-private fun CodecGroup(title: String, items: List<CodecInfo>) {
-  if (items.isEmpty()) return
-  PreferenceSectionHeader(title = "$title（${items.size}）")
-  PreferenceCard {
-    Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
-      items.forEachIndexed { index, codec ->
-        if (index > 0) PreferenceDivider()
-        CodecInfoRow(codec)
-      }
-    }
-  }
-  Spacer(Modifier.height(8.dp))
-}
-
-@Composable
-private fun CodecInfoRow(codec: CodecInfo) {
-  Row(
+private fun CodecTypeBadge(hardware: Boolean) {
+  Box(
     modifier = Modifier
-      .fillMaxWidth()
-      .padding(vertical = 8.dp),
-    verticalAlignment = Alignment.CenterVertically,
-  ) {
-    Box(
-      modifier = Modifier
-        .height(24.dp)
-        .background(
-          if (codec.hardware) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-          RoundedCornerShape(12.dp),
-        )
-        .padding(horizontal = 10.dp),
-      contentAlignment = Alignment.Center,
-    ) {
-      Text(
-        text = if (codec.hardware) "硬" else "软",
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface,
+      .background(
+        if (hardware) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+        RoundedCornerShape(14.dp),
       )
-    }
-    Spacer(Modifier.width(10.dp))
-    Column(modifier = Modifier.weight(1f)) {
-      Text(text = codec.label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-      Text(text = codec.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
-      Text(text = codec.mime, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
-      if (codec.maxDimension > 0) {
-        Text(text = "最大 ${codec.maxDimension}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
-      }
-    }
+      .padding(horizontal = 10.dp, vertical = 4.dp),
+  ) {
+    Text(
+      text = if (hardware) "硬件加速" else "软件解码",
+      style = MaterialTheme.typography.labelMedium,
+      fontWeight = FontWeight.Bold,
+      color = if (hardware) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+    )
   }
 }
 
@@ -518,7 +551,8 @@ data class CodecInfo(
   val name: String,
   val mime: String,
   val hardware: Boolean,
-  val maxDimension: Int,
+  val maxWidth: Int,
+  val maxHeight: Int,
   val category: String,
 )
 
@@ -548,11 +582,13 @@ private fun rememberCodecInfoList(): List<CodecInfo> = androidx.compose.runtime.
   for (info in MediaCodecList(MediaCodecList.ALL_CODECS).codecInfos) {
     if (info.isEncoder) continue
     for (mime in info.supportedTypes) {
-      var maxDimension = 0
+      var maxWidth = 0
+      var maxHeight = 0
       try {
         val caps = info.getCapabilitiesForType(mime)
         caps.videoCapabilities?.let { vc ->
-          maxDimension = maxOf(vc.supportedWidths.upper, vc.supportedHeights.upper)
+          maxWidth = vc.supportedWidths.upper
+          maxHeight = vc.supportedHeights.upper
         }
       } catch (_: Exception) {
       }
@@ -562,7 +598,8 @@ private fun rememberCodecInfoList(): List<CodecInfo> = androidx.compose.runtime.
           name = info.name,
           mime = mime,
           hardware = info.isHardwareAccelerated,
-          maxDimension = maxDimension,
+          maxWidth = maxWidth,
+          maxHeight = maxHeight,
           category = codecCategory(mime),
         )
       )
