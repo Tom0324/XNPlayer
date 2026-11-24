@@ -80,6 +80,7 @@ fun SeekbarWithTimers(
   seekbarStyle: SeekbarStyle = SeekbarStyle.Wavy,
   loopStart: Float? = null,
   loopEnd: Float? = null,
+  cacheTime: Float = 0f,
   modifier: Modifier = Modifier,
 ) {
   val clickEvent = LocalPlayerButtonsClickEvent.current
@@ -189,7 +190,26 @@ fun SeekbarWithTimers(
           .height(32.dp),
         contentAlignment = Alignment.Center,
       ) {
-      when (seekbarStyle) {
+        if (duration > 0f && cacheTime > position) {
+          Canvas(
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(32.dp),
+          ) {
+            val start = (position / duration).coerceIn(0f, 1f) * size.width
+            val end = (cacheTime / duration).coerceIn(0f, 1f) * size.width
+            if (end > start) {
+              drawLine(
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                start = Offset(start, size.height / 2f),
+                end = Offset(end, size.height / 2f),
+                strokeWidth = 9.dp.toPx(),
+                cap = StrokeCap.Round,
+              )
+            }
+          }
+        }
+        when (seekbarStyle) {
         SeekbarStyle.Standard -> {
           StandardSeekbar(
             position = if (isUserInteracting) userPosition else animatedPosition.value,
