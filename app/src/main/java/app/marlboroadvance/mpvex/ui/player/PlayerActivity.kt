@@ -45,6 +45,7 @@ import app.marlboroadvance.mpvex.preferences.PlayerPreferences
 import app.marlboroadvance.mpvex.preferences.SubtitlesPreferences
 import app.marlboroadvance.mpvex.ui.player.controls.PlayerControls
 import app.marlboroadvance.mpvex.ui.theme.MpvexTheme
+import app.marlboroadvance.mpvex.utils.history.NetworkRecentUri
 import app.marlboroadvance.mpvex.utils.history.RecentlyPlayedOps
 import app.marlboroadvance.mpvex.utils.media.HttpUtils
 import app.marlboroadvance.mpvex.utils.media.SubtitleOps
@@ -2234,6 +2235,16 @@ class PlayerActivity :
           }
         }
 
+      val stableFilePath =
+        intent.getStringExtra("network_file_path")?.let { networkPath ->
+          val networkConnectionId = intent.getLongExtra("network_connection_id", -1L)
+          if (networkConnectionId != -1L) {
+            NetworkRecentUri.encode(networkConnectionId, networkPath)
+          } else {
+            filePath
+          }
+        } ?: filePath
+
       val launchSource =
         when {
           intent.getStringExtra("launch_source") != null -> intent.getStringExtra("launch_source")
@@ -2272,7 +2283,7 @@ class PlayerActivity :
       }.getOrDefault(0)
 
       RecentlyPlayedOps.addRecentlyPlayed(
-        filePath = filePath,
+        filePath = stableFilePath,
         fileName = fileName,
         videoTitle = videoTitle,
         duration = duration,
@@ -2484,8 +2495,8 @@ class PlayerActivity :
         PlayerOrientation.Free -> ActivityInfo.SCREEN_ORIENTATION_SENSOR
         PlayerOrientation.Video -> {
           // For video orientation, check if aspect is available
-          val aspect = runCatching { player.getVideoOutAspect() }.getOrNull()
-          Log.d(TAG, "setOrientation - Video mode: aspect=$aspect")
+          val aspect = runCatching { player.getSourceVideoAspect() }.getOrNull()
+          Log.d(TAG, "setOrientation - Video mode: source aspect=$aspect")
           if (aspect == null || aspect <= 0.0) {
             // Aspect not available yet - wait for video-params/aspect update
             Log.d(TAG, "setOrientation - Aspect not available, defaulting to landscape")
@@ -3255,8 +3266,18 @@ class PlayerActivity :
         MPVLib.getPropertyInt("height") ?: MPVLib.getPropertyInt("video-params/h") ?: 0
       }.getOrDefault(0)
 
+      val stableFilePath =
+        intent.getStringExtra("network_file_path")?.let { networkPath ->
+          val networkConnectionId = intent.getLongExtra("network_connection_id", -1L)
+          if (networkConnectionId != -1L) {
+            NetworkRecentUri.encode(networkConnectionId, networkPath)
+          } else {
+            filePath
+          }
+        } ?: filePath
+
       RecentlyPlayedOps.addRecentlyPlayed(
-        filePath = filePath,
+        filePath = stableFilePath,
         fileName = name,
         videoTitle = videoTitle,
         duration = duration,
