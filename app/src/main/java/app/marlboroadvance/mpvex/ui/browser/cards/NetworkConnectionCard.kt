@@ -1,5 +1,6 @@
 package app.marlboroadvance.mpvex.ui.browser.cards
 
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
@@ -73,7 +74,11 @@ fun NetworkConnectionCard(
   }
 
   Card(
-    modifier = modifier.fillMaxWidth(),
+    modifier = modifier
+      .fillMaxWidth()
+      .clickable(enabled = !isConnecting) {
+        if (isConnected) onBrowse(connection) else onConnect(connection)
+      },
     shape = RoundedCornerShape(10.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
