@@ -506,3 +506,113 @@ versionName：1.3.1-1
 ## ui-shell-arm64-ffmpeg9.1-lp7.387
 
 Localization + mpv 0.42 AVC patch + FFmpeg n9.1 + libplacebo v7.387.0
+---
+
+## XNPlayer v1.0.9
+
+# XNPlayer v1.0.9 发布说明
+
+## 安装信息
+
+```text
+应用名：XNPlayer
+包名：app.marlboroadvance.mpvex.preview
+ABI：arm64-v8a
+签名：CN=Trim
+versionName：1.0.9
+versionCode：100092
+Asset：XNPlayer-v1.0.9-arm64-v8a-CNTrim.apk
+SHA256：45816194f51a05e1c4eff185864457a0e33247b120878cb53041f4e3ece20a24
+```
+
+本次 `versionCode` 从 `100082` 升级到 `100092`，可直接覆盖安装 v1.0.8。
+
+## 本次更新
+
+### 1. WebDAV 播放写入最近播放
+
+修复前，WebDAV 通过本地 proxy 播放，最近播放逻辑会过滤 `localhost / 127.0.0.1`，所以本地网络视频能显示、WebDAV 视频不显示。
+
+现在改为保存稳定的：
+
+```text
+xnplayer-network://<connectionId>/<encoded original path>
+```
+
+实现效果：
+
+```text
+WebDAV 播放后写入最近播放
+最近播放显示真实文件名
+点击历史项时重建 proxy URL 并重新播放
+```
+
+注意：
+
+```text
+升级前已经播放过的旧 WebDAV 历史不会自动补回；
+升级后重新播放一次的 WebDAV 文件会写入新的稳定历史。
+```
+
+### 2. 跟随视频方向修复
+
+修复前，“跟随视频”读取 `video-params/aspect`，它可能被 Stretch / 自定义比例影响，导致 3840x1608 横屏 4K 视频被判成竖屏。
+
+修复后新增源视频方向判断：
+
+```text
+video-params/w
+video-params/h
+video-params/rotate
+```
+
+效果：
+
+```text
+3840x1608，rotate=0 → 横屏
+1608x3840，rotate=0 → 竖屏
+带旋转元数据 → 按旋转后方向判断
+```
+
+不再受已保存的 Stretch / 自定义宽高比影响。
+
+### 3. 版本号升级
+
+```text
+versionName：1.0.8 → 1.0.9
+versionCode：10008 → 10009
+APK versionCode：100082 → 100092
+```
+
+## 保持不变
+
+```text
+mpv：v0.42.0
+FFmpeg：n9.1 (74e4393595cf2b5857f0da925c4e0dd74ea306e5)
+libplacebo：v7.387.0
+AVC PTS patch：保留
+OpenList：不内置
+ABI：仅 arm64-v8a
+```
+
+## 验证结果
+
+```text
+zipalign：通过
+apksigner verify：通过
+签名：CN=Trim
+application-label：XNPlayer
+native-code：arm64-v8a
+versionName：1.0.9
+versionCode：100092
+```
+
+内核版本：
+
+```text
+mpv v0.42.0 = True
+FFmpeg n9.1 = True
+libplacebo v7.387.0 = True
+v7.399.0 = False
+```
+
