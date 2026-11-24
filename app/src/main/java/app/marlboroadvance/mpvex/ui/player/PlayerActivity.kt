@@ -320,7 +320,7 @@ class PlayerActivity :
         }
 
         AudioManager.AUDIOFOCUS_REQUEST_FAILED -> {
-          Log.d(TAG, "Audio focus request failed")
+          Log.d(TAG, "音频 focus request failed")
         }
       }
     }
@@ -394,7 +394,7 @@ class PlayerActivity :
     // Extract fileName early so it's available when video loads
     fileName = getFileName(intent)
     if (fileName.isBlank()) {
-      fileName = intent.data?.lastPathSegment ?: "Unknown Video"
+      fileName = intent.data?.lastPathSegment ?: "未知视频"
     }
     mediaIdentifier = getMediaIdentifier(intent, fileName)
 
@@ -568,7 +568,7 @@ class PlayerActivity :
 
   @RequiresApi(Build.VERSION_CODES.P)
   override fun onDestroy() {
-    Log.d(TAG, "PlayerActivity onDestroy")
+    Log.d(TAG, "播放器Activity onDestroy")
 
     runCatching {
       // OPTIMIZATION: Prevent any further UI updates or callbacks
@@ -1291,7 +1291,7 @@ class PlayerActivity :
     // For HTTP/HTTPS URLs, extract from path (will be updated async via HTTP headers)
     if (HttpUtils.isNetworkStream(uri)) {
       // Get the last path segment and decode URL encoding
-      val path = uri.path ?: return uri.host ?: "Network Stream"
+      val path = uri.path ?: return uri.host ?: "网络串流"
       val lastSegment = path.substringAfterLast("/")
 
       if (lastSegment.isNotBlank()) {
@@ -1300,7 +1300,7 @@ class PlayerActivity :
           java.net.URLDecoder.decode(lastSegment, "UTF-8")
             .substringBefore("?") // Remove query parameters
             .substringBefore("#") // Remove fragments (only for network streams)
-            .takeIf { it.isNotBlank() } ?: uri.host ?: "Network Stream"
+            .takeIf { it.isNotBlank() } ?: uri.host ?: "网络串流"
         } catch (e: Exception) {
           lastSegment
             .substringBefore("?")
@@ -1309,11 +1309,11 @@ class PlayerActivity :
       }
 
       // If no filename in path, use hostname
-      return uri.host ?: "Network Stream"
+      return uri.host ?: "网络串流"
     }
 
     // For file:// and content:// URIs - preserve # characters as they're part of the filename
-    val lastSegment = uri.lastPathSegment?.substringAfterLast("/") ?: uri.path ?: "Unknown Video"
+    val lastSegment = uri.lastPathSegment?.substringAfterLast("/") ?: uri.path ?: "未知视频"
     
     // For local files, only decode URL encoding but preserve # characters
     return try {
@@ -1673,7 +1673,7 @@ class PlayerActivity :
       fileName = getFileName(intent)
       // Ensure fileName is not blank - use a fallback if necessary
       if (fileName.isBlank()) {
-        fileName = intent.data?.lastPathSegment ?: "Unknown Video"
+        fileName = intent.data?.lastPathSegment ?: "未知视频"
       }
       mediaIdentifier = getMediaIdentifier(intent, fileName)
     } else if (mediaIdentifier.isBlank()) {
@@ -1841,7 +1841,7 @@ class PlayerActivity :
         if (betterFilename != null && betterFilename.isNotBlank() &&
           betterFilename != fileName &&
           betterFilename != uri.host &&
-          betterFilename != "Network Stream"
+          betterFilename != "网络串流"
         ) {
 
           Log.d(TAG, "Found better filename from HTTP headers: $betterFilename")
@@ -2364,7 +2364,7 @@ class PlayerActivity :
     // Extract the new fileName before loading the file
     fileName = getFileName(intent)
     if (fileName.isBlank()) {
-      fileName = intent.data?.lastPathSegment ?: "Unknown Video"
+      fileName = intent.data?.lastPathSegment ?: "未知视频"
     }
     mediaIdentifier = getMediaIdentifier(intent, fileName)
 
@@ -2462,7 +2462,7 @@ class PlayerActivity :
    * This method applies the preference value when videos load.
    * The rotation button temporarily overrides this without changing preferences.
    *
-   * For "Video" orientation mode, this will wait for video-params/aspect to update
+   * For "视频" orientation mode, this will wait for video-params/aspect to update
    * to the correct orientation, starting with landscape as fallback.
    */
   private fun setOrientation() {

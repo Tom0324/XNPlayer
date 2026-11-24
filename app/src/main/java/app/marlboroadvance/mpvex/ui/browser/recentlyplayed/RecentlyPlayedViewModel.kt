@@ -371,7 +371,7 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
       )
 
       var id = uriString.hashCode().toLong()
-      var displayName = parsedVideoTitle ?: uri.lastPathSegment ?: "Video"
+      var displayName = parsedVideoTitle ?: uri.lastPathSegment ?: "视频"
       var duration = entity?.duration ?: 0L
       var size = entity?.fileSize ?: 0L
       var width = entity?.width ?: 0
@@ -432,7 +432,7 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
         dateAdded = dateModified,
         mimeType = "video/*",
         bucketId = "content",
-        bucketDisplayName = "External",
+        bucketDisplayName = "外部存储",
         width = width,
         height = height,
         fps = 0f,
@@ -468,7 +468,7 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
     
     // Use host as bucket ID (grouping by domain)
     val bucketId = (uri.host ?: "network").hashCode().toString()
-    val bucketDisplayName = uri.host ?: "Network Streams"
+    val bucketDisplayName = uri.host ?: "网络串流"
     
     // Determine mime type based on URL extension, default to generic video
     val extension = uri.lastPathSegment?.substringAfterLast('.', "")?.lowercase() ?: ""

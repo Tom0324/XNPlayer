@@ -143,14 +143,14 @@ class SmbClient(private val connection: NetworkConnection) : NetworkClient {
               ) {
                 Result.failure<Unit>(Exception("Share does not exist"))
               } else {
-                Result.failure<Unit>(Exception("Connection failed: ${e.message}"))
+                Result.failure<Unit>(Exception("连接ion failed: ${e.message}"))
               }
             }
           }
         } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
-          Result.failure(Exception("Connection timeout. Server not responding."))
+          Result.failure(Exception("连接ion timeout. Server not responding."))
         } catch (e: Exception) {
-          Result.failure(Exception("Connection failed: ${e.message ?: "Unknown error"}"))
+          Result.failure(Exception("连接ion failed: ${e.message ?: "未知错误"}"))
         }
 
         connectionResult
@@ -189,7 +189,7 @@ class SmbClient(private val connection: NetworkConnection) : NetworkClient {
       try {
         // Check if we're still connected, if not reconnect
         if (!isConnected() || smbConnection?.isConnected != true) {
-          android.util.Log.w("SmbClient", "Connection is stale, reconnecting...")
+          android.util.Log.w("SmbClient", "连接ion is stale, reconnecting...")
           disconnect()
           val reconnectResult = connect()
           if (reconnectResult.isFailure) {

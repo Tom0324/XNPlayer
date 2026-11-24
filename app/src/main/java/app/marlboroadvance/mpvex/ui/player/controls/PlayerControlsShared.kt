@@ -243,7 +243,7 @@ fun RenderPlayerButton(
           ) {
             Icon(
               imageVector = Icons.Default.Speed,
-              contentDescription = "Playback Speed",
+              contentDescription = "播放速度",
               tint = MaterialTheme.colorScheme.primary,
               modifier = Modifier.size(20.dp),
             )
@@ -496,7 +496,7 @@ fun RenderPlayerButton(
           ) {
             Icon(
               imageVector = Icons.Default.ZoomIn,
-              contentDescription = "Video Zoom",
+              contentDescription = "视频缩放",
               tint = MaterialTheme.colorScheme.primary,
               modifier = Modifier.size(20.dp),
             )
@@ -695,7 +695,7 @@ fun RenderPlayerButton(
         Box(contentAlignment = Alignment.Center) {
           Icon(
             imageVector = Icons.Default.Flip,
-            contentDescription = "Vertical Flip",
+            contentDescription = "垂直翻转",
             tint = vFlipColor,
             modifier = Modifier
               .padding(MaterialTheme.spacing.small)
@@ -773,7 +773,7 @@ fun RenderPlayerButton(
                 Box(contentAlignment = Alignment.Center) {
                   Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Clear Loop",
+                    contentDescription = "清除 Loop",
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(16.dp),
                   )

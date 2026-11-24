@@ -893,7 +893,7 @@ private fun VideoSortDialog(
 
   val videoGridColumnSelector = if (mediaLayoutMode == MediaLayoutMode.GRID) {
     GridColumnSelector(
-      label = "Grid Columns (${if (isLandscape) "Landscape" else "Portrait"})",
+      label = "网格 Columns (${if (isLandscape) "Landscape" else "Portrait"})",
       currentValue = videoGridColumns,
       onValueChange = {
         if (isLandscape) browserPreferences.videoGridColumnsLandscape.set(it)
@@ -954,8 +954,8 @@ private fun VideoSortDialog(
     ),
     layoutModeSelector = ViewModeSelector(
       label = "Layout",
-      firstOptionLabel = "List",
-      secondOptionLabel = "Grid",
+      firstOptionLabel = "列表",
+      secondOptionLabel = "网格",
       firstOptionIcon = Icons.AutoMirrored.Filled.ViewList,
       secondOptionIcon = Icons.Filled.GridView,
       isFirstOptionSelected = mediaLayoutMode == MediaLayoutMode.LIST,

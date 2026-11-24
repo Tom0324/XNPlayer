@@ -189,7 +189,7 @@ object AboutScreen : Screen {
 
                 Column(modifier = Modifier.weight(1f)) {
                   Text(
-                    text = "mpvExtended",
+                    text = "NeoPlayerRebuild",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = cs.onPrimaryContainer,
@@ -275,18 +275,28 @@ object AboutScreen : Screen {
                 ) {
                   Icon(
                     imageVector = Icons.Filled.Info,
-                    contentDescription = "Device Info",
+                    contentDescription = "设备与软件信息",
                     modifier = Modifier.size(20.dp),
                     tint = cs.onPrimaryContainer,
                   )
                   Spacer(modifier = Modifier.width(8.dp))
                   Text(
-                    text = "Device Info",
+                    text = "设备与软件信息",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = cs.onPrimaryContainer,
                   )
                 }
+                Text(
+                  text = "软件：NeoPlayerRebuild v$versionName $buildType (${BuildConfig.VERSION_CODE})",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = cs.onPrimaryContainer.copy(alpha = 0.85f),
+                )
+                Text(
+                  text = "包名：${context.packageName}",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = cs.onPrimaryContainer.copy(alpha = 0.85f),
+                )
                 Text(
                   text = collectDeviceInfo(),
                   style = MaterialTheme.typography.bodySmall,
@@ -301,7 +311,7 @@ object AboutScreen : Screen {
 
         // Updates Section (only show if update feature is enabled)
         if (BuildConfig.ENABLE_UPDATE_FEATURE && updateViewModel != null) {
-          PreferenceSectionHeader(title = "Updates")
+          PreferenceSectionHeader(title = "更新")
           PreferenceCard {
                 val isAutoUpdateEnabled by updateViewModel.isAutoUpdateEnabled.collectAsState()
                 Column {
@@ -317,14 +327,14 @@ object AboutScreen : Screen {
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
-                                text = "Auto Check for Updates",
+                                text = "自动检查更新",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = cs.onSurface
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Check on startup",
+                                text = "启动时检查",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = cs.outline
                             )
@@ -350,129 +360,13 @@ object AboutScreen : Screen {
                         ) {
                              Icon(Icons.Default.Update, null, modifier = Modifier.size(18.dp))
                              Spacer(Modifier.width(8.dp))
-                             Text("Check for Updates Now", fontWeight = FontWeight.SemiBold)
+                             Text("立即检查更新", fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
           }
           
           Spacer(Modifier.height(8.dp))
-        }
-
-        // Donate Section
-        PreferenceSectionHeader(
-          title = stringResource(id = R.string.pref_about_donate_title)
-        )
-
-        PreferenceCard {
-          // Ko-fi
-          Row(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clickable {
-                context.startActivity(
-                  Intent(
-                    Intent.ACTION_VIEW,
-                    context.getString(R.string.pref_about_donate_kofi_url).toUri(),
-                  ),
-                )
-              }
-              .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-          ) {
-            Icon(
-              imageVector = Icons.Filled.MonetizationOn,
-              contentDescription = null,
-              modifier = Modifier.size(24.dp),
-              tint = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-              Text(
-                text = stringResource(id = R.string.pref_about_donate_kofi),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-              )
-              Text(
-                text = stringResource(id = R.string.pref_about_donate_kofi_summary),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline,
-              )
-            }
-          }
-
-          PreferenceDivider()
-
-          // PayPal
-          Row(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clickable {
-                context.startActivity(
-                  Intent(
-                    Intent.ACTION_VIEW,
-                    context.getString(R.string.pref_about_donate_paypal_url).toUri(),
-                  ),
-                )
-              }
-              .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-          ) {
-            Icon(
-              imageVector = Icons.Filled.AccountBalance,
-              contentDescription = null,
-              modifier = Modifier.size(24.dp),
-              tint = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-              Text(
-                text = stringResource(id = R.string.pref_about_donate_paypal),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-              )
-              Text(
-                text = stringResource(id = R.string.pref_about_donate_paypal_summary),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline,
-              )
-            }
-          }
-
-          PreferenceDivider()
-
-          // UPI
-          Row(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clickable {
-                clipboardManager.setText(
-                  AnnotatedString(context.getString(R.string.pref_about_donate_upi_id)),
-                )
-              }
-              .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-          ) {
-            Icon(
-              imageVector = Icons.Filled.CurrencyRupee,
-              contentDescription = null,
-              modifier = Modifier.size(24.dp),
-              tint = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-              Text(
-                text = stringResource(id = R.string.pref_about_donate_upi),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-              )
-              Text(
-                text = stringResource(id = R.string.pref_about_donate_upi_id),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline,
-              )
-            }
-          }
         }
 
         Spacer(Modifier.height(12.dp))

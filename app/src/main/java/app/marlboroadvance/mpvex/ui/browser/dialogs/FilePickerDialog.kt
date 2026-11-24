@@ -182,12 +182,12 @@ fun FilePickerDialog(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                   Column(modifier = Modifier.fillMaxWidth()) {
                       Text(
-                        text = "Select Subtitle",
+                        text = "选择字幕",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                       )
                       Text(
-                        text = selectedPath ?: "Select a storage location",
+                        text = selectedPath ?: "选择存储位置",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -220,12 +220,12 @@ fun FilePickerDialog(
                   ) {
                       Column(modifier = Modifier.weight(1f)) {
                           Text(
-                            text = "Select Subtitle",
+                            text = "选择字幕",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
                           )
                           Text(
-                            text = selectedPath ?: "Select a storage location",
+                            text = selectedPath ?: "选择存储位置",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -313,7 +313,7 @@ fun FilePickerDialog(
                     shape = MaterialTheme.shapes.extraLarge,
                     // Reduced padding for the button itself if needed, or rely on Row padding
                   ) {
-                    Text("Cancel", fontWeight = FontWeight.Medium)
+                    Text("取消", fontWeight = FontWeight.Medium)
                   }
               }
           }
@@ -478,7 +478,7 @@ private fun NavigationButtons(
       contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     )
   ) {
-    Icon(Icons.Default.Home, "Home", modifier = Modifier.size(iconSize))
+    Icon(Icons.Default.Home, "首页", modifier = Modifier.size(iconSize))
   }
 
   FilledTonalIconButton(

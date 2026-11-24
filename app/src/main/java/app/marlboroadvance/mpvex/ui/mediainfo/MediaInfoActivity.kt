@@ -185,7 +185,7 @@ class MediaInfoActivity : ComponentActivity() {
             isLoading = false
           }
         } catch (e: Exception) {
-          error = e.message ?: "Unknown error"
+          error = e.message ?: "未知错误"
           isLoading = false
         }
       }
@@ -197,7 +197,7 @@ class MediaInfoActivity : ComponentActivity() {
           title = {
             Column {
               Text(
-                text = "Media Info",
+                text = "媒体信息",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
               )
@@ -231,7 +231,7 @@ class MediaInfoActivity : ComponentActivity() {
                 ) {
                   Icon(
                     imageVector = Icons.Filled.ContentCopy,
-                    contentDescription = "Copy",
+                    contentDescription = "复制",
                   )
                 }
 
@@ -250,7 +250,7 @@ class MediaInfoActivity : ComponentActivity() {
                 ) {
                   Icon(
                     imageVector = Icons.Filled.Share,
-                    contentDescription = "Share",
+                    contentDescription = "分享",
                   )
                 }
               }
@@ -317,7 +317,7 @@ class MediaInfoActivity : ComponentActivity() {
         shape = MaterialTheme.shapes.extraLarge,
       ) {
         Text(
-          text = "Error: $errorMessage",
+          text = "错误：$errorMessage",
           style = MaterialTheme.typography.bodyLarge,
           fontWeight = FontWeight.Medium,
           color = MaterialTheme.colorScheme.onErrorContainer,
@@ -491,7 +491,7 @@ class MediaInfoActivity : ComponentActivity() {
   private suspend fun copyToClipboard(content: String, fileName: String) {
     withContext(Dispatchers.Main) {
       val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-      val clip = android.content.ClipData.newPlainText("Media Info - $fileName", content)
+      val clip = android.content.ClipData.newPlainText("媒体信息 - $fileName", content)
       clipboard.setPrimaryClip(clip)
       Toast.makeText(this@MediaInfoActivity, "Copied to clipboard", Toast.LENGTH_SHORT).show()
     }
@@ -514,12 +514,12 @@ class MediaInfoActivity : ComponentActivity() {
           val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_STREAM, fileUri)
-            putExtra(Intent.EXTRA_SUBJECT, "Media Info - $fileName")
-            putExtra(Intent.EXTRA_TEXT, "Media information for: $fileName")
+            putExtra(Intent.EXTRA_SUBJECT, "媒体信息 - $fileName")
+            putExtra(Intent.EXTRA_TEXT, "媒体信息：$fileName")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
           }
 
-          startActivity(Intent.createChooser(shareIntent, "Share Media Info"))
+          startActivity(Intent.createChooser(shareIntent, "分享媒体信息"))
         }
       } catch (e: Exception) {
         withContext(Dispatchers.Main) {

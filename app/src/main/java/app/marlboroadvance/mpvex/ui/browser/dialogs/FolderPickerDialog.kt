@@ -118,12 +118,12 @@ fun FolderPickerDialog(
     title = {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-          text = "Select Folder",
+          text = "选择文件夹",
           style = MaterialTheme.typography.headlineMedium,
           fontWeight = FontWeight.Bold,
         )
         Text(
-          text = selectedPath ?: "Select a storage location",
+          text = selectedPath ?: "选择存储位置",
           style = MaterialTheme.typography.bodyMedium,
           fontWeight = FontWeight.Medium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -254,7 +254,7 @@ fun FolderPickerDialog(
             if (folders.isEmpty()) {
               item {
                 Text(
-                  text = "No subfolders",
+                  text = "没有子文件夹",
                   style = MaterialTheme.typography.bodyLarge,
                   fontWeight = FontWeight.Medium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -276,7 +276,7 @@ fun FolderPickerDialog(
           ),
         shape = MaterialTheme.shapes.extraLarge,
       ) {
-        Text("Select", fontWeight = FontWeight.Bold)
+        Text("选择", fontWeight = FontWeight.Bold)
       }
     },
     dismissButton = {
@@ -284,7 +284,7 @@ fun FolderPickerDialog(
         onClick = onDismiss,
         shape = MaterialTheme.shapes.extraLarge,
       ) {
-        Text("Cancel", fontWeight = FontWeight.Medium)
+        Text("取消", fontWeight = FontWeight.Medium)
       }
     },
     containerColor = MaterialTheme.colorScheme.surface,
@@ -395,7 +395,7 @@ private fun CreateFolderDialog(
     onDismissRequest = onDismiss,
     title = {
       Text(
-        "Create New Folder",
+        "新建文件夹",
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
       )
@@ -408,7 +408,7 @@ private fun CreateFolderDialog(
             folderName = it
             error = null
           },
-          label = { Text("Folder name", fontWeight = FontWeight.Medium) },
+          label = { Text("文件夹名称", fontWeight = FontWeight.Medium) },
           singleLine = true,
           isError = error != null,
           modifier = Modifier.fillMaxWidth(),
@@ -439,7 +439,7 @@ private fun CreateFolderDialog(
 
           val newFolder = File(parentPath, folderName)
           if (newFolder.exists()) {
-            error = "Folder already exists"
+            error = "文件夹已存在"
             return@Button
           }
 
@@ -450,7 +450,7 @@ private fun CreateFolderDialog(
               error = "Failed to create folder"
             }
           } catch (e: Exception) {
-            error = e.message ?: "Unknown error"
+            error = e.message ?: "未知错误"
           }
         },
         enabled = folderName.isNotBlank(),
@@ -468,7 +468,7 @@ private fun CreateFolderDialog(
         onClick = onDismiss,
         shape = MaterialTheme.shapes.extraLarge,
       ) {
-        Text("Cancel", fontWeight = FontWeight.Medium)
+        Text("取消", fontWeight = FontWeight.Medium)
       }
     },
     containerColor = MaterialTheme.colorScheme.surface,

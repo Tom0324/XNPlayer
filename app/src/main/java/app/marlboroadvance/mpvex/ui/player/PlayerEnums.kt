@@ -50,8 +50,8 @@ enum class Decoder(
   val title: String,
   val value: String,
 ) {
-  AutoCopy("Auto", "auto-copy"),
-  Auto("Auto", "auto"),
+  AutoCopy("自动", "auto-copy"),
+  Auto("自动", "auto"),
   SW("SW", "no"),
   HW("HW", "mediacodec-copy"),
   HWPlus("HW+", "mediacodec"),
@@ -74,12 +74,12 @@ enum class MPVProfile(
   val displayName: String,
   val value: String,
 ) {
-  Fast("Fast", "fast"),
-  Default("Default", "default"),
+  Fast("快速", "fast"),
+  Default("默认", "default"),
   HighQuality("High Quality", "high-quality"),
   GpuHQ("GPU HQ", "gpu-hq"),
   LowLatency("Low Latency", "low-latency"),
-  SwFast("SW Fast", "sw-fast"),
+  SwFast("软件快速", "sw-fast"),
   ;
 
   override fun toString(): String = displayName
@@ -164,7 +164,7 @@ enum class FilterPreset(
   val sharpness: Int,
 ) {
   NONE(
-    displayName = "None",
+    displayName = "无",
     description = "Default settings with no adjustments",
     brightness = 0,
     saturation = 0,

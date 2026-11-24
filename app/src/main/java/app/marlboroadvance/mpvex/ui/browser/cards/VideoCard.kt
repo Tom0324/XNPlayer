@@ -180,7 +180,7 @@ fun VideoCard(
             } ?: run {
               Icon(
                 Icons.Filled.PlayArrow,
-                contentDescription = "Play",
+                contentDescription = "播放",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.secondary,
               )
@@ -188,7 +188,7 @@ fun VideoCard(
           } else {
             Icon(
               Icons.Filled.PlayArrow,
-              contentDescription = "Play",
+              contentDescription = "播放",
               modifier = Modifier.size(48.dp),
               tint = MaterialTheme.colorScheme.secondary,
             )
@@ -452,7 +452,7 @@ fun VideoCard(
             } ?: run {
               Icon(
                 Icons.Filled.PlayArrow,
-                contentDescription = "Play",
+                contentDescription = "播放",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.secondary,
               )
@@ -460,7 +460,7 @@ fun VideoCard(
           } else {
             Icon(
               Icons.Filled.PlayArrow,
-              contentDescription = "Play",
+              contentDescription = "播放",
               modifier = Modifier.size(48.dp),
               tint = MaterialTheme.colorScheme.secondary,
             )

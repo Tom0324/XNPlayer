@@ -331,11 +331,11 @@ object FolderListScreen : Screen {
                 onSearch = { },
                 expanded = false,
                 onExpandedChange = { },
-                placeholder = { Text("Search folders and videos...") },
+                placeholder = { Text("搜索文件夹和视频...") },
                 leadingIcon = {
                   Icon(
                     imageVector = Icons.Filled.Search,
-                    contentDescription = "Search",
+                    contentDescription = "搜索",
                   )
                 },
                 trailingIcon = {
@@ -347,7 +347,7 @@ object FolderListScreen : Screen {
                   ) {
                     Icon(
                       imageVector = Icons.Filled.Close,
-                      contentDescription = "Cancel",
+                      contentDescription = "取消",
                     )
                   }
                 },
@@ -479,7 +479,7 @@ object FolderListScreen : Screen {
               filePicker.launch(arrayOf("video/*"))
             },
             icon = { Icon(Icons.Filled.FileOpen, contentDescription = null) },
-            text = { Text(text = "Open File") },
+            text = { Text(text = "打开文件") },
           )
 
           FloatingActionButtonMenuItem(
@@ -503,7 +503,7 @@ object FolderListScreen : Screen {
               showLinkDialog.value = true
             },
             icon = { Icon(Icons.Filled.Link, contentDescription = null) },
-            text = { Text(text = "Open Link") },
+            text = { Text(text = "打开链接") },
           )
         }
       },
@@ -526,7 +526,7 @@ object FolderListScreen : Screen {
                   // No results
                   EmptyState(
                     icon = Icons.Filled.Search,
-                    title = "No results found",
+                    title = "未找到结果",
                     message = "No folders or videos match your search query",
                     modifier = Modifier.fillMaxSize(),
                   )
@@ -672,7 +672,7 @@ private fun FolderListContent(
         if (showLoading) {
           LoadingState(
             icon = Icons.Filled.Folder,
-            title = "Scanning for videos...",
+            title = "正在扫描视频...",
             message = scanStatus ?: "Please wait while we search your device",
           )
         } else if (showEmpty) {
@@ -902,7 +902,7 @@ private fun FolderSortDialog(
 
   val folderGridColumnSelector = if (mediaLayoutMode == MediaLayoutMode.GRID) {
     GridColumnSelector(
-      label = "Grid Columns (${if (isLandscape) "Landscape" else "Portrait"})",
+      label = "网格 Columns (${if (isLandscape) "Landscape" else "Portrait"})",
       currentValue = folderGridColumns,
       onValueChange = {
         if (isLandscape) browserPreferences.folderGridColumnsLandscape.set(it)
@@ -931,7 +931,7 @@ private fun FolderSortDialog(
   SortDialog(
     isOpen = isOpen,
     onDismiss = onDismiss,
-    title = if (isAlbumView) "Sort & View Options" else "View Options",
+    title = if (isAlbumView) "排序与视图选项" else "View Options",
     sortType = sortType.displayName,
     onSortTypeChange = { typeName ->
       FolderSortType.entries
@@ -963,7 +963,7 @@ private fun FolderSortDialog(
     showSortOptions = isAlbumView,
     viewModeSelector = ViewModeSelector(
       label = "View Mode",
-      firstOptionLabel = "Folder",
+      firstOptionLabel = "文件夹",
       secondOptionLabel = "Tree",
       firstOptionIcon = Icons.Filled.ViewModule,
       secondOptionIcon = Icons.Filled.AccountTree,
@@ -976,8 +976,8 @@ private fun FolderSortDialog(
     ),
     layoutModeSelector = ViewModeSelector(
       label = "Layout",
-      firstOptionLabel = "List",
-      secondOptionLabel = "Grid",
+      firstOptionLabel = "列表",
+      secondOptionLabel = "网格",
       firstOptionIcon = Icons.AutoMirrored.Filled.ViewList,
       secondOptionIcon = Icons.Filled.GridView,
       isFirstOptionSelected = mediaLayoutMode == MediaLayoutMode.LIST,
@@ -989,12 +989,12 @@ private fun FolderSortDialog(
     ),
     visibilityToggles = listOf(
       VisibilityToggle(
-        label = "Full Name",
+        label = "完整名称",
         checked = unlimitedNameLines,
         onCheckedChange = { appearancePreferences.unlimitedNameLines.set(it) },
       ),
       VisibilityToggle(
-        label = "Path",
+        label = "路径",
         checked = showFolderPath,
         onCheckedChange = { browserPreferences.showFolderPath.set(it) },
       ),
@@ -1004,17 +1004,17 @@ private fun FolderSortDialog(
         onCheckedChange = { browserPreferences.showTotalVideosChip.set(it) },
       ),
       VisibilityToggle(
-        label = "Total Duration",
+        label = "总时长",
         checked = showTotalDurationChip,
         onCheckedChange = { browserPreferences.showTotalDurationChip.set(it) },
       ),
       VisibilityToggle(
-        label = "Folder Size",
+        label = "文件夹大小",
         checked = showTotalSizeChip,
         onCheckedChange = { browserPreferences.showTotalSizeChip.set(it) },
       ),
       VisibilityToggle(
-        label = "Date",
+        label = "日期",
         checked = showDateChip,
         onCheckedChange = { browserPreferences.showDateChip.set(it) },
       ),
@@ -1143,7 +1143,7 @@ private suspend fun searchFoldersAndVideos(
   val results = mutableListOf<FileSystemItem>()
   
   try {
-    Log.d("FolderListScreen", "Searching for: $query")
+    Log.d("FolderListScreen", "正在搜索：$query")
     
     // Get all video folders
     val folders = app.marlboroadvance.mpvex.repository.MediaFileRepository

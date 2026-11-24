@@ -184,11 +184,11 @@ object PlaylistScreen : Screen {
                   onSearch = { },
                   expanded = false,
                   onExpandedChange = { },
-                  placeholder = { Text("Search playlists...") },
+                  placeholder = { Text("搜索播放列表...") },
                   leadingIcon = {
                     Icon(
                       imageVector = Icons.Filled.Search,
-                      contentDescription = "Search",
+                      contentDescription = "搜索",
                     )
                   },
                   trailingIcon = {
@@ -200,7 +200,7 @@ object PlaylistScreen : Screen {
                     ) {
                       Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Cancel",
+                        contentDescription = "取消",
                       )
                     }
                   },
@@ -219,7 +219,7 @@ object PlaylistScreen : Screen {
             }
           } else {
             BrowserTopBar(
-              title = "Playlists",
+              title = "播放列表",
               isInSelectionMode = selectionManager.isInSelectionMode,
               selectedCount = selectionManager.selectedCount,
               totalCount = playlistsWithCount.size,
@@ -262,7 +262,7 @@ object PlaylistScreen : Screen {
           ) {
             EmptyState(
               icon = Icons.Filled.Search,
-              title = "No playlists found",
+              title = "未找到播放列表",
               message = "Try a different search term",
             )
           }
@@ -279,7 +279,7 @@ object PlaylistScreen : Screen {
             ) {
               EmptyState(
                 icon = Icons.AutoMirrored.Outlined.PlaylistAdd,
-                title = "No playlists yet",
+                title = "暂无播放列表",
                 message = "Create a playlist or add one from an m3u URL",
               )
             }
@@ -329,7 +329,7 @@ object PlaylistScreen : Screen {
               androidx.compose.material3.OutlinedTextField(
                 value = playlistName,
                 onValueChange = { playlistName = it },
-                label = { Text("Playlist Name") },
+                label = { Text("播放列表名称") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
               )
@@ -347,14 +347,14 @@ object PlaylistScreen : Screen {
                 },
                 enabled = playlistName.isNotBlank(),
               ) {
-                Text("Rename")
+                Text("重命名")
               }
             },
             dismissButton = {
               androidx.compose.material3.TextButton(
                 onClick = { showRenameDialog = false },
               ) {
-                Text("Cancel")
+                Text("取消")
               }
             },
           )

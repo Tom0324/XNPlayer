@@ -141,7 +141,7 @@ fun FileOperationProgressDialog(
         if (isOperationComplete) {
           Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SummaryRow(
-              label = "Files processed",
+              label = "已处理文件",
               value = "${progress.currentFileIndex} / ${progress.totalFiles}",
             )
             SummaryRow(
@@ -162,7 +162,7 @@ fun FileOperationProgressDialog(
             ),
           shape = MaterialTheme.shapes.extraLarge,
         ) {
-          Text("Done", fontWeight = FontWeight.Bold)
+          Text("完成", fontWeight = FontWeight.Bold)
         }
       } else {
         TextButton(
@@ -171,10 +171,10 @@ fun FileOperationProgressDialog(
         ) {
           Icon(
             imageVector = Icons.Default.Cancel,
-            contentDescription = "Cancel",
+            contentDescription = "取消",
             modifier = Modifier.padding(end = 4.dp),
           )
-          Text("Cancel", fontWeight = FontWeight.Medium)
+          Text("取消", fontWeight = FontWeight.Medium)
         }
       }
     },

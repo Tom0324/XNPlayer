@@ -208,14 +208,14 @@ class CrashActivity : ComponentActivity() {
 
     fun collectDeviceInfo(): String =
       """
-      App version: ${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_SHA})
-      Android version: ${Build.VERSION.RELEASE} (${Build.VERSION.SDK_INT})
-      Device brand: ${Build.BRAND}
-      Device manufacturer: ${Build.MANUFACTURER}
-      Device model: ${Build.MODEL} (${Build.DEVICE})
-      MPV version: ${Utils.VERSIONS.mpv}
-      ffmpeg version: ${Utils.VERSIONS.ffmpeg}
-      libplacebo version: ${Utils.VERSIONS.libPlacebo}
+      应用版本： ${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_SHA})
+      安卓版本： ${Build.VERSION.RELEASE} (${Build.VERSION.SDK_INT})
+      设备品牌： ${Build.BRAND}
+      设备制造商： ${Build.MANUFACTURER}
+      设备型号： ${Build.MODEL} (${Build.DEVICE})
+      "MPV 版本：v0.42.0",
+      "FFmpeg 版本：n9.0 (d32b387f2b0a484599d4587d651891f0c63c4238)",
+      "libplacebo 版本：v7.399.0（官方稳定版 v7.387.0）",
       """.trimIndent()
   }
 

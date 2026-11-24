@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoadingState(
   icon: ImageVector = Icons.Filled.FolderOpen,
-  title: String = "Scanning for videos...",
+  title: String = "正在扫描视频...",
   message: String = "Please wait while we search your device",
   modifier: Modifier = Modifier,
 ) {

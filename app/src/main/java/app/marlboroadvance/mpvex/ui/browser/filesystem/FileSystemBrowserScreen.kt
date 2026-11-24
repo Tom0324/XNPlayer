@@ -453,7 +453,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
                 leadingIcon = {
                   Icon(
                     imageVector = Icons.Filled.Search,
-                    contentDescription = "Search",
+                    contentDescription = "搜索",
                   )
                 },
                 trailingIcon = {
@@ -465,7 +465,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
                   ) {
                     Icon(
                       imageVector = Icons.Filled.Close,
-                      contentDescription = "Cancel",
+                      contentDescription = "取消",
                     )
                   }
                 },
@@ -487,7 +487,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
             title = if (isAtRoot) {
               stringResource(app.marlboroadvance.mpvex.R.string.app_name)
             } else {
-              breadcrumbs.lastOrNull()?.name ?: "Tree View"
+              breadcrumbs.lastOrNull()?.name ?: "树状视图"
             },
             isInSelectionMode = isInSelectionMode,
             selectedCount = selectedCount,
@@ -683,7 +683,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
                 filePicker.launch(arrayOf("video/*"))
               },
               icon = { Icon(Icons.Filled.FileOpen, contentDescription = null) },
-              text = { Text(text = "Open File") },
+              text = { Text(text = "打开文件") },
             )
 
             FloatingActionButtonMenuItem(
@@ -707,7 +707,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
                 showLinkDialog.value = true
               },
               icon = { Icon(Icons.Filled.Link, contentDescription = null) },
-              text = { Text(text = "Open Link") },
+              text = { Text(text = "打开链接") },
             )
           }
         }
@@ -1304,7 +1304,7 @@ private fun FileSystemSearchContent(
         ) {
           EmptyState(
             icon = Icons.Filled.Search,
-            title = "No results found",
+            title = "未找到结果",
             message = "No files or folders match \"$searchQuery\"",
           )
         }
@@ -1424,7 +1424,7 @@ fun FileSystemSortDialog(
   SortDialog(
     isOpen = isOpen,
     onDismiss = onDismiss,
-    title = "Sort & View Options",
+    title = "排序与视图选项",
     sortType = folderSortType.displayName,
     onSortTypeChange = { typeName ->
       app.marlboroadvance.mpvex.preferences.FolderSortType.entries.find { it.displayName == typeName }?.let {
@@ -1459,7 +1459,7 @@ fun FileSystemSortDialog(
     showSortOptions = true,
     viewModeSelector = ViewModeSelector(
       label = "View Mode",
-      firstOptionLabel = "Folder",
+      firstOptionLabel = "文件夹",
       secondOptionLabel = "Tree",
       firstOptionIcon = Icons.Filled.ViewModule,
       secondOptionIcon = Icons.Filled.AccountTree,
@@ -1476,8 +1476,8 @@ fun FileSystemSortDialog(
     ),
     layoutModeSelector = ViewModeSelector(
       label = "Layout",
-      firstOptionLabel = "List",
-      secondOptionLabel = "Grid",
+      firstOptionLabel = "列表",
+      secondOptionLabel = "网格",
       firstOptionIcon = Icons.AutoMirrored.Filled.ViewList,
       secondOptionIcon = Icons.Filled.GridView,
       isFirstOptionSelected = true, // Always list mode
@@ -1489,17 +1489,17 @@ fun FileSystemSortDialog(
     enableLayoutModeOptions = false, // Disabled/grayed out
     visibilityToggles = listOf(
       VisibilityToggle(
-        label = "Video Thumbnails",
+        label = "视频缩略图",
         checked = showVideoThumbnails,
         onCheckedChange = { browserPreferences.showVideoThumbnails.set(it) },
       ),
       VisibilityToggle(
-        label = "Full Name",
+        label = "完整名称",
         checked = unlimitedNameLines,
         onCheckedChange = { appearancePreferences.unlimitedNameLines.set(it) },
       ),
       VisibilityToggle(
-        label = "Path",
+        label = "路径",
         checked = showFolderPath,
         onCheckedChange = { browserPreferences.showFolderPath.set(it) },
       ),
@@ -1509,12 +1509,12 @@ fun FileSystemSortDialog(
         onCheckedChange = { browserPreferences.showTotalVideosChip.set(it) },
       ),
       VisibilityToggle(
-        label = "Folder Size",
+        label = "文件夹大小",
         checked = showTotalSizeChip,
         onCheckedChange = { browserPreferences.showTotalSizeChip.set(it) },
       ),
       VisibilityToggle(
-        label = "Size",
+        label = "大小",
         checked = showSizeChip,
         onCheckedChange = { browserPreferences.showSizeChip.set(it) },
       ),
@@ -1532,7 +1532,7 @@ fun FileSystemSortDialog(
         },
       ),
       VisibilityToggle(
-        label = "Subtitle",
+        label = "字幕",
         checked = showSubtitleIndicator,
         onCheckedChange = {
           browserPreferences.showSubtitleIndicator.set(it)

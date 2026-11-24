@@ -100,7 +100,7 @@ fun PlayLinkSheet(
     ) {
       // Title
       Text(
-        text = "Play Link",
+        text = "播放链接",
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onSurface,
@@ -145,7 +145,7 @@ fun PlayLinkSheet(
       ) {
         TextButton(onClick = handleDismiss) {
           Text(
-            text = "Cancel",
+            text = "取消",
             fontWeight = FontWeight.Medium,
           )
         }
@@ -159,7 +159,7 @@ fun PlayLinkSheet(
             ),
         ) {
           Text(
-            text = "Play",
+            text = "播放",
             fontWeight = FontWeight.SemiBold,
           )
         }

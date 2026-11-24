@@ -25,13 +25,6 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Download AListLib arm64 AAR
-        run: |
-          mkdir -p app/libs
-          curl -L --fail --retry 3 \
-            -o app/libs/alistlib-arm64-slim.aar \
-            https://github.com/Tom0324/AListLiteAndroid/releases/download/alistlib-arm64-v4.2.6/alistlib-arm64-slim.aar
-          ls -lh app/libs/alistlib-arm64-slim.aar
       - name: Build preview APKs
         run: ./gradlew assembleStandardPreview
 

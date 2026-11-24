@@ -187,7 +187,7 @@ fun PlaylistActionSheet(
           OutlinedTextField(
             value = playlistName,
             onValueChange = { playlistName = it },
-            label = { Text("Playlist Name") },
+            label = { Text("播放列表名称") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
           )
@@ -199,7 +199,7 @@ fun PlaylistActionSheet(
               onClick = { showCreateDialog = false },
               shape = MaterialTheme.shapes.extraLarge,
             ) {
-              Text("Cancel")
+              Text("取消")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
@@ -280,7 +280,7 @@ fun PlaylistActionSheet(
           verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
           Text(
-            text = "Add M3U Playlist",
+            text = "添加 M3U 播放列表",
             style = MaterialTheme.typography.headlineSmall,
           )
 
@@ -348,7 +348,7 @@ fun PlaylistActionSheet(
               enabled = !isLoading,
               shape = MaterialTheme.shapes.extraLarge,
             ) {
-              Text("Cancel")
+              Text("取消")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
@@ -378,7 +378,7 @@ fun PlaylistActionSheet(
               enabled = playlistUrl.isNotBlank() && !isLoading,
               shape = MaterialTheme.shapes.extraLarge,
             ) {
-              Text("Add from URL")
+              Text("从网址添加")
             }
           }
         }

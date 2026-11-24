@@ -54,7 +54,7 @@ fun AspectRatioSheet(
 ) {
   val presetRatios =
     listOf(
-      AspectRatio("Default", -1.0),
+      AspectRatio("默认", -1.0),
       AspectRatio("4:3", 4.0 / 3.0),
       AspectRatio("16:9", 16.0 / 9.0),
       AspectRatio("16:10", 16.0 / 10.0),
@@ -73,7 +73,7 @@ fun AspectRatioSheet(
           .padding(vertical = MaterialTheme.spacing.medium),
     ) {
       Text(
-        text = "Aspect Ratio",
+        text = "画面比例",
         style = MaterialTheme.typography.headlineSmall,
         modifier =
           Modifier
@@ -109,7 +109,7 @@ fun AspectRatioSheet(
       // Custom ratios
       if (customRatios.isNotEmpty()) {
         Text(
-          text = "Custom",
+          text = "自定义",
           style = MaterialTheme.typography.titleSmall,
           modifier =
             Modifier

@@ -565,12 +565,12 @@ fun PlayerControls(
               val enabled = (currentPlayerUpdate as PlayerUpdates.Shuffle).enabled
               val text = if (enabled) {
                 if (playlistMode && viewModel.hasPlaylistSupport()) {
-                  "Shuffle: On"
+                  "随机播放: On"
                 } else {
-                  "Shuffle: Not available"
+                  "随机播放: Not available"
                 }
               } else {
-                "Shuffle: Off"
+                "随机播放: Off"
               }
               TextPlayerUpdate(text)
             }
@@ -687,7 +687,7 @@ fun PlayerControls(
                   ) {
                     Icon(
                       imageVector = Icons.Default.SkipPrevious,
-                      contentDescription = "Previous",
+                      contentDescription = "上一个",
                       tint =
                         if (viewModel.hasPrevious()) {
                           if (hideBackground) controlColor else MaterialTheme.colorScheme.onSurface
@@ -785,7 +785,7 @@ fun PlayerControls(
                   ) {
                     Icon(
                       imageVector = Icons.Default.SkipNext,
-                      contentDescription = "Next",
+                      contentDescription = "下一个",
                       tint =
                         if (viewModel.hasNext()) {
                           if (hideBackground) controlColor else MaterialTheme.colorScheme.onSurface
