@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -27,9 +27,14 @@ jobs:
       - name: Build preview APKs
         run: ./gradlew --no-configuration-cache assembleStandardPreview
 
-      - name: Upload unsigned APKs
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-shell-arm64-unsigned
-          path: app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
-          if-no-files-found: error
+      - name: Upload unsigned APK to Release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ui-shell-arm64-ffmpeg9.1-lp7.387
+        run: |
+          set -e
+          APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
+          test -f "$APK"
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" --prerelease --title "ui-shell arm64 unsigned" --notes "Localization + mpv 0.42 AVC patch + FFmpeg n9.1 + libplacebo v7.387.0"
+          gh release upload "$TAG" "$APK" --clobber
