@@ -219,7 +219,7 @@
     <string name="aplayer_lockscreen">NeoPlayer锁屏</string>
     <string name="aplayer_lockscreen_tip">锁屏页会显示当前歌曲的封面，样式取决于NeoPlayer</string>
     <string name="app_language_title">切换语言</string>
-    <string name="app_name">NeoPlayer</string>
+    <string name="app_name">XNPlayer</string>
     <string name="app_widget_big_desc">4x4 巨幅海报音乐播放器小组件，包含沉浸大封面、进度条与全功能控制</string>
     <string name="app_widget_big_name">NeoPlayer-大尺寸</string>
     <string name="app_widget_card_desc">4x1 卡片风格音乐小组件，包含封面、标题与播放控制</string>

@@ -129,8 +129,8 @@ data class NetworkBrowserScreen(
             ),
           )
         },
-        onVideoClick = { video ->
-          viewModel.playVideo(video)
+        onVideoClick = { video, videos ->
+          viewModel.playVideo(video, videos)
         },
         modifier = Modifier.padding(padding),
       )
@@ -148,7 +148,7 @@ private fun NetworkBrowserContent(
   error: String?,
   onRefresh: suspend () -> Unit,
   onFolderClick: (NetworkFile) -> Unit,
-  onVideoClick: (NetworkFile) -> Unit,
+  onVideoClick: (NetworkFile, List<NetworkFile>) -> Unit,
   modifier: Modifier = Modifier,
 ) {
   // Load connection details
@@ -292,7 +292,7 @@ private fun NetworkBrowserContent(
                   NetworkVideoCard(
                     file = video,
                     connection = conn,
-                    onClick = { onVideoClick(video) },
+                    onClick = { onVideoClick(video, videos) },
                     modifier = Modifier,
                   )
                 }

@@ -75,52 +75,69 @@ class NetworkBrowserViewModel(
   /**
    * Play a video file
    */
-  fun playVideo(file: NetworkFile) {
+  fun playVideo(file: NetworkFile, playlistFiles: List<NetworkFile> = listOf(file)) {
     viewModelScope.launch {
       try {
         val connection = repository.getConnectionById(connectionId)
-          ?: throw Exception("连接ion not found")
+          ?: throw Exception("connection not found")
 
-        // Use proxy server for protocols that need seeking support
         val useProxy = connection.protocol in PROXY_PROTOCOLS
+        val orderedFiles =
+          if (playlistFiles.any { it.path == file.path }) playlistFiles else listOf(file) + playlistFiles
+        val currentIndex = orderedFiles.indexOfFirst { it.path == file.path }.coerceAtLeast(0)
+        val batchId = System.currentTimeMillis()
+        val playlistUris = ArrayList<android.net.Uri>()
 
-        val uri = if (useProxy) {
-          val proxy = app.marlboroadvance.mpvex.ui.browser.networkstreaming.proxy.NetworkStreamingProxy.getInstance()
-          val streamId = "${connectionId}_${System.currentTimeMillis()}"
-          val proxyUrl = proxy.registerStream(
-            streamId = streamId,
-            connection = connection,
-            filePath = file.path,
-            fileSize = file.size,
-            mimeType = file.mimeType ?: "video/mp4",
-          )
-          android.net.Uri.parse(proxyUrl)
-        } else {
-          NetworkStreamingProvider.setConnection(connectionId, connection)
-          NetworkStreamingProvider.getUri(application, connectionId, file.path)
+        orderedFiles.forEachIndexed { index, item ->
+          val itemUri = if (useProxy) {
+            val proxy = app.marlboroadvance.mpvex.ui.browser.networkstreaming.proxy.NetworkStreamingProxy.getInstance()
+            val streamId = "${connectionId}_${batchId}_${index}"
+            val proxyUrl = proxy.registerStream(
+              streamId = streamId,
+              connection = connection,
+              filePath = item.path,
+              fileSize = item.size,
+              mimeType = item.mimeType ?: "video/mp4",
+            )
+            android.net.Uri.parse(proxyUrl)
+          } else {
+            NetworkStreamingProvider.setConnection(connectionId, connection)
+            NetworkStreamingProvider.getUri(application, connectionId, item.path)
+          }
+          playlistUris.add(itemUri)
         }
 
-        // Launch the player
-        val intent = Intent(Intent.ACTION_VIEW, uri)
+        val currentUri = playlistUris[currentIndex]
+        val intent = Intent(Intent.ACTION_VIEW, currentUri)
         intent.setClass(application, app.marlboroadvance.mpvex.ui.player.PlayerActivity::class.java)
         intent.putExtra("internal_launch", true)
         intent.putExtra("launch_source", "network_stream")
         intent.putExtra("title", file.name)
         intent.putExtra("filename", file.name)
-        // Pass the original network file path for stable media identifier (position saving)
         intent.putExtra("network_file_path", file.path)
         intent.putExtra("network_connection_id", connectionId)
-        intent.setDataAndType(uri, file.mimeType ?: "video/*")
+        intent.putParcelableArrayListExtra("playlist", playlistUris)
+        intent.putExtra("playlist_index", currentIndex)
+        intent.setDataAndType(currentUri, file.mimeType ?: "video/*")
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         if (!useProxy) {
           intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+          val clip = android.content.ClipData.newUri(
+            application.contentResolver,
+            "Video playlist",
+            playlistUris[0],
+          )
+          for (i in 1 until playlistUris.size) {
+            clip.addItem(android.content.ClipData.Item(playlistUris[i]))
+          }
+          intent.clipData = clip
         }
 
         application.startActivity(intent)
       } catch (e: Exception) {
         Log.e(TAG, "Error playing video", e)
-        _error.value = e.message ?: "未知错误"
+        _error.value = e.message ?: "unknown error"
       }
     }
   }
