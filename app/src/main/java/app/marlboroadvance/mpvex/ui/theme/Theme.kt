@@ -13,10 +13,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -30,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -269,6 +272,14 @@ enum class DarkMode(
     Light(R.string.pref_appearance_darkmode_light),
     System(R.string.pref_appearance_darkmode_system),
 }
+
+private val AppFlatShapes = Shapes(
+  extraSmall = RoundedCornerShape(2.dp),
+  small = RoundedCornerShape(4.dp),
+  medium = RoundedCornerShape(6.dp),
+  large = RoundedCornerShape(8.dp),
+  extraLarge = RoundedCornerShape(12.dp),
+)
 
 private const val RIPPLE_DRAGGED_ALPHA = .5f
 private const val RIPPLE_FOCUSED_ALPHA = .6f

@@ -117,7 +117,7 @@ object NetworkStreamingScreen : Screen {
     Scaffold(
         topBar = {
           BrowserTopBar(
-            title = "网络",
+            title = "本地网络",
             isInSelectionMode = false,
             selectedCount = 0,
             totalCount = 0,
@@ -215,7 +215,7 @@ object NetworkStreamingScreen : Screen {
                   )
                   Spacer(modifier = Modifier.height(8.dp))
                   Text(
-                    text = "Add SMB, FTP, or WebDAV connections to browse network files",
+                    text = "添加 SMB、FTP 或 WebDAV 连接以浏览网络文件",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,

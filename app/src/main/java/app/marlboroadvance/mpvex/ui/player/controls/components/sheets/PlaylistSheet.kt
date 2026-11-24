@@ -336,7 +336,7 @@ fun PlaylistSheet(
           ) {
             if (currentItem != null) {
               Text(
-                text = "Now Playing",
+                text = "选择分集",
                 style = MaterialTheme.typography.titleSmall.copy(
                   fontWeight = FontWeight.Bold,
                   color = accentColor,
@@ -349,7 +349,7 @@ fun PlaylistSheet(
               )
             }
             Text(
-              text = "$totalCount items",
+              text = "共 $totalCount 集",
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -446,9 +446,9 @@ fun PlaylistTrackListItem(
 
   val borderModifier = if (item.isPlaying) {
     Modifier.border(
-      width = 2.dp,
-      brush = Brush.linearGradient(listOf(accentColor, accentSecondary)),
-      shape = RoundedCornerShape(12.dp),
+      width = 1.dp,
+      color = accentColor,
+      shape = RoundedCornerShape(6.dp),
     )
   } else {
     Modifier
@@ -461,15 +461,15 @@ fun PlaylistTrackListItem(
         horizontal = MaterialTheme.spacing.medium,
         vertical = MaterialTheme.spacing.extraSmall,
       )
-      .clip(RoundedCornerShape(12.dp))
+      .clip(RoundedCornerShape(6.dp))
       .then(borderModifier)
       .clickable(onClick = onClick),
     color = if (item.isPlaying) {
-      MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
+      accentColor.copy(alpha = 0.10f)
     } else {
       Color.Transparent
     },
-    shape = RoundedCornerShape(12.dp),
+    shape = RoundedCornerShape(6.dp),
   ) {
     Row(
       modifier = Modifier
@@ -646,23 +646,23 @@ fun PlaylistTrackGridItem(
 
   val borderModifier = if (item.isPlaying) {
     Modifier.border(
-      width = 2.dp,
-      brush = Brush.linearGradient(listOf(accentColor, accentSecondary)),
-      shape = RoundedCornerShape(12.dp),
+      width = 1.dp,
+      color = accentColor,
+      shape = RoundedCornerShape(6.dp),
     )
   } else {
     Modifier
   }
 
-  // YouTube-style vertical card
+  // Flat vertical card
   Surface(
     modifier = modifier
       .width(200.dp)
-      .clip(RoundedCornerShape(12.dp))
+      .clip(RoundedCornerShape(6.dp))
       .then(borderModifier)
       .clickable(onClick = onClick),
-    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f),
-    shape = RoundedCornerShape(12.dp),
+    color = if (item.isPlaying) accentColor.copy(alpha = 0.10f) else MaterialTheme.colorScheme.surfaceContainerLow,
+    shape = RoundedCornerShape(6.dp),
   ) {
     Column(
       modifier = Modifier.padding(MaterialTheme.spacing.smaller),

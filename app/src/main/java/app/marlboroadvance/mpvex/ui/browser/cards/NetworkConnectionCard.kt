@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -43,11 +44,26 @@ fun NetworkConnectionCard(
   isConnecting: Boolean = false,
   error: String? = null,
 ) {
+  val statusText = when {
+    isConnecting -> "连接中"
+    isConnected -> "已连接"
+    error != null -> "连接异常"
+    else -> "未连接"
+  }
+  val statusColor = when {
+    isConnecting -> MaterialTheme.colorScheme.onSurfaceVariant
+    isConnected -> MaterialTheme.colorScheme.primary
+    error != null -> MaterialTheme.colorScheme.error
+    else -> MaterialTheme.colorScheme.onSurfaceVariant
+  }
+
   Card(
     modifier = modifier.fillMaxWidth(),
+    shape = RoundedCornerShape(6.dp),
     colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.surfaceContainer,
+      containerColor = MaterialTheme.colorScheme.surface,
     ),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(
       modifier = Modifier
@@ -71,6 +87,12 @@ fun NetworkConnectionCard(
             text = "${connection.protocol.displayName} • ${connection.host}:${connection.port}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+          Text(
+            text = "● $statusText",
+            style = MaterialTheme.typography.labelMedium,
+            color = statusColor,
+            modifier = Modifier.padding(top = 4.dp),
           )
         }
 
@@ -135,7 +157,7 @@ fun NetworkConnectionCard(
           },
         )
         Text(
-          text = "连接 automatically on app launch",
+          text = "应用启动时自动连接",
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -164,7 +186,7 @@ fun NetworkConnectionCard(
                   color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                 )
                 Text(
-                  "连接ing",
+                  "连接中",
                   color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                 )
               }
