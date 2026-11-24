@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
@@ -72,6 +73,8 @@ fun PlayerSheet(
   customMaxHeight: Dp? = null,
   surfaceColor: Color? = null,
   contentAlignment: Alignment = Alignment.BottomCenter,
+  fillHeight: Boolean = false,
+  uniformCorners: Boolean = false,
   content: @Composable () -> Unit,
 ) {
   val scope = rememberCoroutineScope()
@@ -140,6 +143,7 @@ fun PlayerSheet(
       modifier =
         Modifier
           .sizeIn(maxWidth = maxWidth, maxHeight = maxHeight)
+          .then(if (fillHeight) Modifier.fillMaxHeight() else Modifier)
           .clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
@@ -164,7 +168,7 @@ fun PlayerSheet(
             WindowInsets.systemBars
               .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
           ).imePadding(),
-      shape = MaterialTheme.shapes.extraLarge.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+      shape = if (uniformCorners) MaterialTheme.shapes.extraLarge else MaterialTheme.shapes.extraLarge.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
       color = surfaceColor ?: MaterialTheme.colorScheme.surface,
       tonalElevation = tonalElevation,
       content = {
