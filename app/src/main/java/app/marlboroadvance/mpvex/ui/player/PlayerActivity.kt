@@ -398,6 +398,7 @@ class PlayerActivity :
     }
 
     // Extract fileName early so it's available when video loads
+    playlistTitles = intent.getStringArrayListExtra("playlist_names") ?: emptyList()
     fileName = getFileName(intent)
     if (fileName.isBlank()) {
       fileName = intent.data?.lastPathSegment ?: "未知视频"
