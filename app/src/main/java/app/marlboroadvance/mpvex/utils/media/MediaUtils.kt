@@ -8,6 +8,7 @@ import androidx.core.net.toUri
 import app.marlboroadvance.mpvex.BuildConfig
 import app.marlboroadvance.mpvex.domain.media.model.Video
 import app.marlboroadvance.mpvex.ui.player.PlayerActivity
+import app.marlboroadvance.mpvex.utils.history.NetworkRecentUri
 import app.marlboroadvance.mpvex.utils.history.RecentlyPlayedOps
 import `is`.xyz.mpv.Utils
 import java.io.File
@@ -52,6 +53,21 @@ object MediaUtils {
     context: Context,
     launchSource: String? = null,
   ) {
+    if (source is Video && NetworkRecentUri.isSupported(source.path)) {
+      NetworkRecentUri.launch(
+        context = context,
+        value = source.path,
+        launchSource = launchSource,
+        displayName = source.displayName,
+        fileSize = source.size,
+      )
+      return
+    }
+    if (source is String && NetworkRecentUri.isSupported(source)) {
+      NetworkRecentUri.launch(context, source, launchSource)
+      return
+    }
+
     val uri =
       when (source) {
         is Video -> {
