@@ -35,12 +35,39 @@ object NetworkRecentUri : KoinComponent {
     return value?.startsWith("$SCHEME://", ignoreCase = true) == true
   }
 
-  fun decode(value: String): Target? = runCatching {
+  fun decode(value: String, preferredFileName: String? = null): Target? = runCatching {
     val uri = Uri.parse(value)
     if (!uri.scheme.equals(SCHEME, ignoreCase = true)) return null
-    val connectionId = uri.host?.toLongOrNull() ?: uri.pathSegments.firstOrNull()?.toLongOrNull() ?: return null
-    val encodedPath = uri.pathSegments.drop(1).joinToString("/")
-    Target(connectionId, Uri.decode(encodedPath))
+
+    // Format produced by encode(): xnplayer-network://<connectionId>/<encoded path>
+    // In this format the connection id is the authority/host, and pathSegments already
+    // contains only the encoded file path (decoded by Android Uri).
+    val connectionIdFromHost = uri.host?.toLongOrNull()
+    val segments = uri.pathSegments
+    val connectionId: Long
+    val path: String
+    if (connectionIdFromHost != null) {
+      connectionId = connectionIdFromHost
+      path = segments.joinToString("/")
+    } else {
+      connectionId = segments.firstOrNull()?.toLongOrNull() ?: return null
+      path = segments.drop(1).joinToString("/")
+    }
+
+    // Compatibility repair for history entries saved before the playlist-path bug fix:
+    // the recorded fileName is correct, but the basename inside the URI may point to
+    // the first episode of the playlist. Replace only the basename when it differs.
+    val finalPath = preferredFileName?.takeIf { it.isNotBlank() }?.let { desired ->
+      val currentName = path.substringAfterLast('/')
+      if (currentName.equals(desired, ignoreCase = true)) {
+        path
+      } else {
+        val parent = path.substringBeforeLast('/', "")
+        if (parent.isBlank()) desired else "$parent/$desired"
+      }
+    } ?: path
+
+    Target(connectionId, finalPath)
   }.getOrNull()
 
   fun displayName(value: String): String {
