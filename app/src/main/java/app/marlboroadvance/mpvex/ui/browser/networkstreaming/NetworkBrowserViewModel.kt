@@ -12,9 +12,12 @@ import app.marlboroadvance.mpvex.domain.network.NetworkConnection
 import app.marlboroadvance.mpvex.domain.network.NetworkFile
 import app.marlboroadvance.mpvex.domain.network.NetworkProtocol
 import app.marlboroadvance.mpvex.repository.NetworkRepository
+import app.marlboroadvance.mpvex.utils.history.RecentlyPlayedOps
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -30,6 +33,12 @@ class NetworkBrowserViewModel(
 ) : AndroidViewModel(application),
   KoinComponent {
   private val repository: NetworkRepository by inject()
+  private val recentlyPlayedOps: RecentlyPlayedOps by inject()
+
+  val recentlyPlayedFilePath: StateFlow<String?> =
+    recentlyPlayedOps
+      .observeLastPlayedPath()
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
   private val _files = MutableStateFlow<List<NetworkFile>>(emptyList())
   val files: StateFlow<List<NetworkFile>> = _files.asStateFlow()
