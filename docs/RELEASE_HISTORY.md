@@ -700,4 +700,145 @@ versionCode：101002
 ```
 
 如果旧的错误 WebDAV 最近播放记录仍异常，删除该条历史后重新播放一次即可。
+---
+
+## XNPlayer v1.1.1
+
+# XNPlayer v1.1.1 Koin 崩溃热修交付说明
+
+## 最终 APK
+
+```text
+_upgrade_work\XNPlayer_v1.1.1_Koin崩溃热修_arm64_CNTrim.apk
+```
+
+```text
+应用名：XNPlayer
+包名：app.marlboroadvance.mpvex.preview
+ABI：arm64-v8a
+签名：CN=Trim
+versionName：1.1.1
+versionCode：101102
+SHA256：2254958462d9b843fa187912f140249f46d92d81117efff2e9ee6005aeac2340
+```
+
+---
+
+## 本轮修复
+
+### 问题
+
+从 `v1.1.0` 的“本地网络”点击进入 WebDAV 连接时直接崩溃。
+
+日志：
+
+```text
+org.koin.core.error.NoDefinitionFoundException:
+No definition found for type RecentlyPlayedOps
+at NetworkBrowserViewModel.<init>
+```
+
+### 根因
+
+`v1.1.0` 为修复问题二，在 `NetworkBrowserViewModel` 中写了：
+
+```kotlin
+private val recentlyPlayedOps: RecentlyPlayedOps by inject()
+```
+
+但 `RecentlyPlayedOps` 是 Kotlin `object`，没有注册到 Koin，导致 ViewModel 构造时抛异常。
+
+### 修复
+
+改为直接调用静态对象：
+
+```kotlin
+RecentlyPlayedOps.observeLastPlayedPath()
+```
+
+不再通过 Koin 注入。
+
+### 保留的 v1.1.0 修复
+
+```text
+1. 播放状态 mediaIdentifier 竞态修复
+2. WebDAV 文件夹自动滚动到上次播放位置
+3. WebDAV 最近播放 URI 解码与切集路径修复
+```
+
+本版本只额外修掉进入 WebDAV 文件夹的崩溃。
+
+---
+
+## 版本号
+
+```text
+versionName：1.1.0 → 1.1.1
+versionCode：10100 → 10110
+APK versionCode：101002 → 101102
+```
+
+可直接覆盖安装 v1.1.0。
+
+---
+
+## 静态验证
+
+```text
+zipalign：通过
+apksigner verify：通过
+签名：CN=Trim
+application-label：XNPlayer
+native-code：arm64-v8a
+versionName：1.1.1
+versionCode：101102
+```
+
+dex/resources 确认：
+
+```text
+identifierSnapshot = 1
+NetworkRecentUri = 4
+recentlyPlayedFilePath = 2
+autoScrollToLastPlayed = 2
+xnplayer-network = 2
+NeoPlayerRebuild = 0
+```
+
+内核未退化：
+
+```text
+mpv v0.42.0 = True
+FFmpeg n9.1 = True
+libplacebo v7.387.0 = True
+v7.399.0 = False
+```
+
+---
+
+## 回档
+
+GitHub 备份分支：
+
+```text
+backup-before-hotfix-koin-20261125
+```
+
+备份 commit：
+
+```text
+f46b877ba2d4
+```
+
+---
+
+## 真机验证重点
+
+```text
+1. 本地网络点击 WebDAV 连接不再崩溃
+2. 进入文件夹后可以正常浏览
+3. 自动滚动到上次播放位置仍有效
+4. 最近播放 WebDAV 项仍可播放
+5. 跳过片尾后不再级联跳下一集片尾
+```
 
