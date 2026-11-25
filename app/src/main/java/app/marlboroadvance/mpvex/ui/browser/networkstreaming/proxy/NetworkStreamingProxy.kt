@@ -62,6 +62,8 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     var fileSize: Long = -1L,
     var mimeType: String = "video/mp4",
   )
+  fun getStreamInfo(streamId: String): StreamInfo? = activeStreams[streamId]
+
 
   /**
    * Register a stream for proxying
