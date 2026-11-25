@@ -615,4 +615,89 @@ FFmpeg n9.1 = True
 libplacebo v7.387.0 = True
 v7.399.0 = False
 ```
+---
+
+## XNPlayer v1.1.0
+
+# XNPlayer v1.1.0 发布说明
+
+## 安装信息
+
+```text
+应用名：XNPlayer
+包名：app.marlboroadvance.mpvex.preview
+ABI：arm64-v8a
+签名：CN=Trim
+versionName：1.1.0
+versionCode：101002
+Asset：XNPlayer-v1.1.0-arm64-v8a-CNTrim.apk
+SHA256：d4c0347d3bd043e1b81706d60ab7ad142a10f9d6a7a966da700ca0ac03e479fb
+```
+
+`versionCode` 从 `100092` 升级到 `101002`，可直接覆盖安装 v1.0.9。
+
+## 本次修复
+
+### 1. 跳过片尾后下一集跳到片尾
+
+修复播放状态异步保存时的 `mediaIdentifier` 竞态：
+
+```text
+旧集片尾进度不再写入下一集
+下一集只读自己的播放状态
+```
+
+### 2. WebDAV 文件夹不自动滚动到上次播放位置
+
+网络文件夹页接入：
+
+```text
+自动滚动到上次播放位置
+最近播放路径匹配
+```
+
+从播放器返回或重新进入文件夹时会定位到上次播放视频。
+
+### 3. 最近播放 WebDAV 项无法播放
+
+修复：
+
+```text
+xnplayer-network URI 解码
+播放列表切集时 network_file_path 错配
+旧历史 basename 与文件名不一致
+```
+
+效果：
+
+```text
+标题正确
+路径正确
+可重新连接 WebDAV 播放
+方向判断正常
+```
+
+## 保持不变
+
+```text
+mpv：v0.42.0
+FFmpeg：n9.1
+libplacebo：v7.387.0
+OpenList：不内置
+ABI：仅 arm64-v8a
+签名：CN=Trim
+```
+
+## 验证结果
+
+```text
+zipalign：通过
+apksigner verify：通过
+application-label：XNPlayer
+native-code：arm64-v8a
+versionName：1.1.0
+versionCode：101002
+```
+
+如果旧的错误 WebDAV 最近播放记录仍异常，删除该条历史后重新播放一次即可。
 
