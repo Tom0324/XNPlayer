@@ -11,12 +11,18 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import app.marlboroadvance.mpvex.domain.network.NetworkConnection
 import app.marlboroadvance.mpvex.domain.network.NetworkFile
 import app.marlboroadvance.mpvex.domain.network.NetworkProtocol
+import app.marlboroadvance.mpvex.domain.recentlyplayed.repository.RecentlyPlayedRepository
 import app.marlboroadvance.mpvex.repository.NetworkRepository
+import app.marlboroadvance.mpvex.utils.history.NetworkRecentUri
 import app.marlboroadvance.mpvex.utils.history.RecentlyPlayedOps
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -33,9 +39,30 @@ class NetworkBrowserViewModel(
 ) : AndroidViewModel(application),
   KoinComponent {
   private val repository: NetworkRepository by inject()
+  private val recentlyPlayedRepository: RecentlyPlayedRepository by inject()
+
+  /**
+   * Network-browser-specific last-played path.
+   *
+   * The global [RecentlyPlayedOps.observeLastPlayedPath] deliberately filters network
+   * streams out of "last played for highlight" (SQL launchSource whitelist excludes
+   * `network_stream`). That is correct for the home screen, but it breaks this screen:
+   * after playing an episode over WebDAV/SMB/FTP and coming back, the highlight path is
+   * null so the list always jumps back to the top instead of the episode just played.
+   *
+   * Here we observe the full recent list and pick the newest entry that belongs to the
+   * current connection, without touching the global highlight behaviour.
+   */
   val recentlyPlayedFilePath: StateFlow<String?> =
-    RecentlyPlayedOps
-      .observeLastPlayedPath()
+    recentlyPlayedRepository
+      .observeRecentlyPlayed(50)
+      .mapLatest { entries ->
+        entries.firstOrNull { entry ->
+          NetworkRecentUri.decode(entry.filePath)?.connectionId == connectionId
+        }?.filePath
+      }
+      .distinctUntilChanged()
+      .flowOn(Dispatchers.IO)
       .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
   private val _files = MutableStateFlow<List<NetworkFile>>(emptyList())
