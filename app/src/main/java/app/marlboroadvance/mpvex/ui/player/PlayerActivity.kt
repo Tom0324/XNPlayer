@@ -45,6 +45,7 @@ import app.marlboroadvance.mpvex.preferences.PlayerPreferences
 import app.marlboroadvance.mpvex.preferences.SubtitlesPreferences
 import app.marlboroadvance.mpvex.ui.player.controls.PlayerControls
 import app.marlboroadvance.mpvex.ui.theme.MpvexTheme
+import app.marlboroadvance.mpvex.ui.browser.networkstreaming.proxy.NetworkStreamingProxy
 import app.marlboroadvance.mpvex.utils.history.NetworkRecentUri
 import app.marlboroadvance.mpvex.utils.history.RecentlyPlayedOps
 import app.marlboroadvance.mpvex.utils.media.HttpUtils
@@ -1145,6 +1146,24 @@ class PlayerActivity :
    *
    * @param extras Bundle containing HTTP headers
    */
+  private data class CurrentNetworkTarget(
+    val connectionId: Long,
+    val path: String,
+  )
+
+  /**
+   * Resolve the real network file behind a local proxy URL. This is required for
+   * playlist items: the original Activity intent still points to the first item,
+   * while the currently loaded item has a different proxy stream id.
+   */
+  private fun currentNetworkTarget(uri: Uri): CurrentNetworkTarget? {
+    val streamId = uri.lastPathSegment ?: return null
+    val info = runCatching {
+      NetworkStreamingProxy.getInstance().getStreamInfo(streamId)
+    }.getOrNull() ?: return null
+    return CurrentNetworkTarget(info.connection.id, info.filePath)
+  }
+
   private fun setHttpHeadersFromExtras(extras: Bundle?) {
     // Build header map starting with auto-detected referer
     val headerMap = mutableMapOf<String, String>()
@@ -2000,8 +2019,12 @@ class PlayerActivity :
    * @param isSync If true, executes synchronously on the calling thread with runBlocking.
    *               Essential during onPause when finishing so the state is written before MainActivity resumes.
    */
-  private fun saveVideoPlaybackState(mediaTitle: String, isSync: Boolean = false) {
-    if (mediaIdentifier.isBlank()) return
+  private fun saveVideoPlaybackState(
+    mediaTitle: String,
+    isSync: Boolean = false,
+    identifierSnapshot: String = mediaIdentifier,
+  ) {
+    if (identifierSnapshot.isBlank()) return
 
     // Cancel any previous pending save operation
     savePlaybackStateJob?.cancel()
@@ -2028,8 +2051,8 @@ class PlayerActivity :
 
     val saveBlock: suspend () -> Unit = {
       runCatching {
-        val oldState = playbackStateRepository.getVideoDataByTitle(mediaIdentifier)
-        Log.d(TAG, "Saving playback state for: $mediaTitle (identifier: $mediaIdentifier)")
+        val oldState = playbackStateRepository.getVideoDataByTitle(identifierSnapshot)
+        Log.d(TAG, "Saving playback state for: $mediaTitle (identifier: $identifierSnapshot)")
 
         val duration = if (currentDuration > 0) {
           currentDuration
@@ -2060,7 +2083,7 @@ class PlayerActivity :
 
         playbackStateRepository.upsert(
           PlaybackStateEntity(
-            mediaTitle = mediaIdentifier,
+            mediaTitle = identifierSnapshot,
             lastPosition = lastPosition,
             playbackSpeed = speed,
             videoZoom = videoZoom,
@@ -2235,15 +2258,17 @@ class PlayerActivity :
           }
         }
 
-      val stableFilePath =
-        intent.getStringExtra("network_file_path")?.let { networkPath ->
-          val networkConnectionId = intent.getLongExtra("network_connection_id", -1L)
-          if (networkConnectionId != -1L) {
-            NetworkRecentUri.encode(networkConnectionId, networkPath)
-          } else {
-            filePath
-          }
-        } ?: filePath
+      val networkTarget = currentNetworkTarget(uri)
+      val stableFilePath = networkTarget?.let {
+        NetworkRecentUri.encode(it.connectionId, it.path)
+      } ?: intent.getStringExtra("network_file_path")?.let { networkPath ->
+        val networkConnectionId = intent.getLongExtra("network_connection_id", -1L)
+        if (networkConnectionId != -1L) {
+          NetworkRecentUri.encode(networkConnectionId, networkPath)
+        } else {
+          filePath
+        }
+      } ?: filePath
 
       val launchSource =
         when {
@@ -3051,7 +3076,7 @@ class PlayerActivity :
 
     // Save current video's playback state before switching
     if (fileName.isNotBlank()) {
-      saveVideoPlaybackState(fileName)
+      saveVideoPlaybackState(fileName, identifierSnapshot = mediaIdentifier)
     }
 
     val uri = playlist[index]
@@ -3084,6 +3109,13 @@ class PlayerActivity :
     }
     // Generate new media identifier for playback state
     mediaIdentifier = getMediaIdentifierFromUri(uri, fileName)
+
+    // Keep intent extras in sync with the current playlist item so subtitles,
+    // playback state and recently played history use this item, not the first one.
+    currentNetworkTarget(uri)?.let { target ->
+      intent.putExtra("network_file_path", target.path)
+      intent.putExtra("network_connection_id", target.connectionId)
+    }
 
     // Set HTTP headers (including referer) for network streams
     setHttpHeadersForUri(uri)
@@ -3266,15 +3298,17 @@ class PlayerActivity :
         MPVLib.getPropertyInt("height") ?: MPVLib.getPropertyInt("video-params/h") ?: 0
       }.getOrDefault(0)
 
-      val stableFilePath =
-        intent.getStringExtra("network_file_path")?.let { networkPath ->
-          val networkConnectionId = intent.getLongExtra("network_connection_id", -1L)
-          if (networkConnectionId != -1L) {
-            NetworkRecentUri.encode(networkConnectionId, networkPath)
-          } else {
-            filePath
-          }
-        } ?: filePath
+      val networkTarget = currentNetworkTarget(uri)
+      val stableFilePath = networkTarget?.let {
+        NetworkRecentUri.encode(it.connectionId, it.path)
+      } ?: intent.getStringExtra("network_file_path")?.let { networkPath ->
+        val networkConnectionId = intent.getLongExtra("network_connection_id", -1L)
+        if (networkConnectionId != -1L) {
+          NetworkRecentUri.encode(networkConnectionId, networkPath)
+        } else {
+          filePath
+        }
+      } ?: filePath
 
       RecentlyPlayedOps.addRecentlyPlayed(
         filePath = stableFilePath,
