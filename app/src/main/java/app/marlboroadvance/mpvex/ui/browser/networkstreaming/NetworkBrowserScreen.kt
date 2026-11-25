@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
@@ -40,9 +41,12 @@ import app.marlboroadvance.mpvex.presentation.components.pullrefresh.PullRefresh
 import app.marlboroadvance.mpvex.ui.browser.cards.NetworkFolderCard
 import app.marlboroadvance.mpvex.ui.browser.cards.NetworkVideoCard
 import app.marlboroadvance.mpvex.ui.browser.components.BrowserTopBar
+import app.marlboroadvance.mpvex.preferences.BrowserPreferences
+import app.marlboroadvance.mpvex.preferences.preference.collectAsState
 import app.marlboroadvance.mpvex.ui.browser.states.EmptyState
 import app.marlboroadvance.mpvex.ui.preferences.PreferencesScreen
 import app.marlboroadvance.mpvex.ui.utils.LocalBackStack
+import app.marlboroadvance.mpvex.utils.history.NetworkRecentUri
 import kotlinx.serialization.Serializable
 import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
@@ -73,6 +77,9 @@ data class NetworkBrowserScreen(
     val files by viewModel.files.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val recentlyPlayedFilePath by viewModel.recentlyPlayedFilePath.collectAsState()
+    val browserPreferences = org.koin.compose.koinInject<BrowserPreferences>()
+    val autoScrollToLastPlayed by browserPreferences.autoScrollToLastPlayed.collectAsState()
 
     // UI State
     val isRefreshing = remember { mutableStateOf(false) }
@@ -116,6 +123,9 @@ data class NetworkBrowserScreen(
         files = files,
         connectionId = connectionId,
         connectionName = connectionName,
+        currentPath = currentPath,
+        recentlyPlayedFilePath = recentlyPlayedFilePath,
+        autoScrollToLastPlayed = autoScrollToLastPlayed,
         isLoading = isLoading && files.isEmpty(),
         isRefreshing = isRefreshing,
         error = error,
@@ -143,6 +153,9 @@ private fun NetworkBrowserContent(
   files: List<NetworkFile>,
   connectionId: Long,
   connectionName: String,
+  currentPath: String,
+  recentlyPlayedFilePath: String?,
+  autoScrollToLastPlayed: Boolean,
   isLoading: Boolean,
   isRefreshing: MutableState<Boolean>,
   error: String?,
@@ -203,7 +216,35 @@ private fun NetworkBrowserContent(
     else -> {
       val folders = files.filter { it.isDirectory }
       val videos = files.filter { !it.isDirectory && it.mimeType?.startsWith("video/") == true }
-      val networkListState = LazyListState()
+
+      val lastPlayedPath = remember(recentlyPlayedFilePath) {
+        recentlyPlayedFilePath?.let { NetworkRecentUri.decode(it)?.path ?: it }
+      }
+      val isLastPlayedInCurrentFolder = lastPlayedPath?.let { path ->
+        val parent = path.substringBeforeLast('/', "")
+        parent.trim('/').equals(currentPath.trim('/'), ignoreCase = true)
+      } ?: false
+
+      val targetVideoIndex = if (autoScrollToLastPlayed && isLastPlayedInCurrentFolder) {
+        videos.indexOfFirst { it.path.trim('/').equals(lastPlayedPath.orEmpty().trim('/'), ignoreCase = true) }
+      } else {
+        -1
+      }
+      val targetListIndex = if (targetVideoIndex >= 0) {
+        (if (folders.isNotEmpty()) 1 else 0) + folders.size +
+          (if (videos.isNotEmpty()) 1 else 0) + targetVideoIndex
+      } else {
+        0
+      }
+
+      val networkListState = rememberLazyListState(
+        initialFirstVisibleItemIndex = if (autoScrollToLastPlayed) targetListIndex else 0,
+      )
+      LaunchedEffect(targetListIndex, autoScrollToLastPlayed) {
+        if (autoScrollToLastPlayed && targetListIndex > 0) {
+          networkListState.scrollToItem(targetListIndex)
+        }
+      }
 
       // Check if at top of list to hide scrollbar during pull-to-refresh
       val isAtTop by remember {
