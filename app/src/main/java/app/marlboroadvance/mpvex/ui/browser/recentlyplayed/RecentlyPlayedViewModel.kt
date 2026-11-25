@@ -453,7 +453,7 @@ class RecentlyPlayedViewModel(application: Application) : AndroidViewModel(appli
   ): Video {
     // Extract URI components
     val uri = Uri.parse(url)
-    val networkTarget = NetworkRecentUri.decode(url)
+    val networkTarget = NetworkRecentUri.decode(url, parsedVideoTitle)
     val pathForMetadata = networkTarget?.path ?: uri.path.orEmpty()
 
     // Use parsed title from database if available, otherwise fallback to URI path
