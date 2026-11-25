@@ -33,10 +33,8 @@ class NetworkBrowserViewModel(
 ) : AndroidViewModel(application),
   KoinComponent {
   private val repository: NetworkRepository by inject()
-  private val recentlyPlayedOps: RecentlyPlayedOps by inject()
-
   val recentlyPlayedFilePath: StateFlow<String?> =
-    recentlyPlayedOps
+    RecentlyPlayedOps
       .observeLastPlayedPath()
       .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
