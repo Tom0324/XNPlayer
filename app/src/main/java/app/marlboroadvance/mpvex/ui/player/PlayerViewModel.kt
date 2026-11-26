@@ -165,7 +165,9 @@ class PlayerViewModel(
   // Disc titles (ISO/DVD/Blu-ray) are exposed by mpv 0.42 as "editions".
   // Empty for regular videos -> the Editions sheet entry stays hidden.
   val editions: StateFlow<List<EditionNode>> =
-    MPVLib.propNode["editions"]
+    // NOTE: mpv's "editions" property is only the COUNT (int); the actual list
+    // of disc titles is "edition-list" (each entry has id/title/default).
+    MPVLib.propNode["edition-list"]
       .map { node ->
         node?.toObject<List<EditionNode>>(json)?.toImmutableList()
           ?: persistentListOf()
