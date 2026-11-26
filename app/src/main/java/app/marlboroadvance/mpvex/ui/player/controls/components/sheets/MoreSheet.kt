@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -63,6 +64,8 @@ fun MoreSheet(
   onStartTimer: (Int) -> Unit,
   onDismissRequest: () -> Unit,
   onEnterFiltersPanel: () -> Unit,
+  onOpenEditions: () -> Unit = {},
+  hasEditions: Boolean = false,
   onAnime4KChanged: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
@@ -138,6 +141,18 @@ val scope = rememberCoroutineScope()
             ) {
               Icon(imageVector = Icons.Default.Tune, contentDescription = null)
               Text(text = stringResource(id = R.string.player_sheets_filters_title))
+            }
+          }
+          // Disc titles entry: only present for ISO/DVD/Blu-ray (mpv editions nonempty)
+          if (hasEditions) {
+            TextButton(onClick = onOpenEditions) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+              ) {
+                Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null)
+                Text(text = stringResource(id = R.string.player_sheets_editions_title))
+              }
             }
           }
         }

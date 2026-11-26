@@ -2433,6 +2433,8 @@
 <string name="player_sheets_chapters_count">%1$d Chapters</string>
 <string name="player_sheets_chapters_empty">No chapter information</string>
 <string name="player_sheets_chapters_title">Chapters</string>
+  <string name="player_sheets_editions_title">Disc Titles</string>
+  <string name="player_sheets_disc_menu">Disc Menu</string>
 <string name="player_sheets_decoder_native_auto">Auto (Hardware first)</string>
 <string name="player_sheets_decoder_native_hw">Hardware (MediaCodec HW)</string>
 <string name="player_sheets_decoder_native_sw">Software (System SW)</string>

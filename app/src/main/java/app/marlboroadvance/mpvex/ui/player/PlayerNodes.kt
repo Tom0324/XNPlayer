@@ -12,6 +12,23 @@ data class ChapterNode(
   fun toSegment(): Segment = Segment(title, time)
 }
 
+/**
+ * An mpv "editions" entry. For DVD/Blu-ray ISO images mpv exposes the disc
+ * titles as editions (id 0 = first title); a synthetic "Disc Menu" entry is
+ * also present on DVD. `length` is optional because not all demuxers provide
+ * per-title duration.
+ */
+@Serializable
+data class EditionNode(
+  val id: Int,
+  val title: String? = null,
+  val default: Boolean? = null,
+  val length: Double? = null,
+) {
+  val displayTitle: String
+    get() = title?.takeIf { it.isNotBlank() } ?: "标题 ${id + 1}"
+}
+
 @Serializable
 data class TrackNode(
   val id: Int,

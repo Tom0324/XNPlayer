@@ -188,6 +188,8 @@ fun PlayerControls(
   }
   val playerTimeToDisappear by playerPreferences.playerTimeToDisappear.collectAsState()
   val chapters by viewModel.chapters.collectAsState(persistentListOf())
+  val editions by viewModel.editions.collectAsState(persistentListOf())
+  val currentEdition by viewModel.currentEdition.collectAsState()
   val playlistMode by playerPreferences.playlistMode.collectAsState()
     val haptic = LocalHapticFeedback.current
     
@@ -1227,6 +1229,8 @@ fun PlayerControls(
         MPVLib.setPropertyInt("chapter", it)
         viewModel.unpause()
       },
+      editions = editions,
+      currentEdition = currentEdition,
       decoder = decoder,
       onUpdateDecoder = { MPVLib.setPropertyString("hwdec", it.value) },
       speed = playbackSpeed ?: playerPreferences.defaultSpeed.get(),

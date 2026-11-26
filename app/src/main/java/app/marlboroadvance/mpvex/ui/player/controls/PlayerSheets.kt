@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import app.marlboroadvance.mpvex.preferences.preference.collectAsState
 import app.marlboroadvance.mpvex.ui.player.Decoder
+import app.marlboroadvance.mpvex.ui.player.EditionNode
 import app.marlboroadvance.mpvex.ui.player.Panels
 import app.marlboroadvance.mpvex.ui.player.Sheets
 import app.marlboroadvance.mpvex.ui.player.TrackNode
@@ -16,6 +17,7 @@ import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.AspectRati
 import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.AudioTracksSheet
 import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.ChaptersSheet
 import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.DecodersSheet
+import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.EditionsSheet
 import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.FrameNavigationSheet
 import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.MoreSheet
 import app.marlboroadvance.mpvex.ui.player.controls.components.sheets.PlaybackSpeedSheet
@@ -49,6 +51,9 @@ fun PlayerSheets(
   chapter: Segment?,
   chapters: ImmutableList<Segment>,
   onSeekToChapter: (Int) -> Unit,
+  // Editions sheet (ISO disc titles)
+  editions: ImmutableList<EditionNode>,
+  currentEdition: Int?,
   // Decoders sheet
   decoder: Decoder,
   onUpdateDecoder: (Decoder) -> Unit,
@@ -161,6 +166,14 @@ fun PlayerSheets(
       )
     }
 
+    Sheets.Editions -> {
+      EditionsSheet(
+        editions = editions,
+        currentEdition = currentEdition,
+        onDismissRequest = onDismissRequest,
+      )
+    }
+
     Sheets.Decoders -> {
       DecodersSheet(
         selectedDecoder = decoder,
@@ -175,6 +188,8 @@ fun PlayerSheets(
         onStartTimer = onStartSleepTimer,
         onDismissRequest = onDismissRequest,
         onEnterFiltersPanel = { onOpenPanel(Panels.VideoFilters) },
+        onOpenEditions = { onShowSheet(Sheets.Editions) },
+        hasEditions = editions.isNotEmpty(),
         onAnime4KChanged = { },
       )
     }

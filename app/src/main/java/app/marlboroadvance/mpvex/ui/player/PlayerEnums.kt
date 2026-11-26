@@ -95,6 +95,7 @@ enum class Sheets {
   SubtitleTracks,
   AudioTracks,
   Chapters,
+  Editions,
   Decoders,
   More,
   VideoZoom,

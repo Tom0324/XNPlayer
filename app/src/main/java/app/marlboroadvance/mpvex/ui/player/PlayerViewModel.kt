@@ -162,6 +162,18 @@ class PlayerViewModel(
           ?: persistentListOf()
       }.stateIn(viewModelScope, SharingStarted.Lazily, persistentListOf())
 
+  // Disc titles (ISO/DVD/Blu-ray) are exposed by mpv 0.42 as "editions".
+  // Empty for regular videos -> the Editions sheet entry stays hidden.
+  val editions: StateFlow<List<EditionNode>> =
+    MPVLib.propNode["editions"]
+      .map { node ->
+        node?.toObject<List<EditionNode>>(json)?.toImmutableList()
+          ?: persistentListOf()
+      }.stateIn(viewModelScope, SharingStarted.Lazily, persistentListOf())
+
+  val currentEdition: StateFlow<Int?> = MPVLib.propInt["edition"]
+    .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
   // UI state
   private val _controlsShown = MutableStateFlow(false)
   val controlsShown: StateFlow<Boolean> = _controlsShown.asStateFlow()
