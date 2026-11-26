@@ -2420,10 +2420,27 @@ class PlayerActivity :
 
     // Load the new file
     getPlayableUri(intent)?.let { uri ->
+      applyHwdecForMedia(uri)
       // Avoid blocking UI thread while mpv opens network streams (e.g., HLS).
       lifecycleScope.launch(Dispatchers.Default) {
         MPVLib.command("loadfile", uri)
       }
+    }
+  }
+
+  /**
+   * Disc images use mpv's libbluray/libdvdnav path. On some Android devices the
+   * gpu-next + mediacodec zero-copy path fails to map hardware surfaces and
+   * leaves the player black even though mpv later falls back to software.
+   * Force software decoding for ISO/IMG before loading them; normal videos keep
+   * the user's decoder preference.
+   */
+  private fun applyHwdecForMedia(uri: String) {
+    val lower = uri.substringBefore('?').lowercase()
+    val isDiscImage = lower.endsWith(".iso") || lower.endsWith(".img")
+    if (isDiscImage) {
+      MPVLib.setPropertyString("hwdec", "no")
+      Log.d(TAG, "Disc image detected; forcing hwdec=no to avoid gpu-next mediacodec black screen")
     }
   }
 
@@ -3153,6 +3170,7 @@ class PlayerActivity :
     }
 
     // Load the new video
+    applyHwdecForMedia(playableUri)
     // Avoid blocking UI thread while mpv opens network streams (e.g., HLS).
     lifecycleScope.launch(Dispatchers.Default) {
       MPVLib.command("loadfile", playableUri)
