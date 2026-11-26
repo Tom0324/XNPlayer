@@ -61,6 +61,11 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     val client: NetworkClient,
     var fileSize: Long = -1L,
     var mimeType: String = "video/mp4",
+    // 4 MiB LRU block cache, only used for disc images (.iso/.img) so mpv's
+    // dvdnav/bluray demuxer can perform the many small seeks it needs.
+    val discCache: DiscBlockCache? = if (filePath.lowercase().endsWith(".iso") || filePath.lowercase().endsWith(".img")) {
+      DiscBlockCache()
+    } else null,
   )
   fun getStreamInfo(streamId: String): StreamInfo? = activeStreams[streamId]
 
@@ -182,8 +187,14 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     val rangeEnd = end ?: (fileSize - 1)
     val contentLength = rangeEnd - start + 1
 
-    // Get stream with offset
-    val inputStream = getStreamWithOffset(streamInfo, start)
+    // Get stream with offset. For disc images use a 4 MiB block cache so mpv's
+    // dvdnav/bluray demuxer sees a seekable stream; otherwise forward directly.
+    val inputStream =
+      if (streamInfo.discCache != null && fileSize > 0) {
+        getDiscCachedStream(streamInfo, start, rangeEnd, fileSize)
+      } else {
+        getStreamWithOffset(streamInfo, start)
+      }
 
     if (inputStream == null) {
       return newFixedLengthResponse(
@@ -206,6 +217,45 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     response.addHeader("Content-Length", contentLength.toString())
 
     return response
+  }
+
+  /**
+   * Serve a Range from a 4 MiB block cache for disc images. Missing blocks are
+   * fetched from the remote source and cached, so mpv's repeated small seeks
+   * (IFO/VMG metadata) hit memory and the disc demuxer works over WebDAV.
+   */
+  private fun getDiscCachedStream(
+    streamInfo: StreamInfo,
+    start: Long,
+    rangeEnd: Long,
+    fileSize: Long,
+  ): InputStream? {
+    val cache = streamInfo.discCache ?: return getStreamWithOffset(streamInfo, start)
+    val blockSize = 4 * 1024 * 1024
+    val length = rangeEnd - start + 1
+
+    return cache.streamRange(start, length, fileSize) { blockIndex ->
+      val blockStart = blockIndex * blockSize.toLong()
+      val blockEnd = minOf(blockStart + blockSize - 1, fileSize - 1)
+      try {
+        runBlocking {
+          getStreamWithOffset(streamInfo, blockStart)?.use { stream ->
+            val wanted = (blockEnd - blockStart + 1).toInt()
+            val buf = ByteArray(wanted)
+            var total = 0
+            while (total < wanted) {
+              val n = stream.read(buf, total, wanted - total)
+              if (n <= 0) break
+              total += n
+            }
+            if (total <= 0) null else buf.copyOf(total)
+          }
+        }
+      } catch (e: Exception) {
+        Log.e(TAG, "DiscBlockCache fetch block $blockIndex failed: ${e.message}")
+        null
+      }
+    }
   }
 
   private fun handleFullRequest(
