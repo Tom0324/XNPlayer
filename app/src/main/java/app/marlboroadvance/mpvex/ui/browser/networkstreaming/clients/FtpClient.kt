@@ -341,6 +341,7 @@ class FtpClient(private val connection: NetworkConnection) : NetworkClient {
       "mpeg", "mpg" -> "video/mpeg"
       "3gp" -> "video/3gpp"
       "ts" -> "video/mp2t"
+      "iso", "img" -> "video/x-iso9660-image"
       else -> null
     }
   }

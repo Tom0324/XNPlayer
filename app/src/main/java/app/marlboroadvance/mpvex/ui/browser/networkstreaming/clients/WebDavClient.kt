@@ -213,6 +213,10 @@ class WebDavClient(private val connection: NetworkConnection) : NetworkClient {
       "mpeg", "mpg" -> "video/mpeg"
       "3gp" -> "video/3gpp"
       "ts" -> "video/mp2t"
+      // Disc images: mpv 0.42 can open DVD/Blu-ray ISO directly via
+      // dvdnav/libbluray (built into the native kernel). Expose them as video
+      // so the browser list does not filter them out.
+      "iso", "img" -> "video/x-iso9660-image"
       else -> null
     }
   }
