@@ -84,7 +84,7 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     // pinning ~128 MB of heap (which OOM-crashed v1.1.7).
     val isDisc = filePath.lowercase().endsWith(".iso") || filePath.lowercase().endsWith(".img")
     val discCache = if (isDisc) {
-      val cacheFile = kotlin.io.createTempFile("xnplayer-disc-cache-", ".bin")
+      val cacheFile = java.io.File.createTempFile("xnplayer-disc-cache-", ".bin")
       DiscBlockCache(cacheFile = cacheFile)
     } else null
 
