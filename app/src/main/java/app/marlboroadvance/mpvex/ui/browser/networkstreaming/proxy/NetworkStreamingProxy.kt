@@ -61,11 +61,8 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     val client: NetworkClient,
     var fileSize: Long = -1L,
     var mimeType: String = "video/mp4",
-    // 4 MiB LRU block cache, only used for disc images (.iso/.img) so mpv's
-    // dvdnav/bluray demuxer can perform the many small seeks it needs.
-    val discCache: DiscBlockCache? = if (filePath.lowercase().endsWith(".iso") || filePath.lowercase().endsWith(".img")) {
-      DiscBlockCache()
-    } else null,
+    // Disk-backed 4 MiB LRU block cache for disc images (.iso/.img) only.
+    val discCache: DiscBlockCache? = null,
   )
   fun getStreamInfo(streamId: String): StreamInfo? = activeStreams[streamId]
 
@@ -83,12 +80,21 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
   ): String {
     val client = NetworkClientFactory.createClient(connection)
 
+    // Disk-backed block cache only for disc images. Using a temp file avoids
+    // pinning ~128 MB of heap (which OOM-crashed v1.1.7).
+    val isDisc = filePath.lowercase().endsWith(".iso") || filePath.lowercase().endsWith(".img")
+    val discCache = if (isDisc) {
+      val cacheFile = kotlin.io.createTempFile("xnplayer-disc-cache-", ".bin")
+      DiscBlockCache(cacheFile = cacheFile)
+    } else null
+
     val streamInfo = StreamInfo(
       connection = connection,
       filePath = filePath,
       client = client,
       fileSize = fileSize,
       mimeType = mimeType,
+      discCache = discCache,
     )
 
     activeStreams[streamId] = streamInfo
@@ -114,6 +120,7 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
           // Ignore disconnect errors
         }
       }
+      try { streamInfo.discCache?.close() } catch (_: Exception) {}
     }
   }
 
@@ -234,26 +241,26 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     val blockSize = 4 * 1024 * 1024
     val length = rangeEnd - start + 1
 
-    return cache.streamRange(start, length, fileSize) { blockIndex ->
+    return cache.streamRange(start, length, fileSize) { blockIndex, blockLen, sink ->
       val blockStart = blockIndex * blockSize.toLong()
-      val blockEnd = minOf(blockStart + blockSize - 1, fileSize - 1)
       try {
         runBlocking {
           getStreamWithOffset(streamInfo, blockStart)?.use { stream ->
-            val wanted = (blockEnd - blockStart + 1).toInt()
-            val buf = ByteArray(wanted)
-            var total = 0
-            while (total < wanted) {
-              val n = stream.read(buf, total, wanted - total)
+            val buf = ByteArray(64 * 1024)
+            var remaining = blockLen
+            while (remaining > 0) {
+              val want = minOf(buf.size, remaining)
+              val n = stream.read(buf, 0, want)
               if (n <= 0) break
-              total += n
+              if (!sink(buf, 0, n)) return@runBlocking false
+              remaining -= n
             }
-            if (total <= 0) null else buf.copyOf(total)
+            remaining == 0
           }
-        }
+        } ?: false
       } catch (e: Exception) {
         Log.e(TAG, "DiscBlockCache fetch block $blockIndex failed: ${e.message}")
-        null
+        false
       }
     }
   }
