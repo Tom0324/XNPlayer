@@ -88,7 +88,13 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
 
     activeStreams[streamId] = streamInfo
 
-    return "http://127.0.0.1:$listeningPort/$streamId"
+    // mpv 0.42 only probes ISO images as discs (dvdnav/bluray) when the URL
+    // looks like an .iso file. Without the extension it falls back to raw
+    // mpegts probing and plays the disc linearly (extras first), with no
+    // edition/title list. Append the real extension to the local proxy URL.
+    val ext = filePath.substringAfterLast('.', "").takeIf { it.length in 1..5 }?.lowercase()
+    val suffix = if (ext == "iso" || ext == "img") ".$ext" else ""
+    return "http://127.0.0.1:$listeningPort/$streamId$suffix"
   }
 
   /**
@@ -117,8 +123,9 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
   override fun serve(session: IHTTPSession): Response {
     val uri = session.uri
 
-    // Extract stream ID from URI (format: /streamId)
-    val streamId = uri.removePrefix("/").split("/").firstOrNull()
+    // Extract stream ID from URI (format: /streamId or /streamId.iso)
+    val rawId = uri.removePrefix("/").split("/").firstOrNull()
+    val streamId = rawId?.removeSuffix(".iso")?.removeSuffix(".img")
     if (streamId.isNullOrEmpty()) {
       return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Stream not found")
     }

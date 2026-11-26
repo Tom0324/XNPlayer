@@ -126,12 +126,17 @@ class NetworkBrowserViewModel(
           val itemUri = if (useProxy) {
             val proxy = app.marlboroadvance.mpvex.ui.browser.networkstreaming.proxy.NetworkStreamingProxy.getInstance()
             val streamId = "${connectionId}_${batchId}_${index}"
+            // ISO images must not be advertised as a video mime-type: mpv would
+            // pick the ffmpeg mpegts demuxer and play the disc linearly (extras
+            // first) instead of using dvdnav/bluray disc navigation.
+            val isDiscImage = item.path.lowercase().endsWith(".iso") || item.path.lowercase().endsWith(".img")
+            val proxyMime = if (isDiscImage) "application/x-iso9660-image" else (item.mimeType ?: "video/mp4")
             val proxyUrl = proxy.registerStream(
               streamId = streamId,
               connection = connection,
               filePath = item.path,
               fileSize = item.size,
-              mimeType = item.mimeType ?: "video/mp4",
+              mimeType = proxyMime,
             )
             android.net.Uri.parse(proxyUrl)
           } else {
@@ -153,7 +158,10 @@ class NetworkBrowserViewModel(
         intent.putParcelableArrayListExtra("playlist", playlistUris)
         intent.putStringArrayListExtra("playlist_names", ArrayList(orderedFiles.map { it.name }))
         intent.putExtra("playlist_index", currentIndex)
-        intent.setDataAndType(currentUri, file.mimeType ?: "video/*")
+        // Disc images use a non-video mime so mpv's disc demuxer is preferred
+        val currentIsDisc = file.path.lowercase().endsWith(".iso") || file.path.lowercase().endsWith(".img")
+        val intentMime = if (currentIsDisc) "application/x-iso9660-image" else (file.mimeType ?: "video/*")
+        intent.setDataAndType(currentUri, intentMime)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         if (!useProxy) {
