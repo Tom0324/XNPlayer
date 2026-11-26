@@ -274,7 +274,17 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
       streamInfo.fileSize = getFileSize(streamInfo)
     }
 
-    val inputStream = getStream(streamInfo)
+    // For disc images, even the initial open-ended GET must go through the
+    // lazy block cache. Sardine's plain GET on a 20+ GB ISO never returns
+    // control to mpv's demuxer probing (no seek), while the block cache serves
+    // only the few blocks mpv actually reads.
+    val totalSize = streamInfo.fileSize
+    val inputStream =
+      if (streamInfo.discCache != null && totalSize > 0) {
+        getDiscCachedStream(streamInfo, 0L, totalSize - 1, totalSize)
+      } else {
+        getStream(streamInfo)
+      }
 
     if (inputStream == null) {
       return newFixedLengthResponse(
