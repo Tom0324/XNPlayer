@@ -6,16 +6,15 @@ import java.io.InputStream
 import java.io.RandomAccessFile
 
 /**
- * Disk-backed 4 MiB block cache for disc images served through the local proxy.
+ * Disk-backed, on-demand 4 MiB block cache for disc images served via the
+ * local proxy.
  *
  * mpv's dvdnav/bluray demuxer performs many small random reads (IFO/VMG
- * metadata) when opening an ISO. Forwarding every Range request to the remote
- * WebDAV server is far too slow and mpv falls back to linear mpegts playback
- * (extras first).
- *
- * Blocks are stored in a sparse temp file instead of heap ByteArray objects:
- * a 32-block cache would otherwise pin ~128 MB of heap and repeatedly allocate
- * 4 MB contiguous arrays, which OOM-crashes on low-heap devices.
+ * metadata). Forwarding every Range request to the remote WebDAV server is far
+ * too slow, so blocks are cached in a sparse temp file (not heap) with LRU.
+ * Crucially, blocks are fetched LAZILY on read — never eagerly for the whole
+ * requested range — otherwise an open-ended `bytes=0-` request (23 GB) would
+ * try to download the entire disc before returning.
  */
 class DiscBlockCache(
   private val cacheFile: File,
@@ -24,62 +23,47 @@ class DiscBlockCache(
   private val maxBlocks: Int = 32,
 ) : AutoCloseable {
 
-  // blockIndex -> slot; access-order LinkedHashMap == LRU
   private val slots = object : LinkedHashMap<Long, Int>(maxBlocks, 0.75f, true) {
     override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, Int>?): Boolean = size > maxBlocks
   }
   private var nextSlot = 0
   private val raf = RandomAccessFile(cacheFile, "rw")
 
-  @Synchronized
-  fun slotOf(index: Long): Int? = slots[index]
+  @Synchronized fun cachedBlockCount(): Int = slots.size
 
   @Synchronized
-  fun ensureSlot(index: Long): Int {
+  private fun slotOf(index: Long): Int? = slots[index]
+
+  @Synchronized
+  private fun ensureSlot(index: Long): Int {
     slots[index]?.let { return it }
-    val slot = if (slots.size < maxBlocks) {
-      nextSlot++.also { slots[index] = it }
+    return if (slots.size < maxBlocks) {
+      val slot = nextSlot++
+      slots[index] = slot
+      slot
     } else {
       val eldest = slots.entries.first().key
       val reusable = slots.remove(eldest)!!
       slots[index] = reusable
       reusable
     }
-    return slot
   }
 
-  @Synchronized
-  fun blockOffset(index: Long): Long = ensureSlot(index) * blockSize
-
-  /**
-   * Fetch a missing block and write it directly to the cache file using a small
-   * 64 KiB heap buffer (never a 4 MB allocation). [write] receives the target
-   * file offset, the block length, and a buffer-filled callback.
-   * Returns true on success.
-   */
-  fun fetchInto(index: Long, write: (fileOffset: Long, blockLen: Int, sink: (ByteArray, Int, Int) -> Boolean) -> Boolean): Boolean {
-    val targetOffset = blockOffset(index)
-    val blockLen = minOf(blockSize, Long.MAX_VALUE - targetOffset).toInt()
+  /** Fetch a missing block into the cache file with a small 64 KiB buffer. */
+  private fun fetchInto(index: Long, fileSize: Long, fetch: (index: Long, len: Int, sink: (ByteArray, Int, Int) -> Boolean) -> Boolean): Boolean {
+    val targetOffset = ensureSlot(index) * blockSize
+    val blockLen = minOf(blockSize, fileSize - index * blockSize).toInt()
+    if (blockLen <= 0) return false
     return synchronized(this) {
       try {
-        raf.setLength(maxOf(raf.length(), targetOffset + blockLen))
+        if (raf.length() < targetOffset + blockLen) raf.setLength(targetOffset + blockLen)
         raf.seek(targetOffset)
-        val ok = write(targetOffset, blockLen) { b, off, len ->
-          raf.write(b, off, len)
-          true
-        }
-        ok
+        fetch(index, blockLen) { b, off, len -> raf.write(b, off, len); true }
       } catch (e: Exception) {
-        Log.e(tag, "write block $index failed: ${e.message}")
+        Log.e(tag, "fetch block $index failed: ${e.message}")
         false
       }
     }
-  }
-
-  @Synchronized
-  fun clear() {
-    slots.clear()
-    nextSlot = 0
   }
 
   override fun close() {
@@ -88,10 +72,8 @@ class DiscBlockCache(
   }
 
   /**
-   * Returns an InputStream reading [start, start+length) from the cache file.
-   * [fetchBlock] is called for missing slots with (blockIndex, targetFileOffset,
-   * blockSize) and must write the block bytes directly into the file (no heap
-   * ByteArray). Returns false if the fetch failed.
+   * Returns a lazy InputStream for [start, start+length). Blocks are downloaded
+   * only when read() actually reaches them.
    */
   fun streamRange(
     start: Long,
@@ -101,78 +83,59 @@ class DiscBlockCache(
   ): InputStream? {
     if (length <= 0) return null
     val endExclusive = (start + length).coerceAtMost(fileSize)
+    if (start >= endExclusive) return null
 
-    var pos = start
-    while (pos < endExclusive) {
-      val blockIndex = pos / blockSize
-      val slot = slotOf(blockIndex)
-      if (slot == null) {
-        val blockLen = minOf(blockSize, fileSize - blockIndex * blockSize).toInt()
-        val ok = fetchInto(blockIndex) { _, _, sink ->
-          fetchBlock(blockIndex, blockLen, sink)
-        }
-        if (!ok) return null
-      }
-      // Advance to the next block boundary (or the requested end). Never land
-      // back inside the same block, otherwise the loop never terminates.
-      val nextBoundary = blockIndex * blockSize + blockSize
-      pos = minOf(nextBoundary, endExclusive)
-    }
-
-    // Single RAF-backed stream; positions are real file offsets in the cache file.
     return object : InputStream() {
       private var cur = start
-      private val end = endExclusive
       private val buf = ByteArray(64 * 1024)
       private var bufPos = 0
       private var bufLen = 0
 
-      override fun read(): Int {
-        if (bufPos >= bufLen) {
-          if (cur >= end) return -1
-          val idx = cur / blockSize
-          val slot = slotOf(idx) ?: return -1
-          val offInBlock = (cur % blockSize).toInt()
-          val toRead = minOf(buf.size.toLong(), end - cur).toInt()
-          synchronized(this@DiscBlockCache) {
-            raf.seek(slot * blockSize + offInBlock)
-            bufLen = raf.read(buf, 0, toRead)
-          }
-          if (bufLen <= 0) return -1
-          bufPos = 0
+      private fun fill(): Boolean {
+        if (cur >= endExclusive) return false
+        val idx = cur / blockSize
+        if (slotOf(idx) == null) {
+          Log.d(tag, "FETCH block=$idx offset=${idx * blockSize}")
+          if (!fetchInto(idx, fileSize, fetchBlock)) return false
         }
+        val slot = slotOf(idx) ?: return false
+        val offInBlock = (cur % blockSize).toInt()
+        val inBlock = (blockSize - offInBlock).toInt()
+        val want = minOf(minOf(buf.size.toLong(), endExclusive - cur), inBlock.toLong()).toInt()
+        return synchronized(this@DiscBlockCache) {
+          try {
+            raf.seek(slot * blockSize + offInBlock)
+            bufLen = raf.read(buf, 0, want)
+            bufPos = 0
+            bufLen > 0
+          } catch (e: Exception) {
+            Log.e(tag, "read block $idx failed: ${e.message}")
+            false
+          }
+        }
+      }
+
+      override fun read(): Int {
+        if (bufPos >= bufLen && !fill()) return -1
         cur++
         return buf[bufPos++].toInt() and 0xFF
       }
 
       override fun read(b: ByteArray, off: Int, len: Int): Int {
         if (len <= 0) return 0
-        // Fast path: copy from the current internal buffer first.
         var written = 0
-        if (bufPos < bufLen) {
-          val n = minOf(bufLen - bufPos, len)
-          System.arraycopy(buf, bufPos, b, off, n)
+        while (written < len) {
+          if (bufPos >= bufLen && !fill()) break
+          val n = minOf(bufLen - bufPos, len - written)
+          System.arraycopy(buf, bufPos, b, off + written, n)
           bufPos += n
           cur += n
           written += n
         }
-        // Then read directly from the cache file in bulk for the remainder.
-        while (written < len && cur < end) {
-          val idx = cur / blockSize
-          val slot = slotOf(idx) ?: break
-          val offInBlock = (cur % blockSize).toInt()
-          val want = minOf((len - written).toLong(), end - cur).toInt()
-          val n = synchronized(this@DiscBlockCache) {
-            raf.seek(slot * blockSize + offInBlock)
-            raf.read(b, off + written, want)
-          }
-          if (n <= 0) break
-          written += n
-          cur += n
-        }
         return if (written > 0) written else -1
       }
 
+      override fun available(): Int = (endExclusive - cur).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
       override fun close() { /* raf owned by cache */ }
     }
   }
