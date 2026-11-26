@@ -1229,7 +1229,7 @@ fun PlayerControls(
         MPVLib.setPropertyInt("chapter", it)
         viewModel.unpause()
       },
-      editions = editions,
+      editions = editions.toImmutableList(),
       currentEdition = currentEdition,
       decoder = decoder,
       onUpdateDecoder = { MPVLib.setPropertyString("hwdec", it.value) },
