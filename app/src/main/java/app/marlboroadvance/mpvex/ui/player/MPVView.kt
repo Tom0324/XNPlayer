@@ -133,10 +133,14 @@ class MPVView(
       MPVLib.setOptionString("vf", "format=yuv420p")
     }
     
-    // Cap demuxer cache for mobile to prevent memory issues
-    val cacheMegs = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) 64 else 32
+    // Keep demuxer cache defaults generous enough for 20s read-ahead. User
+    // mpv.conf values are loaded later and can still override these values.
+    val cacheMegs = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) 256 else 128
+    MPVLib.setOptionString("cache", "yes")
+    MPVLib.setOptionString("cache-secs", "20")
+    MPVLib.setOptionString("demuxer-readahead-secs", "20")
     MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
-    MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
+    MPVLib.setOptionString("demuxer-max-back-bytes", "${(cacheMegs / 2) * 1024 * 1024}")
     
     val logLevel = if (advancedPreferences.verboseLogging.get()) "v" else "warn"
     MPVLib.setOptionString("msg-level", "all=$logLevel")
