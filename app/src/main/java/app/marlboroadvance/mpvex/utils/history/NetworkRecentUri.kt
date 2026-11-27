@@ -83,6 +83,7 @@ object NetworkRecentUri : KoinComponent {
     displayName: String? = null,
     fileSize: Long = -1L,
     mimeType: String = "video/mp4",
+    withPlaylist: Boolean = false,
   ) {
     val target = decode(value)
     if (target == null) return
@@ -94,30 +95,67 @@ object NetworkRecentUri : KoinComponent {
         Toast.makeText(context, "网络连接已删除，无法播放", Toast.LENGTH_SHORT).show()
         return@launch
       }
-      val proxyUrl = runCatching {
-        NetworkStreamingProxy.getInstance().registerStream(
-          streamId = "recent_${target.connectionId}_${System.currentTimeMillis()}",
-          connection = connection,
-          filePath = target.path,
-          fileSize = fileSize,
-          mimeType = mimeType,
-        )
-      }.getOrNull()
-      if (proxyUrl == null) {
+      val title = displayName?.takeIf { it.isNotBlank() } ?: this@NetworkRecentUri.displayName(value)
+      val batchId = System.currentTimeMillis()
+
+      // When launched from Recently Played, build a playlist from the same folder
+      // so playback advances to the next episode when this one ends, matching the
+      // behaviour of browsing the WebDAV folder directly.
+      var playlistPaths: List<Pair<String, String>> = listOf(target.path to title) // path to display name
+      if (withPlaylist) {
+        val parent = target.path.substringBeforeLast('/', "")
+        val listed = withContext(Dispatchers.IO) {
+          runCatching { repository.listFiles(connection, parent) }.getOrNull()
+        }
+        val videos = listed?.getOrNull()
+          ?.filter { !it.isDirectory && it.mimeType?.startsWith("video/") == true }
+          ?.sortedBy { it.path }
+          ?.map { it.path to it.name }
+          .orEmpty()
+        if (videos.isNotEmpty() && videos.any { it.first == target.path }) {
+          playlistPaths = videos
+        }
+      }
+
+      val proxy = NetworkStreamingProxy.getInstance()
+      val playlistUris = ArrayList<android.net.Uri>()
+      val playlistNames = ArrayList<String>()
+      var currentIndex = 0
+      playlistPaths.forEachIndexed { index, (path, name) ->
+        val streamId = "recent_${target.connectionId}_${batchId}_$index"
+        val itemMime = if (path == target.path) mimeType else "video/mp4"
+        val proxyUrl = runCatching {
+          proxy.registerStream(
+            streamId = streamId,
+            connection = connection,
+            filePath = path,
+            fileSize = if (path == target.path) fileSize else -1L,
+            mimeType = itemMime,
+          )
+        }.getOrNull()
+        if (proxyUrl != null) {
+          playlistUris.add(android.net.Uri.parse(proxyUrl))
+          playlistNames.add(name)
+          if (path == target.path) currentIndex = playlistUris.size - 1
+        }
+      }
+      if (playlistUris.isEmpty()) {
         Toast.makeText(context, "无法重建网络播放地址", Toast.LENGTH_SHORT).show()
         return@launch
       }
 
-      val title = displayName?.takeIf { it.isNotBlank() } ?: this@NetworkRecentUri.displayName(value)
-      val intent = Intent(Intent.ACTION_VIEW, Uri.parse(proxyUrl))
+      val intent = Intent(Intent.ACTION_VIEW, playlistUris[currentIndex])
       intent.setClass(context, PlayerActivity::class.java)
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       intent.putExtra("internal_launch", true)
       intent.putExtra("launch_source", launchSource)
-      intent.putExtra("title", title)
-      intent.putExtra("filename", title)
+      intent.putExtra("title", playlistNames[currentIndex])
+      intent.putExtra("filename", playlistNames[currentIndex])
       intent.putExtra("network_file_path", target.path)
       intent.putExtra("network_connection_id", target.connectionId)
+      intent.putParcelableArrayListExtra("playlist", playlistUris)
+      intent.putStringArrayListExtra("playlist_names", playlistNames)
+      intent.putExtra("playlist_index", currentIndex)
       context.startActivity(intent)
     }
   }

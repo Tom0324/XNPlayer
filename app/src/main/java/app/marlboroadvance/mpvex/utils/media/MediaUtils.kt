@@ -60,11 +60,17 @@ object MediaUtils {
         launchSource = launchSource,
         displayName = source.displayName,
         fileSize = source.size,
+        withPlaylist = launchSource == "recently_played" || launchSource == "recently_played_button",
       )
       return
     }
     if (source is String && NetworkRecentUri.isSupported(source)) {
-      NetworkRecentUri.launch(context, source, launchSource)
+      NetworkRecentUri.launch(
+        context = context,
+        value = source,
+        launchSource = launchSource,
+        withPlaylist = launchSource == "recently_played" || launchSource == "recently_played_button",
+      )
       return
     }
 

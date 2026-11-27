@@ -269,15 +269,28 @@ private fun NetworkBrowserContent(
       //  2) `scrollToItem` runs before LazyColumn has measured any item, so it is a no-op.
       // Re-apply the scroll whenever the target or the visible item count changes and
       // wait until the list is actually laid out before scrolling.
-      LaunchedEffect(targetListIndex, autoScrollToLastPlayed, videos.size, folders.size) {
+      LaunchedEffect(targetListIndex, autoScrollToLastPlayed, videos.size, folders.size, currentPath) {
         if (autoScrollToLastPlayed && targetListIndex > 0) {
-          androidx.compose.runtime.snapshotFlow { networkListState.layoutInfo.totalItemsCount }
-            .first { count -> count > targetListIndex }
-          networkListState.scrollToItem(targetListIndex)
-          Log.d(
-            "NetworkAutoScroll",
-            "scrolled targetListIndex=$targetListIndex firstVisibleItem=${networkListState.firstVisibleItemIndex}",
-          )
+          // Wait until the list has actually laid out the target item. On returning
+          // from Settings the list is recomposed with files still empty, so a single
+          // scrollToItem is silently dropped. Re-apply until firstVisibleItemIndex
+          // really reaches the target (bounded attempts), and stop when the user
+          // scrolls away manually.
+          for (attempt in 1..8) {
+            val count = networkListState.layoutInfo.totalItemsCount
+            if (count > targetListIndex) break
+            kotlinx.coroutines.delay(100)
+          }
+          for (attempt in 1..8) {
+            networkListState.scrollToItem(targetListIndex)
+            kotlinx.coroutines.delay(120)
+            val first = networkListState.firstVisibleItemIndex
+            Log.d(
+              "NetworkAutoScroll",
+              "scroll attempt=$attempt targetListIndex=$targetListIndex firstVisibleItem=$first",
+            )
+            if (first >= targetListIndex - 2) break
+          }
         }
       }
 

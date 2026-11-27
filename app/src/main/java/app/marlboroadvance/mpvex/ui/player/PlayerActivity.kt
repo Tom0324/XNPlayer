@@ -2295,7 +2295,15 @@ class PlayerActivity :
         delay(100)
       }
       if (pendingResumePosition != null) {
-        Log.w(TAG, "Resume seek did not complete after $attempts attempts")
+        val target = pendingResumePosition!!
+        Log.w(TAG, "Resume seek did not complete after $attempts attempts, falling back to direct time-pos")
+        // Network streams can ignore/reorder an exact seek while mpv is still
+        // resolving the URL. Fall back to the v1.1.2 behaviour: write time-pos
+        // directly so the session resumes at least approximately instead of
+        // restarting from zero.
+        runCatching { MPVLib.setPropertyInt("time-pos", target) }
+        kotlinx.coroutines.delay(200)
+        Log.d(TAG, "Direct time-pos fallback set to ${target}s, current=${MPVLib.getPropertyInt("time-pos") ?: -1}s")
         pendingResumePosition = null
         restoringPlaybackPosition = false
       }
