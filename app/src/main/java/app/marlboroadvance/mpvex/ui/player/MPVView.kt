@@ -122,14 +122,12 @@ class MPVView(
       MPVLib.setOptionString("gpu-context", "androidvk")
     }
 
-    // Prefer HW copy over HW+ direct-surface mode. On several devices (e.g. Redmi
-    // gauguinpro) consecutive playback fails to connect the decoder to the surface
-    // (nativeWindowConnect -22 / "already connected"), which wastes a codec instance
-    // and can push the next episode all the way down to software decoding. HW copy is
-    // still hardware decoding but does not attach directly to the surface.
+    // Keep HW+ (mediacodec, direct surface) as the default decoder, falling back to
+    // HW copy then software. On some devices switching episodes logs
+    // "nativeWindowConnect -22 / already connected", but HW+ is the preferred default.
     MPVLib.setOptionString(
       "hwdec",
-      if (decoderPreferences.tryHWDecoding.get()) "mediacodec-copy,mediacodec,no" else "no",
+      if (decoderPreferences.tryHWDecoding.get()) "mediacodec,mediacodec-copy,no" else "no",
     )
     MPVLib.setOptionString("hwdec-codecs", "all")
 
