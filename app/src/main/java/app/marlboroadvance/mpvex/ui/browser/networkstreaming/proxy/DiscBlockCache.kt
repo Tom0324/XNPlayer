@@ -34,8 +34,8 @@ class DiscBlockCache(
   private var nextSlot = 0
   private val raf = RandomAccessFile(cacheFile, "rw")
 
-  private val prefetchAheadBlocks = 8
-  private val prefetchExecutor = Executors.newFixedThreadPool(2) { runnable ->
+  private val prefetchAheadBlocks = 16
+  private val prefetchExecutor = Executors.newFixedThreadPool(4) { runnable ->
     Thread(runnable, "xnplayer-disc-cache-prefetch").apply { isDaemon = true }
   }
   private val fetching = HashSet<Long>()

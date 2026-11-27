@@ -139,6 +139,10 @@ class MPVView(
     MPVLib.setOptionString("cache", "yes")
     MPVLib.setOptionString("cache-secs", "20")
     MPVLib.setOptionString("demuxer-readahead-secs", "20")
+    MPVLib.setOptionString("demuxer-cache-wait", "yes")
+    MPVLib.setOptionString("cache-pause", "yes")
+    MPVLib.setOptionString("cache-pause-initial", "yes")
+    MPVLib.setOptionString("cache-pause-wait", "2")
     MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
     MPVLib.setOptionString("demuxer-max-back-bytes", "${(cacheMegs / 2) * 1024 * 1024}")
     

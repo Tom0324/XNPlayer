@@ -245,7 +245,7 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
       val blockStart = blockIndex * blockSize.toLong()
       try {
         runBlocking {
-          getStreamWithOffset(streamInfo, blockStart)?.use { stream ->
+          getStreamWithOffset(streamInfo, blockStart, blockLen.toLong())?.use { stream ->
             val buf = ByteArray(64 * 1024)
             var remaining = blockLen
             while (remaining > 0) {
@@ -548,7 +548,11 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     }
   }
 
-  private fun getStreamWithOffset(streamInfo: StreamInfo, offset: Long): InputStream? {
+  private fun getStreamWithOffset(
+    streamInfo: StreamInfo,
+    offset: Long,
+    length: Long? = null,
+  ): InputStream? {
     return runBlocking {
       try {
         when (streamInfo.client) {
@@ -561,7 +565,7 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
           }
 
           is app.marlboroadvance.mpvex.ui.browser.networkstreaming.clients.WebDavClient -> {
-            getStreamWithOffsetWebDAV(streamInfo, offset)
+            getStreamWithOffsetWebDAV(streamInfo, offset, length)
           }
 
           else -> {
@@ -699,28 +703,35 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
   /**
    * Get WebDAV stream with offset using HTTP Range header (efficient seeking)
    */
-  private suspend fun getStreamWithOffsetWebDAV(streamInfo: StreamInfo, offset: Long): InputStream? {
+  private suspend fun getStreamWithOffsetWebDAV(
+    streamInfo: StreamInfo,
+    offset: Long,
+    length: Long? = null,
+  ): InputStream? {
     try {
       val protocol = if (streamInfo.connection.useHttps) "https" else "http"
       val cleanBasePath = streamInfo.connection.path.trimEnd('/')
       val cleanFilePath = if (streamInfo.filePath.startsWith("/")) streamInfo.filePath else "/${streamInfo.filePath}"
       val url = "$protocol://${streamInfo.connection.host}:${streamInfo.connection.port}$cleanBasePath$cleanFilePath"
 
-      Log.d(TAG, "WebDAV stream request - Protocol: $protocol, URL: $url")
+      val rangeValue = if (length != null && length > 0) {
+        "bytes=$offset-${offset + length - 1}"
+      } else {
+        "bytes=$offset-"
+      }
+      Log.d(TAG, "WebDAV stream request - Range: $rangeValue")
 
-      // Use OkHttp directly to add Range header support
+      // Reuse a connection pool; creating a new OkHttpClient for every 4 MiB
+      // block caused connection resets and poor prefetch throughput.
       val okHttpClient = okhttp3.OkHttpClient.Builder()
-        .addInterceptor { chain ->
-          val request = chain.request().newBuilder()
-            .addHeader("Range", "bytes=$offset-")
-            .build()
-          chain.proceed(request)
-        }
+        .connectionPool(okhttp3.ConnectionPool(8, 30, java.util.concurrent.TimeUnit.SECONDS))
+        .retryOnConnectionFailure(true)
         .build()
 
       // Build the request
       val requestBuilder = okhttp3.Request.Builder()
         .url(url)
+        .header("Range", rangeValue)
         .get()
 
       // Add auth if needed
