@@ -1024,6 +1024,53 @@ class PlayerViewModel(
     playerUpdate.value = PlayerUpdates.AspectRatio
   }
 
+  /**
+   * Restore per-video display state without changing the global default
+   * preference. Used when reopening a file that had a saved screen state.
+   */
+  fun restoreVideoAspectState(
+    aspect: VideoAspect,
+    customRatio: Double,
+  ) {
+    if (customRatio > 0) {
+      MPVLib.setPropertyDouble("panscan", 0.0)
+      MPVLib.setPropertyDouble("video-aspect-override", customRatio)
+      _videoAspect.value = aspect
+      _currentAspectRatio.value = customRatio
+      playerUpdate.value = PlayerUpdates.AspectRatio
+      return
+    }
+
+    when (aspect) {
+      VideoAspect.Fit -> {
+        MPVLib.setPropertyDouble("panscan", 0.0)
+        MPVLib.setPropertyDouble("video-aspect-override", -1.0)
+      }
+      VideoAspect.Crop -> {
+        MPVLib.setPropertyDouble("video-aspect-override", -1.0)
+        MPVLib.setPropertyDouble("panscan", 1.0)
+      }
+      VideoAspect.Stretch -> {
+        @Suppress("DEPRECATION")
+        val dm = DisplayMetrics()
+        @Suppress("DEPRECATION")
+        host.hostWindowManager.defaultDisplay.getRealMetrics(dm)
+        val rotate = MPVLib.getPropertyInt("video-params/rotate") ?: 0
+        val isVideoRotated = (rotate % 180 == 90)
+        val screenRatio = if (isVideoRotated) {
+          dm.heightPixels.toDouble() / dm.widthPixels.toDouble()
+        } else {
+          dm.widthPixels.toDouble() / dm.heightPixels.toDouble()
+        }
+        MPVLib.setPropertyDouble("video-aspect-override", screenRatio)
+        MPVLib.setPropertyDouble("panscan", 0.0)
+      }
+    }
+    _videoAspect.value = aspect
+    _currentAspectRatio.value = -1.0
+    playerUpdate.value = PlayerUpdates.AspectRatio
+  }
+
   // ==================== Screen Rotation ====================
 
   fun cycleScreenRotations() {

@@ -64,6 +64,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import java.io.File
+import java.util.Locale
 
 /**
  * Main player activity that handles video playback using the MPV library.
@@ -181,6 +182,11 @@ class PlayerActivity :
   private var pendingResumePosition: Int? = null
   private var resumeSeekJob: Job? = null
   private var restoringPlaybackPosition = false
+
+  /** Per-media display state: aspect mode, custom ratio, zoom and pan. */
+  private val displayStatePrefs by lazy {
+    getSharedPreferences("media_display_state", Context.MODE_PRIVATE)
+  }
 
   /**
    * Playlist of URIs for sequential playback
@@ -1746,17 +1752,18 @@ class PlayerActivity :
         }
       }
 
-      // Apply saved aspect ratio setting
+      // Apply saved aspect ratio setting: per-video state first, then global default.
       withContext(Dispatchers.Main) {
-        val savedAspect = playerPreferences.defaultVideoAspect.get()
-        val savedCustomRatio = playerPreferences.defaultCustomAspectRatio.get()
-        
-        if (savedCustomRatio > 0) {
-          // Apply custom aspect ratio
-          viewModel.setCustomAspectRatio(savedCustomRatio)
-        } else {
-          // Apply standard aspect mode (Fit, Crop, or Stretch)
-          viewModel.changeVideoAspect(savedAspect, showUpdate = false)
+        val restored = restoreDisplayStateForMedia(mediaIdentifier)
+        if (!restored) {
+          val savedAspect = playerPreferences.defaultVideoAspect.get()
+          val savedCustomRatio = playerPreferences.defaultCustomAspectRatio.get()
+
+          if (savedCustomRatio > 0) {
+            viewModel.setCustomAspectRatio(savedCustomRatio)
+          } else {
+            viewModel.changeVideoAspect(savedAspect, showUpdate = false)
+          }
         }
       }
     }
@@ -2066,6 +2073,8 @@ class PlayerActivity :
     val watchedThreshold = browserPreferences.watchedThreshold.get()
     val saveOnQuit = playerPreferences.savePositionOnQuit.get()
 
+    saveDisplayStateForMedia(identifierSnapshot)
+
     val saveBlock: suspend () -> Unit = {
       runCatching {
         val oldState = playbackStateRepository.getVideoDataByTitle(identifierSnapshot)
@@ -2212,6 +2221,49 @@ class PlayerActivity :
       pendingResumePosition = state.lastPosition
       restoringPlaybackPosition = true
       scheduleExactResumeSeek()
+    }
+  }
+
+  /** Stable SharedPreferences key for per-media display state. */
+  private fun displayStateKey(mediaId: String): String =
+    mediaId.hashCode().toString(16)
+
+  private fun saveDisplayStateForMedia(mediaId: String) {
+    if (mediaId.isBlank()) return
+    runCatching {
+      val key = displayStateKey(mediaId)
+      displayStatePrefs.edit()
+        .putString("${key}_aspect", viewModel.videoAspect.value.name.uppercase(Locale.ROOT))
+        .putFloat("${key}_custom_ratio", viewModel.currentAspectRatio.value.toFloat())
+        .putFloat("${key}_zoom", (MPVLib.getPropertyDouble("video-zoom") ?: viewModel.videoZoom.value).toFloat())
+        .putFloat("${key}_pan_x", (MPVLib.getPropertyDouble("video-pan-x") ?: 0.0).toFloat())
+        .putFloat("${key}_pan_y", (MPVLib.getPropertyDouble("video-pan-y") ?: 0.0).toFloat())
+        .apply()
+      Log.d(TAG, "Saved display state for media $key: ${viewModel.videoAspect.value}")
+    }.onFailure { e -> Log.w(TAG, "Failed to save display state", e) }
+  }
+
+  private fun restoreDisplayStateForMedia(mediaId: String): Boolean {
+    if (mediaId.isBlank()) return false
+    return runCatching {
+      val key = displayStateKey(mediaId)
+      val aspectName = displayStatePrefs.getString("${key}_aspect", null) ?: return false
+      val aspect = runCatching { VideoAspect.valueOf(aspectName) }.getOrNull() ?: return false
+      val customRatio = displayStatePrefs.getFloat("${key}_custom_ratio", -1f).toDouble()
+      val zoom = displayStatePrefs.getFloat("${key}_zoom", 0f).toDouble()
+      val panX = displayStatePrefs.getFloat("${key}_pan_x", 0f).toDouble()
+      val panY = displayStatePrefs.getFloat("${key}_pan_y", 0f).toDouble()
+
+      viewModel.restoreVideoAspectState(aspect, customRatio)
+      MPVLib.setPropertyDouble("video-zoom", zoom)
+      viewModel.setVideoZoom(zoom.toFloat())
+      MPVLib.setPropertyDouble("video-pan-x", panX)
+      MPVLib.setPropertyDouble("video-pan-y", panY)
+      Log.d(TAG, "Restored display state for media $key: $aspect ratio=$customRatio zoom=$zoom")
+      true
+    }.getOrElse { e ->
+      Log.w(TAG, "Failed to restore display state", e)
+      false
     }
   }
 
