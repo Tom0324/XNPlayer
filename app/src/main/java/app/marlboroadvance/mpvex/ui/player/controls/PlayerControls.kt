@@ -319,8 +319,12 @@ fun PlayerControls(
         val rawMediaTitle by MPVLib.propString["media-title"].collectAsState()
         val mediaTitle by remember(rawMediaTitle, activity) {
           derivedStateOf {
-            rawMediaTitle?.takeIf { it.isNotBlank() }
-              ?: activity.getTitleForControls()
+            if (activity.isLocalProxyPlayback()) {
+              activity.getTitleForControls()
+            } else {
+              rawMediaTitle?.takeIf { it.isNotBlank() }
+                ?: activity.getTitleForControls()
+            }
           }
         }
 

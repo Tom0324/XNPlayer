@@ -57,6 +57,8 @@ import `is`.xyz.mpv.MPVLib
 import `is`.xyz.mpv.MPVNode
 import `is`.xyz.mpv.Utils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -171,6 +173,14 @@ class PlayerActivity :
    * For network streams, this includes a hash of the URI to ensure uniqueness.
    */
   private var mediaIdentifier = ""
+
+  /**
+   * Saved position waiting for mpv to finish loading before an exact seek.
+   * Some files (MKV/ISO) ignore time-pos if it is set before duration is known.
+   */
+  private var pendingResumePosition: Int? = null
+  private var resumeSeekJob: Job? = null
+  private var restoringPlaybackPosition = false
 
   /**
    * Playlist of URIs for sequential playback
@@ -2030,7 +2040,14 @@ class PlayerActivity :
     savePlaybackStateJob?.cancel()
 
     // Read values from MPV immediately while it is still loaded (before stop/destroy or coroutine delay)
-    val currentPos = (MPVLib.getPropertyInt("time-pos") ?: viewModel.pos ?: 0).coerceAtLeast(0)
+    val mpvPos = (MPVLib.getPropertyInt("time-pos") ?: viewModel.pos ?: 0).coerceAtLeast(0)
+    // While an exact resume seek is still pending, never overwrite the saved
+    // position with the initial 0s that mpv reports before the seek lands.
+    val currentPos = if (restoringPlaybackPosition && pendingResumePosition != null && mpvPos < (pendingResumePosition ?: 0) - 2) {
+      pendingResumePosition!!
+    } else {
+      mpvPos
+    }
     val currentDuration = (MPVLib.getPropertyInt("duration")?.takeIf { it > 0 } ?: (viewModel.duration ?: 0)).coerceAtLeast(0)
     val speed = MPVLib.getPropertyDouble("speed") ?: DEFAULT_PLAYBACK_SPEED
     val videoZoom = MPVLib.getPropertyDouble("video-zoom")?.toFloat() ?: 0f
@@ -2192,7 +2209,44 @@ class PlayerActivity :
     viewModel.setVideoZoom(state.videoZoom)
 
     if (playerPreferences.savePositionOnQuit.get() && state.lastPosition != 0) {
-      MPVLib.setPropertyInt("time-pos", state.lastPosition)
+      pendingResumePosition = state.lastPosition
+      restoringPlaybackPosition = true
+      scheduleExactResumeSeek()
+    }
+  }
+
+  /**
+   * mpv can ignore a direct time-pos write while the file is still being
+   * opened. Poll until duration is available, then issue an exact seek.
+   */
+  private fun scheduleExactResumeSeek() {
+    resumeSeekJob?.cancel()
+    resumeSeekJob = lifecycleScope.launch(Dispatchers.Main) {
+      var attempts = 0
+      while (attempts < 60 && pendingResumePosition != null && !isFinishing && !player.isExiting) {
+        attempts++
+        val target = pendingResumePosition ?: break
+        val duration = MPVLib.getPropertyInt("duration") ?: -1
+        val current = MPVLib.getPropertyInt("time-pos") ?: 0
+        if (duration > 0 && current <= 1) {
+          Log.d(TAG, "Resuming playback to ${target}s with exact seek (attempt $attempts)")
+          MPVLib.command("seek", target.toString(), "absolute+exact")
+          delay(250)
+          val after = MPVLib.getPropertyInt("time-pos") ?: 0
+          if (after >= target - 2) {
+            pendingResumePosition = null
+            restoringPlaybackPosition = false
+            Log.d(TAG, "Resume seek confirmed at ${after}s")
+            break
+          }
+        }
+        delay(100)
+      }
+      if (pendingResumePosition != null) {
+        Log.w(TAG, "Resume seek did not complete after $attempts attempts")
+        pendingResumePosition = null
+        restoringPlaybackPosition = false
+      }
     }
   }
 
@@ -3193,6 +3247,12 @@ class PlayerActivity :
    * For m3u/m3u8 streams, returns the raw media-title from MPV instead of parsing.
    */
   fun getTitleForControls(): String {
+    // For local proxy URLs (disc images / network files), mpv's media-title is
+    // the generated stream id (e.g. 1_179..._0.iso). Prefer the original file
+    // name supplied by the browser or playlist instead.
+    if (isLocalProxyPlayback()) {
+      return fileName
+    }
     // For m3u/m3u8 streams, use MPV's raw media-title directly
     if (isCurrentStreamM3U()) {
       val rawTitle = MPVLib.getPropertyString("media-title")
@@ -3201,6 +3261,20 @@ class PlayerActivity :
       }
     }
     return fileName
+  }
+
+  /** Whether the current media is served through XNPlayer's 127.0.0.1 proxy. */
+  fun isLocalProxyPlayback(): Boolean {
+    val uris = buildList {
+      extractUriFromIntent(intent)?.let { add(it) }
+      if (playlist.isNotEmpty() && playlistIndex in playlist.indices) add(playlist[playlistIndex])
+    }
+    return uris.any { uri ->
+      when (uri.host?.lowercase()) {
+        "127.0.0.1", "localhost", "0.0.0.0" -> true
+        else -> false
+      }
+    }
   }
 
   /**
