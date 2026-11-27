@@ -18,8 +18,8 @@ android {
     applicationId = "app.marlboroadvance.mpvex"
     minSdk = 26
     targetSdk = 36
-    versionCode = 10370
-    versionName = "1.3.7"
+    versionCode = 10380
+    versionName = "1.3.8"
 
     vectorDrawables {
       useSupportLibrary = true

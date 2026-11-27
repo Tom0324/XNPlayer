@@ -1,5 +1,6 @@
 package app.marlboroadvance.mpvex.ui.browser.networkstreaming
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -77,7 +78,7 @@ data class NetworkBrowserScreen(
     val files by viewModel.files.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
-    val recentlyPlayedFilePath by viewModel.recentlyPlayedFilePath.collectAsState()
+    val recentlyPlayedFilePaths by viewModel.recentlyPlayedFilePaths.collectAsState()
     val browserPreferences = org.koin.compose.koinInject<BrowserPreferences>()
     val autoScrollToLastPlayed by browserPreferences.autoScrollToLastPlayed.collectAsState()
 
@@ -124,7 +125,7 @@ data class NetworkBrowserScreen(
         connectionId = connectionId,
         connectionName = connectionName,
         currentPath = currentPath,
-        recentlyPlayedFilePath = recentlyPlayedFilePath,
+        recentlyPlayedFilePaths = recentlyPlayedFilePaths,
         autoScrollToLastPlayed = autoScrollToLastPlayed,
         isLoading = isLoading && files.isEmpty(),
         isRefreshing = isRefreshing,
@@ -154,7 +155,7 @@ private fun NetworkBrowserContent(
   connectionId: Long,
   connectionName: String,
   currentPath: String,
-  recentlyPlayedFilePath: String?,
+  recentlyPlayedFilePaths: List<String>,
   autoScrollToLastPlayed: Boolean,
   isLoading: Boolean,
   isRefreshing: MutableState<Boolean>,
@@ -217,16 +218,35 @@ private fun NetworkBrowserContent(
       val folders = files.filter { it.isDirectory }
       val videos = files.filter { !it.isDirectory && it.mimeType?.startsWith("video/") == true }
 
-      val lastPlayedPath = remember(recentlyPlayedFilePath) {
-        recentlyPlayedFilePath?.let { NetworkRecentUri.decode(it)?.path ?: it }
+      val lastPlayedPath = remember(recentlyPlayedFilePaths, videos) {
+        recentlyPlayedFilePaths.asSequence()
+          .mapNotNull { NetworkRecentUri.decode(it)?.path }
+          .firstOrNull { recentPath ->
+            // The current folder is the source of truth. If a recent entry has
+            // the same path or file name as a video rendered here, it is the
+            // correct scroll target even when the stored parent path differs
+            // by encoding or a leading slash.
+            val exactMatch = videos.any { it.path.trim('/').equals(recentPath.trim('/'), ignoreCase = true) }
+            val fileName = recentPath.substringAfterLast('/')
+            val nameMatch = videos.any { it.name.equals(fileName, ignoreCase = true) }
+            exactMatch || nameMatch
+          }
       }
-      val isLastPlayedInCurrentFolder = lastPlayedPath?.let { path ->
-        val parent = path.substringBeforeLast('/', "")
-        parent.trim('/').equals(currentPath.trim('/'), ignoreCase = true)
-      } ?: false
 
-      val targetVideoIndex = if (autoScrollToLastPlayed && isLastPlayedInCurrentFolder) {
-        videos.indexOfFirst { it.path.trim('/').equals(lastPlayedPath.orEmpty().trim('/'), ignoreCase = true) }
+      LaunchedEffect(recentlyPlayedFilePaths, currentPath, lastPlayedPath) {
+        Log.d(
+          "NetworkAutoScroll",
+          "currentPath=$currentPath recentCount=${recentlyPlayedFilePaths.size} " +
+            "videoCount=${videos.size} lastPlayedPath=$lastPlayedPath",
+        )
+      }
+
+      val targetVideoIndex = if (autoScrollToLastPlayed && lastPlayedPath != null) {
+        videos.indexOfFirst { video ->
+          val recentName = lastPlayedPath.substringAfterLast('/')
+          video.path.trim('/').equals(lastPlayedPath.trim('/'), ignoreCase = true) ||
+            video.name.equals(recentName, ignoreCase = true)
+        }
       } else {
         -1
       }

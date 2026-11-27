@@ -53,25 +53,18 @@ class NetworkBrowserViewModel(
    * Here we observe the full recent list and pick the newest entry that belongs to the
    * current connection, without touching the global highlight behaviour.
    */
-  val recentlyPlayedFilePath: StateFlow<String?> =
+  val recentlyPlayedFilePaths: StateFlow<List<String>> =
     recentlyPlayedRepository
       .observeRecentlyPlayed(200)
       .mapLatest { entries ->
-        entries.firstOrNull { entry ->
-          val target = NetworkRecentUri.decode(entry.filePath) ?: return@firstOrNull false
-          if (target.connectionId != connectionId) return@firstOrNull false
-
-          // Match the local video browser behaviour: find the newest recently
-          // played file inside THIS folder, not merely the newest file in the
-          // whole connection. Otherwise browsing back into an older folder
-          // after playing another folder would always jump to the top.
-          val parent = target.path.substringBeforeLast('/', "")
-          parent.trim('/').equals(currentPath.trim('/'), ignoreCase = true)
-        }?.filePath
+        entries.mapNotNull { entry ->
+          val target = NetworkRecentUri.decode(entry.filePath)
+          if (target?.connectionId == connectionId) entry.filePath else null
+        }
       }
       .distinctUntilChanged()
       .flowOn(Dispatchers.IO)
-      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
   private val _files = MutableStateFlow<List<NetworkFile>>(emptyList())
   val files: StateFlow<List<NetworkFile>> = _files.asStateFlow()
