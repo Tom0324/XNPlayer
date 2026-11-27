@@ -30,11 +30,11 @@ jobs:
       - name: Upload unsigned APK to Release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ui-shell-neoplayer-iso-v1.3.5-range-cache
+          TAG: ui-shell-neoplayer-iso-v1.3.6-longrange
         run: |
           set -e
           APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
           test -f "$APK"
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --prerelease --title "XNPlayer v1.3.5 range cache unsigned" --notes "XNPlayer v1.3.5: finite WebDAV Range requests, 16-block/4-thread prefetch, cache-wait and cache-pause, always-on disc demuxer prefetch, non-null mpv events, per-video display state"
+            gh release create "$TAG" --prerelease --title "XNPlayer v1.3.6 long-range unsigned" --notes "XNPlayer v1.3.6: NeoPlayer-style metadata-only block cache plus long Range stream for title playback, shared OkHttp client, cache-wait and cache-pause, non-null mpv events, per-video display state"
           gh release upload "$TAG" "$APK" --clobber

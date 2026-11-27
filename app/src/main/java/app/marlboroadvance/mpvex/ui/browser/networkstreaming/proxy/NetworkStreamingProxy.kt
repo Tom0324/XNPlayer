@@ -29,6 +29,18 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
   companion object {
     private const val TAG = "NetworkStreamingProxy"
 
+    // NeoPlayer-style strategy: only the first few blocks are needed for ISO
+    // detection and Blu-ray/DVD metadata probing. Main-title reads should be a
+    // single long Range stream so mpv's demuxer cache can actually fill.
+    private const val DISC_METADATA_CACHE_LIMIT = 8L * 1024L * 1024L
+
+    private val webDavHttpClient by lazy {
+      okhttp3.OkHttpClient.Builder()
+        .connectionPool(okhttp3.ConnectionPool(8, 30, TimeUnit.SECONDS))
+        .retryOnConnectionFailure(true)
+        .build()
+    }
+
     @Volatile
     private var instance: NetworkStreamingProxy? = null
 
@@ -196,10 +208,17 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
 
     // Get stream with offset. For disc images use a 4 MiB block cache so mpv's
     // dvdnav/bluray demuxer sees a seekable stream; otherwise forward directly.
+    val useBlockCache =
+      streamInfo.discCache != null &&
+        fileSize > 0 &&
+        start < DISC_METADATA_CACHE_LIMIT
+
     val inputStream =
-      if (streamInfo.discCache != null && fileSize > 0) {
+      if (useBlockCache) {
         getDiscCachedStream(streamInfo, start, rangeEnd, fileSize)
       } else {
+        // Long sequential title reads bypass the 4 MiB block cache and use a
+        // single Range stream from the requested offset, matching NeoPlayer.
         getStreamWithOffset(streamInfo, start)
       }
 
@@ -281,7 +300,9 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
     val totalSize = streamInfo.fileSize
     val inputStream =
       if (streamInfo.discCache != null && totalSize > 0) {
-        getDiscCachedStream(streamInfo, 0L, totalSize - 1, totalSize)
+        // Initial GET is only used for probing; keep it on the metadata block
+        // cache so ISO detection and repeated small seeks stay fast.
+        getDiscCachedStream(streamInfo, 0L, DISC_METADATA_CACHE_LIMIT - 1, totalSize)
       } else {
         getStream(streamInfo)
       }
@@ -721,12 +742,7 @@ class NetworkStreamingProxy private constructor() : NanoHTTPD("127.0.0.1", 0) {
       }
       Log.d(TAG, "WebDAV stream request - Range: $rangeValue")
 
-      // Reuse a connection pool; creating a new OkHttpClient for every 4 MiB
-      // block caused connection resets and poor prefetch throughput.
-      val okHttpClient = okhttp3.OkHttpClient.Builder()
-        .connectionPool(okhttp3.ConnectionPool(8, 30, java.util.concurrent.TimeUnit.SECONDS))
-        .retryOnConnectionFailure(true)
-        .build()
+      val okHttpClient = webDavHttpClient
 
       // Build the request
       val requestBuilder = okhttp3.Request.Builder()
