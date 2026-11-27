@@ -30,11 +30,11 @@ jobs:
       - name: Upload unsigned APK to Release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ui-shell-neoplayer-iso-v1.3.8-network-autoscroll2
+          TAG: ui-shell-neoplayer-iso-v1.3.9-hwdec-autoscroll
         run: |
           set -e
           APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
           test -f "$APK"
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --prerelease --title "XNPlayer v1.3.8 network autoscroll2 unsigned" --notes "XNPlayer v1.3.8: WebDAV network browser auto-scroll matches recent paths or names inside current folder with diagnostics; retains NeoPlayer-style long Range playback strategy"
+            gh release create "$TAG" --prerelease --title "XNPlayer v1.3.9 hwdec autoscroll unsigned" --notes "XNPlayer v1.3.9: prefer mediacodec-copy to avoid surface conflicts causing software decode on consecutive playback; network auto-scroll waits for list layout and re-applies after returning from Settings/player; retains NeoPlayer-style long Range playback strategy"
           gh release upload "$TAG" "$APK" --clobber

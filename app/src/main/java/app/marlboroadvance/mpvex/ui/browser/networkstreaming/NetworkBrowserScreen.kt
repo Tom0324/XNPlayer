@@ -48,6 +48,7 @@ import app.marlboroadvance.mpvex.ui.browser.states.EmptyState
 import app.marlboroadvance.mpvex.ui.preferences.PreferencesScreen
 import app.marlboroadvance.mpvex.ui.utils.LocalBackStack
 import app.marlboroadvance.mpvex.utils.history.NetworkRecentUri
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
 import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
@@ -237,7 +238,7 @@ private fun NetworkBrowserContent(
         Log.d(
           "NetworkAutoScroll",
           "currentPath=$currentPath recentCount=${recentlyPlayedFilePaths.size} " +
-            "videoCount=${videos.size} lastPlayedPath=$lastPlayedPath",
+            "videoCount=${videos.size} enabled=$autoScrollToLastPlayed lastPlayedPath=$lastPlayedPath",
         )
       }
 
@@ -260,9 +261,23 @@ private fun NetworkBrowserContent(
       val networkListState = rememberLazyListState(
         initialFirstVisibleItemIndex = if (autoScrollToLastPlayed) targetListIndex else 0,
       )
-      LaunchedEffect(targetListIndex, autoScrollToLastPlayed) {
+
+      // The list is composed with the target index as its initial scroll position, but
+      // two cases still leave the screen stuck at the top:
+      //  1) coming back from Settings/player reuses this composition and only the
+      //     `rememberLazyListState` remembers an already-created state at index 0;
+      //  2) `scrollToItem` runs before LazyColumn has measured any item, so it is a no-op.
+      // Re-apply the scroll whenever the target or the visible item count changes and
+      // wait until the list is actually laid out before scrolling.
+      LaunchedEffect(targetListIndex, autoScrollToLastPlayed, videos.size, folders.size) {
         if (autoScrollToLastPlayed && targetListIndex > 0) {
+          androidx.compose.runtime.snapshotFlow { networkListState.layoutInfo.totalItemsCount }
+            .first { count -> count > targetListIndex }
           networkListState.scrollToItem(targetListIndex)
+          Log.d(
+            "NetworkAutoScroll",
+            "scrolled targetListIndex=$targetListIndex firstVisibleItem=${networkListState.firstVisibleItemIndex}",
+          )
         }
       }
 
