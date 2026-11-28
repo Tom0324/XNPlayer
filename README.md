@@ -127,13 +127,13 @@ http://127.0.0.1:5244/dav
 
 | 项目 | 值 |
 |---|---|
-| Release | [`XNPlayer-v1.5.0-20261129-eof-frame-reset-sync`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync) |
-| APK | `XNPlayer_v1.5.0_20261129_eofframe_reset_sync_arm64_CNTrim.apk` |
+| Release | [`XNPlayer-v1.5.1-20261129-eof-retained-frame-reset`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.1-20261129-eof-retained-frame-reset) |
+| APK | `XNPlayer_v1.5.1_20261129_eof_retained_frame_reset_arm64_CNTrim.apk` |
 | 大小 | 32,392,097 B |
-| SHA256 | `d42e5eabd8c866f8ce4468b10a1522e3fa9fe7811bf6c6e50743c15d3dfc1b6e` |
+| SHA256 | `b40b39699876a70135decf8c24e7b22b3ecc6a70760f471ab34a636a5940c54f` |
 | 签名 | `CN=Trim`，v2 / v3 有效 |
 
-可直接下载：[XNPlayer v1.5.0 arm64 CNTrim APK](https://github.com/Tom0324/XNPlayer/releases/download/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync/XNPlayer_v1.5.0_20261129_eofframe_reset_sync_arm64_CNTrim.apk)
+可直接下载：[XNPlayer v1.5.1 arm64 CNTrim APK](https://github.com/Tom0324/XNPlayer/releases/download/XNPlayer-v1.5.1-20261129-eof-retained-frame-reset/XNPlayer_v1.5.1_20261129_eof_retained_frame_reset_arm64_CNTrim.apk)
 
 ## 安装说明
 

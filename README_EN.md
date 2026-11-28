@@ -127,13 +127,13 @@ See [docs/OPENLIST.md](docs/OPENLIST.md).
 
 | Item | Value |
 |---|---|
-| Release | [`XNPlayer-v1.5.0-20261129-eof-frame-reset-sync`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync) |
-| APK | `XNPlayer_v1.5.0_20261129_eofframe_reset_sync_arm64_CNTrim.apk` |
+| Release | [`XNPlayer-v1.5.1-20261129-eof-retained-frame-reset`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.1-20261129-eof-retained-frame-reset) |
+| APK | `XNPlayer_v1.5.1_20261129_eof_retained_frame_reset_arm64_CNTrim.apk` |
 | Size | 32,392,097 B |
-| SHA256 | `d42e5eabd8c866f8ce4468b10a1522e3fa9fe7811bf6c6e50743c15d3dfc1b6e` |
+| SHA256 | `b40b39699876a70135decf8c24e7b22b3ecc6a70760f471ab34a636a5940c54f` |
 | Signature | `CN=Trim`, v2 / v3 valid |
 
-Direct download: [XNPlayer v1.5.0 arm64 CNTrim APK](https://github.com/Tom0324/XNPlayer/releases/download/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync/XNPlayer_v1.5.0_20261129_eofframe_reset_sync_arm64_CNTrim.apk)
+Direct download: [XNPlayer v1.5.1 arm64 CNTrim APK](https://github.com/Tom0324/XNPlayer/releases/download/XNPlayer-v1.5.1-20261129-eof-retained-frame-reset/XNPlayer_v1.5.1_20261129_eof_retained_frame_reset_arm64_CNTrim.apk)
 
 ## Installation notes
 
