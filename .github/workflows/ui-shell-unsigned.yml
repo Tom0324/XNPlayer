@@ -30,11 +30,11 @@ jobs:
       - name: Upload unsigned APK to Release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ui-shell-neoplayer-iso-v1.4.2-resume
+          TAG: ui-shell-neoplayer-iso-v1.4.3-resume
         run: |
           set -e
           APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
           test -f "$APK"
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --prerelease --title "XNPlayer v1.4.2 resume fix unsigned" --notes "XNPlayer v1.4.2: restore playback position with direct time-pos write (v1.1.2 behaviour) instead of absolute+exact seek which is ignored on network streams; keeps mpv.conf start/end skip-intro settings. Includes v1.4.1 autoscroll and recent-playlist fixes plus v1.4.0 native HW+ configure retry."
+            gh release create "$TAG" --prerelease --title "XNPlayer v1.4.3 resume fix unsigned" --notes "XNPlayer v1.4.3: apply saved playback position on first PLAYBACK_RESTART after mpv has executed mpv.conf start option, so intro skip no longer overwrites resume. Keeps mpv.conf start/end settings. Includes v1.4.1 autoscroll and recent-playlist fixes plus v1.4.0 native HW+ configure retry."
           gh release upload "$TAG" "$APK" --clobber

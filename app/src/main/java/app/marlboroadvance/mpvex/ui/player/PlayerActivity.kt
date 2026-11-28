@@ -1703,6 +1703,17 @@ class PlayerActivity :
         if (!isReady) {
           isReady = true
         }
+        // Apply a queued resume position only once, on the first playback
+        // restart. This is after mpv has executed the `start` option from
+        // mpv.conf; writing earlier gets overwritten by that seek. Clearing
+        // the target here also means a later user seek (next restart) is
+        // never overwritten by the resume logic.
+        pendingResumePosition?.let { target ->
+          pendingResumePosition = null
+          restoringPlaybackPosition = false
+          MPVLib.setPropertyInt("time-pos", target)
+          Log.d(TAG, "Restored time-pos to ${target}s after playback-restart (start option already applied)")
+        }
         updateRecentlyPlayedDurationIfAvailable()
       }
     }
@@ -2218,12 +2229,14 @@ class PlayerActivity :
     viewModel.setVideoZoom(state.videoZoom)
 
     if (playerPreferences.savePositionOnQuit.get() && state.lastPosition != 0) {
-      // Use the v1.1.2 approach: write time-pos directly once the file is
-      // loaded. mpv's `start` option from mpv.conf is applied at init, before
-      // FILE_LOADED, so this write wins. An `absolute+exact` seek is ignored
-      // on network streams with hr-seek=no and stalls the resume path.
-      MPVLib.setPropertyInt("time-pos", state.lastPosition)
-      Log.d(TAG, "Restored time-pos directly to ${state.lastPosition}s")
+      // Do NOT write time-pos here. mpv applies the `start` option from
+      // mpv.conf ~235-300 ms AFTER FILE_LOADED, which overwrites any earlier
+      // time-pos write and sends playback back to the intro skip point.
+      // Queue the target and apply it on the first PLAYBACK_RESTART instead,
+      // which fires only after `start` has been handled.
+      pendingResumePosition = state.lastPosition
+      restoringPlaybackPosition = true
+      Log.d(TAG, "Queued time-pos restore to ${state.lastPosition}s (wait for playback-restart)")
     }
   }
 
@@ -3096,6 +3109,11 @@ class PlayerActivity :
    */
   fun playNext() {
     if (playlist.isEmpty()) return
+
+    // A pending resume belongs to the file that was just opened. Drop it so
+    // the next episode never inherits the previous episode's position.
+    pendingResumePosition = null
+    restoringPlaybackPosition = false
 
     // Use total count if we're doing windowed loading, otherwise use playlist size
     val effectiveSize = if (playlistTotalCount > 0) playlistTotalCount else playlist.size
