@@ -435,7 +435,12 @@ class PlayerActivity :
       return
     }
 
-    getPlayableUri(intent)?.let(player::playFile)
+    getPlayableUri(intent)?.let { uri ->
+      lifecycleScope.launch(Dispatchers.Main) {
+        applyStartOverrideForSavedPosition(mediaIdentifier)
+        player.playFile(uri)
+      }
+    }
 
     // Only set orientation immediately if NOT in Video mode
     // For Video mode, wait for video-params/aspect to become available
@@ -2174,6 +2179,96 @@ class PlayerActivity :
   }
 
   /**
+   * Parse an mpv option time value into seconds. Supports "SS", "MM:SS" and
+   * "HH:MM:SS". A leading "-" means "relative to end" and is returned negative.
+   * Returns null when the value cannot be parsed (e.g. "no" or junk).
+   */
+  private fun parseMpvTime(raw: String): Int? {
+    val trimmed = raw.trim()
+    if (trimmed.isEmpty()) return null
+    val negative = trimmed.startsWith("-")
+    val body = if (negative) trimmed.removePrefix("-") else trimmed
+    val parts = body.split(":")
+    val seconds = when (parts.size) {
+      1 -> parts[0].toDoubleOrNull() ?: return null
+      2 -> (parts[0].toDoubleOrNull() ?: return null) * 60 + (parts[1].toDoubleOrNull() ?: return null)
+      3 -> (parts[0].toDoubleOrNull() ?: return null) * 3600 +
+        (parts[1].toDoubleOrNull() ?: return null) * 60 +
+        (parts[2].toDoubleOrNull() ?: return null)
+      else -> return null
+    }
+    val total = seconds.toInt()
+    return if (negative) -total else total
+  }
+
+  /**
+   * Read `start` / `end` from the current mpv.conf text. Values are returned in
+   * seconds; `end` may be negative meaning "relative to end". Null means the
+   * option is not configured and must be left untouched.
+   */
+  private fun readMpvConfStartEnd(): Pair<Int?, Int?> {
+    val conf = runCatching { advancedPreferences.mpvConf.get() }.getOrDefault("")
+    if (conf.isBlank()) return null to null
+    var startSec: Int? = null
+    var endSec: Int? = null
+    conf.lines().forEach { line ->
+      val trimmed = line.trim()
+      if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEach
+      val eq = trimmed.indexOf('=')
+      if (eq <= 0) return@forEach
+      val key = trimmed.substring(0, eq).trim()
+      val value = trimmed.substring(eq + 1).trim()
+      when (key) {
+        "start" -> parseMpvTime(value)?.let { startSec = it }
+        "end" -> parseMpvTime(value)?.let { endSec = it }
+      }
+    }
+    return startSec to endSec
+  }
+
+  /**
+   * Before loading a file, decide the `start` value from the saved position and
+   * the intro/outro configured in mpv.conf:
+   * - saved position inside [start, end] -> start at saved position
+   * - saved position after the outro -> restart from `start` (or 0 if absent)
+   * - no saved position -> leave mpv.conf untouched
+   *
+   * This is called for every file (first open, new intent and playlist items) so
+   * one episode's start never leaks into the next.
+   */
+  private suspend fun applyStartOverrideForSavedPosition(mediaId: String) {
+    val (configuredStart, configuredEnd) = readMpvConfStartEnd()
+    if (configuredStart == null && configuredEnd == null) return
+
+    val introSec = configuredStart?.let { if (it >= 0) it else 0 } ?: 0
+
+    // Always re-apply the configured start for a fresh file. A previous call
+    // may have overwritten `start` with a saved position; without this reset
+    // the next episode would inherit that position.
+    MPVLib.setPropertyString("start", introSec.toString())
+
+    if (!playerPreferences.savePositionOnQuit.get()) return
+    val state = runCatching { playbackStateRepository.getVideoDataByTitle(mediaId) }.getOrNull()
+    if (state == null || state.lastPosition <= 0) return
+
+    val duration = state.lastPosition + state.timeRemaining
+    val outroSec = when {
+      configuredEnd == null -> duration
+      configuredEnd < 0 -> (duration + configuredEnd).coerceAtLeast(introSec.toDouble()).toInt()
+      else -> configuredEnd
+    }
+
+    val saved = state.lastPosition
+    val startValue = if (saved in introSec..outroSec) saved else introSec
+    MPVLib.setPropertyString("start", startValue.toString())
+    Log.d(
+      TAG,
+      "Start override for $mediaId: saved=${saved}s intro=${introSec}s outro=${outroSec}s " +
+        "duration=${duration}s -> start=$startValue (configStart=$configuredStart configEnd=$configuredEnd)",
+    )
+  }
+
+  /**
    * Applies saved playback state to MPV.
    *
    * Restores subtitle delay, audio delay, audio and track selections, and playback speed.
@@ -2229,14 +2324,18 @@ class PlayerActivity :
     viewModel.setVideoZoom(state.videoZoom)
 
     if (playerPreferences.savePositionOnQuit.get() && state.lastPosition != 0) {
-      // Do NOT write time-pos here. mpv applies the `start` option from
-      // mpv.conf ~235-300 ms AFTER FILE_LOADED, which overwrites any earlier
-      // time-pos write and sends playback back to the intro skip point.
-      // Queue the target and apply it on the first PLAYBACK_RESTART instead,
-      // which fires only after `start` has been handled.
-      pendingResumePosition = state.lastPosition
-      restoringPlaybackPosition = true
-      Log.d(TAG, "Queued time-pos restore to ${state.lastPosition}s (wait for playback-restart)")
+      // When mpv.conf has start/end, applyStartOverrideForSavedPosition already
+      // set `start` before loadfile, so no extra seek is needed. Only fall back
+      // to the queued time-pos restore when there is no mpv.conf intro/outro
+      // configuration (the case where nothing pre-sets `start`).
+      val (configuredStart, configuredEnd) = readMpvConfStartEnd()
+      if (configuredStart == null && configuredEnd == null) {
+        pendingResumePosition = state.lastPosition
+        restoringPlaybackPosition = true
+        Log.d(TAG, "Queued time-pos restore to ${state.lastPosition}s (no mpv.conf start/end)")
+      } else {
+        Log.d(TAG, "Resume handled by start override; skip queued time-pos restore")
+      }
     }
   }
 
@@ -2552,6 +2651,7 @@ class PlayerActivity :
     getPlayableUri(intent)?.let { uri ->
       // Avoid blocking UI thread while mpv opens network streams (e.g., HLS).
       lifecycleScope.launch(Dispatchers.Default) {
+        applyStartOverrideForSavedPosition(mediaIdentifier)
         MPVLib.command("loadfile", uri)
       }
     }
@@ -3290,6 +3390,7 @@ class PlayerActivity :
     // Load the new video
     // Avoid blocking UI thread while mpv opens network streams (e.g., HLS).
     lifecycleScope.launch(Dispatchers.Default) {
+      applyStartOverrideForSavedPosition(mediaIdentifier)
       MPVLib.command("loadfile", playableUri)
     }
 
