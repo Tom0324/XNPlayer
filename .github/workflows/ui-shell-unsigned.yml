@@ -30,11 +30,11 @@ jobs:
       - name: Upload unsigned APK to Release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ui-shell-neoplayer-iso-v1.4.5-smartstart-fix
+          TAG: ui-shell-neoplayer-iso-v1.4.6-playlist-resume-key
         run: |
           set -e
           APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
           test -f "$APK"
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --prerelease --title "XNPlayer v1.4.5 smart start black screen fix unsigned" --notes "XNPlayer v1.4.5: fix v1.4.4 black screen regression. BaseMPVView.playFile() only caches filePath; loadfile is issued by surfaceCreated(). v1.4.4 put playFile behind a suspend DB query, so surfaceCreated fired first and no loadfile was ever sent. Now applyStartOverrideForSavedPosition and playFile run synchronously on the main thread in onCreate, before the surface callback, while the DB lookup uses runBlocking(Dispatchers.IO). Keeps the v1.4.4 dynamic mpv.conf start/end behavior and all previous fixes."
+            gh release create "$TAG" --prerelease --title "XNPlayer v1.4.6 playlist resume key unsigned" --notes "XNPlayer v1.4.6: fix playlist/next-episode resume key mismatch. loadPlaylistItemInternal computed mediaIdentifier from the temporary local proxy URI (fileName_<proxy URL hash>) before syncing network extras, while reopening from the folder used the stable network_&lt;connectionId&gt;_&lt;pathHash&gt; key. Now network extras are written to the intent first and getMediaIdentifier(intent, fileName) is used for every playlist item, so saved positions written on autoplay are found again on reopen. Keeps v1.4.5 black-screen fix, v1.4.4 dynamic mpv.conf start/end, v1.4.1 autoscroll/recent playlist and v1.4.0 HW+ configure retry."
           gh release upload "$TAG" "$APK" --clobber

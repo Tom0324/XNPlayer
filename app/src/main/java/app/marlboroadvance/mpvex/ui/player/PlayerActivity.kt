@@ -3347,15 +3347,23 @@ class PlayerActivity :
     } else {
       getFileNameFromUri(uri)
     }
-    // Generate new media identifier for playback state
-    mediaIdentifier = getMediaIdentifierFromUri(uri, fileName)
-
     // Keep intent extras in sync with the current playlist item so subtitles,
     // playback state and recently played history use this item, not the first one.
-    currentNetworkTarget(uri)?.let { target ->
-      intent.putExtra("network_file_path", target.path)
-      intent.putExtra("network_connection_id", target.connectionId)
+    // This must happen BEFORE computing mediaIdentifier: a network item played
+    // through the local proxy needs the stable connection id + remote path,
+    // otherwise its key becomes fileName_<temporary proxy URL hash> and the
+    // saved position cannot be found when the file is reopened from the folder.
+    val networkTarget = currentNetworkTarget(uri)
+    if (networkTarget != null) {
+      intent.putExtra("network_file_path", networkTarget.path)
+      intent.putExtra("network_connection_id", networkTarget.connectionId)
+    } else {
+      intent.removeExtra("network_file_path")
+      intent.removeExtra("network_connection_id")
     }
+
+    // Generate new media identifier for playback state (uses the extras above)
+    mediaIdentifier = getMediaIdentifier(intent, fileName)
 
     // Set HTTP headers (including referer) for network streams
     setHttpHeadersForUri(uri)
