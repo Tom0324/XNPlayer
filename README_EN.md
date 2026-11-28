@@ -14,7 +14,7 @@
 | Release tag | [`XNPlayer-v1.5.0-20261129-eof-frame-reset-sync`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync) |
 | App name | XNPlayer |
 | Package | `app.marlboroadvance.mpvex` (`app.marlboroadvance.mpvex.preview` for preview builds) |
-| `versionName` / `versionCode` | `1.5.0` / `10500` (APK reports `105002` after ABI split) |
+| `versionName` / `versionCode` | `1.5.1` / `10510` (APK reports `105102` after ABI split) |
 | Architecture | `arm64-v8a` only |
 | Signature | `CN=Trim`, v2 / v3 valid |
 | Default HW+ order | `mediacodec,mediacodec-copy,no` |
@@ -68,8 +68,8 @@ Workflow steps:
 
 | Item | Value |
 |---|---|
-| AAR Release | [`native-avcfix-mpv042-iso-eof-frame-reset-sync-20261129`](https://github.com/Tom0324/mpv-android-fongmi/releases/tag/native-avcfix-mpv042-iso-eof-frame-reset-sync-20261129) |
-| AAR SHA256 | `97174e10559b00cae26480947a5a9b2d5130dc33ad53a5f44e5d263f7c79e51e` |
+| AAR Release | [`native-avcfix-mpv042-iso-eof-retained-frame-reset-20261129`](https://github.com/Tom0324/mpv-android-fongmi/releases/tag/native-avcfix-mpv042-iso-eof-retained-frame-reset-20261129) |
+| AAR SHA256 | `c5557fcfd46a5fc6403a93c1a5ce93b1aa4638f285848e3bd44b5cc4a02bf855` |
 | mpv string in AAR | `mpv v0.41.0-dev-g76f963cc4-dirty` |
 | FFmpeg string in AAR | `Lavf/62.12.102` (release-8.1-fongmi derived) |
 | libplacebo string in AAR | `v7.402.0` |

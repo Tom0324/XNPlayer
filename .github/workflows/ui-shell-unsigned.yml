@@ -24,12 +24,12 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Use synchronous EOF frame reset AAR
+      - name: Use EOF retained-frame reset AAR
         run: |
           set -e
           curl -fL --retry 3 -o app/libs/mpv-android-avcfix.aar \
-            https://github.com/Tom0324/mpv-android-fongmi/releases/download/native-avcfix-mpv042-iso-eof-frame-reset-sync-20261129/app-release.aar
-          echo "97174e10559b00cae26480947a5a9b2d5130dc33ad53a5f44e5d263f7c79e51e  app/libs/mpv-android-avcfix.aar" | sha256sum -c -
+            https://github.com/Tom0324/mpv-android-fongmi/releases/download/native-avcfix-mpv042-iso-eof-retained-frame-reset-20261129/app-release.aar
+          echo "c5557fcfd46a5fc6403a93c1a5ce93b1aa4638f285848e3bd44b5cc4a02bf855  app/libs/mpv-android-avcfix.aar" | sha256sum -c -
           test -s app/libs/mpv-android-avcfix.aar
 
       - name: Build preview APKs
@@ -38,11 +38,11 @@ jobs:
       - name: Upload unsigned APK to Release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ui-shell-neoplayer-iso-v1.5.0-eof-frame-reset-sync
+          TAG: ui-shell-neoplayer-iso-v1.5.1-eof-retained-frame-reset
         run: |
           set -e
           APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
           test -f "$APK"
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --prerelease --title "XNPlayer v1.5.0 synchronous EOF frame reset unsigned" --notes "XNPlayer v1.5.0: make EOF frame reset synchronous (vo_wakeup + vo_control VOCTRL_RESET/FRAME_RESET, no async duplicate) so VO frame refs are released before decoder teardown; extend mediacodec configure retry to 20 x 100ms and add FFmpeg close diagnostics showing hw_buffer_count and stop decision. Keeps HW+ default mediacodec,mediacodec-copy,no and all NeoPlayer features (Vulkan, DV mapping, HDR colorspace, stale-frame check, retained frames, async images, max_images=5, stats). Also keeps v1.4.6 stable playlist resume key, v1.4.5 black-screen fix, v1.4.4 dynamic mpv.conf start/end, v1.4.1 autoscroll/recent-playlist fixes and v1.4.0 configure retry."
+            gh release create "$TAG" --prerelease --title "XNPlayer v1.5.1 EOF retained-frame reset unsigned" --notes "XNPlayer v1.5.1: on EOF/file transition reset AImageReader mapper retained frames (pending_frame and GL retained refs) so hw_buffer_count reaches 0 before FFmpeg close and the previous MediaCodec can stop cleanly. Keeps synchronous vo_eof_reset, configure retry 20 x 100ms, FFmpeg close diagnostics, HW+ default mediacodec,mediacodec-copy,no, and all NeoPlayer features (Vulkan, DV mapping, HDR colorspace, stale-frame check, retained frames during playback, async images, max_images=5, stats)."
           gh release upload "$TAG" "$APK" --clobber

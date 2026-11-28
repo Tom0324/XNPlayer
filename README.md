@@ -14,7 +14,7 @@
 | 当前发布标签 | [`XNPlayer-v1.5.0-20261129-eof-frame-reset-sync`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync) |
 | 应用名称 | XNPlayer |
 | 包名 | `app.marlboroadvance.mpvex`（preview 构建为 `app.marlboroadvance.mpvex.preview`） |
-| `versionName` / `versionCode` | `1.5.0` / `10500`（ABI split 后 APK 显示 `105002`） |
+| `versionName` / `versionCode` | `1.5.1` / `10510`（ABI split 后 APK 显示 `105102`） |
 | 架构 | 仅 `arm64-v8a` |
 | 签名 | `CN=Trim`，v2 / v3 签名有效 |
 | HW+ 默认解码顺序 | `mediacodec,mediacodec-copy,no` |
@@ -68,8 +68,8 @@
 
 | 项目 | 值 |
 |---|---|
-| AAR Release | [`native-avcfix-mpv042-iso-eof-frame-reset-sync-20261129`](https://github.com/Tom0324/mpv-android-fongmi/releases/tag/native-avcfix-mpv042-iso-eof-frame-reset-sync-20261129) |
-| AAR SHA256 | `97174e10559b00cae26480947a5a9b2d5130dc33ad53a5f44e5d263f7c79e51e` |
+| AAR Release | [`native-avcfix-mpv042-iso-eof-retained-frame-reset-20261129`](https://github.com/Tom0324/mpv-android-fongmi/releases/tag/native-avcfix-mpv042-iso-eof-retained-frame-reset-20261129) |
+| AAR SHA256 | `c5557fcfd46a5fc6403a93c1a5ce93b1aa4638f285848e3bd44b5cc4a02bf855` |
 | mpv 实测字符串 | `mpv v0.41.0-dev-g76f963cc4-dirty` |
 | FFmpeg 实测字符串 | `Lavf/62.12.102`（release-8.1-fongmi 派生） |
 | libplacebo 实测字符串 | `v7.402.0` |
