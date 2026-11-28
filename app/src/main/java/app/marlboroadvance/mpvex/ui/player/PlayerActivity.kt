@@ -2218,9 +2218,12 @@ class PlayerActivity :
     viewModel.setVideoZoom(state.videoZoom)
 
     if (playerPreferences.savePositionOnQuit.get() && state.lastPosition != 0) {
-      pendingResumePosition = state.lastPosition
-      restoringPlaybackPosition = true
-      scheduleExactResumeSeek()
+      // Use the v1.1.2 approach: write time-pos directly once the file is
+      // loaded. mpv's `start` option from mpv.conf is applied at init, before
+      // FILE_LOADED, so this write wins. An `absolute+exact` seek is ignored
+      // on network streams with hr-seek=no and stalls the resume path.
+      MPVLib.setPropertyInt("time-pos", state.lastPosition)
+      Log.d(TAG, "Restored time-pos directly to ${state.lastPosition}s")
     }
   }
 
