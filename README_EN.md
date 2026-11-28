@@ -1,191 +1,165 @@
 # XNPlayer
 
-[中文](README.md)
+[中文](README.md) · [Latest Release](https://github.com/Tom0324/XNPlayer/releases/latest) · [License](LICENSE)
 
-XNPlayer is an Android media player project based on mpvEx, focused on full Chinese localization, a flatter UI, mpv 0.42 with AVC fixes, and practical network playback improvements.
+> An arm64 Android video player built on the mpvEx app shell and a reproducible FongMi / NeoPlayer mpv native AAR. XNPlayer keeps HW+ as the default decoder path and provides a fully localized Chinese UI with WebDAV playback support.
 
-## Current status
+---
 
-Latest release:
+## Overview
 
-```text
-https://github.com/Tom0324/XNPlayer/releases
-```
+| Item | Value |
+|---|---|
+| Latest stable version | `v1.5.0` |
+| Release tag | [`XNPlayer-v1.5.0-20261129-eof-frame-reset-sync`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync) |
+| App name | XNPlayer |
+| Package | `app.marlboroadvance.mpvex` (`app.marlboroadvance.mpvex.preview` for preview builds) |
+| `versionName` / `versionCode` | `1.5.0` / `10500` (APK reports `105002` after ABI split) |
+| Architecture | `arm64-v8a` only |
+| Signature | `CN=Trim`, v2 / v3 valid |
+| Default HW+ order | `mediacodec,mediacodec-copy,no` |
+| OpenList | Not bundled; external service via WebDAV |
 
-Current APK baseline:
+## Features
 
-```text
-App name: XNPlayer
-ABI: arm64-v8a
-Signature: CN=Trim
-mpv: v0.42.0
-FFmpeg: n9.1
-libplacebo: v7.387.0
-AVC: PTS patch applied
-OpenList: not built in
-```
+### Playback core
 
-## What this repo does
+- FongMi / NeoPlayer mpv native AAR with DVD / Blu-ray / ISO streaming support.
+- HW+ (`mediacodec` direct surface) remains the default; no forced fallback to HW copy or software decoding.
+- Includes the AVC PTS fix, MediaCodec configure retry, synchronous EOF frame reset, and FFmpeg close diagnostics.
+- Preserves NeoPlayer features including Vulkan, Dolby Vision GPU mapping, HDR color mapping, stale-frame checks, retained frames, and AImageReader statistics.
 
-This repo assembles the final XNPlayer APK:
+### App layer
 
-```text
-- mpvEx UI shell
-- Android app module
-- full Chinese localization
-- flatter UI
-- WebDAV network playlist fixes
-- real filenames in WebDAV playlists
-- full-page add/edit connection screens
-- tab visibility switches and default startup tab
-- local AVC-fixed mpv AAR
-- arm64-v8a-only build
-- final APK releases
-```
+- Full Chinese localization and flat UI.
+- Unified local and network playback lists.
+- WebDAV browsing, recent playback, and auto-scroll to the last played item.
+- Real filenames in WebDAV playlists instead of local proxy stream IDs.
+- Playback position, intro / outro handling, and display-state restoration.
+- Full-page add / edit connection screens for SMB / FTP / WebDAV.
 
-## Native core repo
+### Intro / outro policy
 
-The native core is rebuilt in:
+`start=00:01:53` and `end=-00:45` in `mpv.conf` are intentional user settings. The app parses them dynamically and recalculates `start` for every file instead of hardcoding 113 seconds.
 
-```text
-https://github.com/Tom0324/mpv-android-fongmi
-```
+> With `hr-seek=no`, mpv seeks to the nearest keyframe before the target. Enable **Use precise seeking** in player settings if the intro skip must land exactly at 1:53.
 
-It owns:
+---
 
-```text
-- mpv v0.42.0
-- FFmpeg n9.1
-- libplacebo v7.387.0
-- AVC PTS patch
-- mpv-android-avcfix.aar
-```
+## Build system
+
+This repository assembles the app and final APK. The native AAR is built in a separate repository.
+
+| Stage | Entry point | Description |
+|---|---|---|
+| Native AAR | [`Tom0324/mpv-android-fongmi`](https://github.com/Tom0324/mpv-android-fongmi) | Builds and publishes `mpv-android-avcfix.aar` |
+| Unsigned APK | [`.github/workflows/ui-shell-unsigned.yml`](.github/workflows/ui-shell-unsigned.yml) | Cloud build with SHA256-verified AAR injection |
+| Signed APK | [XNPlayer Releases](https://github.com/Tom0324/XNPlayer/releases) | Unsigned APK is signed locally with `CN=Trim` and published |
+
+Workflow steps:
+
+1. Check out source at the triggering ref.
+2. Download the pinned AAR from the native Release and verify its SHA256.
+3. Run `./gradlew --no-configuration-cache assembleStandardPreview`.
+4. Upload the unsigned APK as a Release asset.
+5. Zipalign, sign, verify, and publish the signed APK.
+
+### Current native AAR baseline
+
+| Item | Value |
+|---|---|
+| AAR Release | [`native-avcfix-mpv042-iso-eof-frame-reset-sync-20261129`](https://github.com/Tom0324/mpv-android-fongmi/releases/tag/native-avcfix-mpv042-iso-eof-frame-reset-sync-20261129) |
+| AAR SHA256 | `97174e10559b00cae26480947a5a9b2d5130dc33ad53a5f44e5d263f7c79e51e` |
+| mpv string in AAR | `mpv v0.41.0-dev-g76f963cc4-dirty` |
+| FFmpeg string in AAR | `Lavf/62.12.102` (release-8.1-fongmi derived) |
+| libplacebo string in AAR | `v7.402.0` |
+
+> Use the strings embedded in the AAR as the source of truth. The `mpv042` segment in the native Release tag is a historical build name.
+
+---
+
+## Verified dependencies and references
+
+Only projects referenced by this README are listed, with their real status in the current build.
+
+| Project | Link | Role | Used now? |
+|---|---|---|---|
+| XNPlayer | [Tom0324/XNPlayer](https://github.com/Tom0324/XNPlayer) | App source and releases | Yes, this repository |
+| Native AAR source | [Tom0324/mpv-android-fongmi](https://github.com/Tom0324/mpv-android-fongmi) | Produces `mpv-android-avcfix.aar` | Yes, downloaded and verified by CI |
+| mpvEx | [marlboro-advance/mpvEx](https://github.com/marlboro-advance/mpvEx) | UI / Android upstream baseline | Indirect, upstream reference |
+| mpvKt | [abdallahmehiz/mpvKt](https://github.com/abdallahmehiz/mpvKt) | Kotlin / Compose upstream of mpvEx | Indirect, historical reference |
+| mpv | [mpv-player/mpv](https://github.com/mpv-player/mpv) | Playback engine upstream | Reference, official build not compiled directly |
+| mpv-android | [mpv-android/mpv-android](https://github.com/mpv-android/mpv-android) | Android JNI / AAR structure reference | Reference, not a direct dependency |
+| FongMi/mpv | [FongMi/mpv](https://github.com/FongMi/mpv) | Kernel baseline, pinned at `76f963cc4` | Yes, via native AAR |
+| NextPlayerCloud/mpv | [NextPlayerCloud/mpv](https://github.com/NextPlayerCloud/mpv) | `NeoPlayer` ref in native workflow | Yes, via native AAR |
+| FFmpeg | [FFmpeg/FFmpeg](https://github.com/FFmpeg/FFmpeg) | Audio / video decoding upstream | Reference, official build not compiled directly |
+| FongMi/FFmpeg | [FongMi/FFmpeg](https://github.com/FongMi/FFmpeg) | `release-8.1-fongmi` derived FFmpeg | Yes, via native AAR |
+| NextPlayerCloud/FFmpeg | [NextPlayerCloud/FFmpeg](https://github.com/NextPlayerCloud/FFmpeg) | FFmpeg mirror in native workflow | Yes, via native AAR |
+| libplacebo | [haasn/libplacebo](https://github.com/haasn/libplacebo) | High-quality rendering upstream | Reference; FongMi-derived build is used |
+| OpenList | [OpenListTeam/OpenList](https://github.com/OpenListTeam/OpenList) | External file list / WebDAV backend | No, not bundled |
+| OpenList-Mobile | [OpenListTeam/OpenList-Mobile](https://github.com/OpenListTeam/OpenList-Mobile) | Standalone Android service app | No, installed separately |
+
+### Removed stale references
+
+Older README revisions linked `Tom0324/AListLiteAndroid`, `Tom0324/fongmi-mpv-android`, and `Tom0324/mpv-fongmi`. These were early experiments, are not used by the current build, and are no longer accessible. They are intentionally not linked here.
+
+### Android / UI stack
+
+Kotlin, Jetpack Compose, Material 3, AndroidX, Room, Koin, OkHttp, Sardine, NanoHTTPD.
+
+---
 
 ## OpenList policy
 
-OpenList is not built into the app.
+XNPlayer does not bundle OpenList, AListLib, or OpenList Service.
 
-Use the standalone OpenList-Mobile APK and connect through WebDAV:
+To access OpenList resources, install [OpenList-Mobile](https://github.com/OpenListTeam/OpenList-Mobile) separately and add this WebDAV URL in XNPlayer:
 
 ```text
 http://127.0.0.1:5244/dav
 ```
 
-## ABI
+See [docs/OPENLIST.md](docs/OPENLIST.md).
 
-Only:
+---
 
-```text
-arm64-v8a
-```
+## Latest release and verification
 
-No v7a, x86, x86_64 or universal builds.
+| Item | Value |
+|---|---|
+| Release | [`XNPlayer-v1.5.0-20261129-eof-frame-reset-sync`](https://github.com/Tom0324/XNPlayer/releases/tag/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync) |
+| APK | `XNPlayer_v1.5.0_20261129_eofframe_reset_sync_arm64_CNTrim.apk` |
+| Size | 32,392,097 B |
+| SHA256 | `d42e5eabd8c866f8ce4468b10a1522e3fa9fe7811bf6c6e50743c15d3dfc1b6e` |
+| Signature | `CN=Trim`, v2 / v3 valid |
 
-## Versioning note
+Direct download: [XNPlayer v1.5.0 arm64 CNTrim APK](https://github.com/Tom0324/XNPlayer/releases/download/XNPlayer-v1.5.0-20261129-eof-frame-reset-sync/XNPlayer_v1.5.0_20261129_eofframe_reset_sync_arm64_CNTrim.apk)
 
-Current APK still inherits mpvEx values:
+## Installation notes
 
-```text
-versionName = 1.3.1-1
-versionCode = 1312
-```
+- arm64-v8a only.
+- Overwrite installation requires the same `applicationId` and `CN=Trim` signature, with an increasing APK `versionCode`.
+- If WebDAV recent-playback entries behave incorrectly after upgrading, remove the affected entry and play the file once again.
 
-Recommended XNPlayer versioning:
+---
 
-```text
-v1.0.5 → versionCode 10005, versionName 1.0.5
-v1.1.0 → versionCode 10100, versionName 1.1.0
-v2.0.0 → versionCode 20000, versionName 2.0.0
-```
+## Project principles
 
-Rule:
+1. Keep HW+ default: `mediacodec,mediacodec-copy,no`; never switch to HW copy as the default.
+2. Parse intro / outro values from `mpv.conf` dynamically; never hardcode seconds.
+3. Build native components in GitHub Actions, not on local machines.
+4. Keep OpenList external and decoupled from the player.
+5. Keep release assets on GitHub Releases, not in short-lived Actions artifacts.
 
-```text
-versionCode = major * 10000 + minor * 100 + patch
-```
+---
 
-As long as `applicationId` and signing stay the same, and `versionCode` is greater than 1312, the APK can overwrite-install.
+## Documentation
 
-## Docs
+- [docs/OPENLIST.md](docs/OPENLIST.md) — OpenList integration policy
+- [docs/CUSTOM_CHANGES.md](docs/CUSTOM_CHANGES.md) — local changes
+- [docs/CONFLICTS.md](docs/CONFLICTS.md) — upstream merge conflicts
+- [docs/RELEASE_HISTORY.md](docs/RELEASE_HISTORY.md) — historical release notes (v1.0–v1.1 archive)
 
-- `docs/REPO_ROLES.md`
-- `docs/CUSTOM_CHANGES.md`
-- `docs/CONFLICTS.md`
-- `docs/MAINTENANCE.md`
-- `docs/VERSION_MATRIX.md`
-- `docs/OPENLIST.md`
+## License
 
-## Build
-
-Workflow:
-
-```text
-.github/workflows/ui-shell-unsigned.yml
-```
-
-It:
-
-```text
-1. checks out master
-2. uses local app/libs/mpv-android-avcfix.aar
-3. builds arm64-v8a only
-4. uploads unsigned APK as a Release asset
-```
-
-Final signed APKs are published under XNPlayer releases.
-
-## Acknowledgements
-
-XNPlayer is built on top of several excellent open-source projects. The main sources and their roles are listed below.
-
-### Direct foundation
-
-- [mpvEx](https://github.com/marlboro-advance/mpvEx)  
-  Base UI and Android project. The XNPlayer UI shell comes from mpvEx.
-
-- [mpvKt](https://github.com/mpvKt/mpvKt)  
-  Upstream Kotlin/Android player project that provided part of the Compose UI and mpv integration baseline.
-
-- [mpv / mpv-android](https://github.com/mpv-player/mpv)  
-  Core playback engine and Android JNI foundation. XNPlayer uses mpv `v0.42.0` with an AVC PTS patch.
-
-- [FFmpeg](https://github.com/FFmpeg/FFmpeg)  
-  Audio/video decoding and processing. The current native AAR uses `n9.1`.
-
-- [libplacebo](https://github.com/haasn/libplacebo)  
-  High-quality rendering library. The current native AAR uses stable `v7.387.0`.
-
-### Android / UI
-
-- [Jetpack Compose](https://developer.android.com/jetpack/compose)
-- [Material 3](https://m3.material.io/)
-- [AndroidX](https://developer.android.com/jetpack/androidx)
-- [Kotlin](https://kotlinlang.org/)
-
-### Local UI / resource reference
-
-- NeoPlayer 1.7.5 Beta3  
-  Some Chinese strings, colors, themes, fonts and layout ideas were referenced from the user-provided Beta3 APK decompilation. They are used as local UI/text references, not as direct Beta3 source code.
-
-### External companion, not bundled
-
-- [OpenList-Mobile](https://github.com/OpenListTeam/OpenList-Mobile)  
-  OpenList is not bundled into XNPlayer. Install OpenList-Mobile separately and connect through WebDAV:
-  ```text
-  http://127.0.0.1:5244/dav
-  ```
-
-- [OpenList](https://github.com/OpenListTeam/OpenList)  
-  Used as an external file-list service, not packaged into the APK.
-
-### Historical reference, not used in the current mainline
-
-- [AListLiteAndroid](https://github.com/Tom0324/AListLiteAndroid)  
-  Used only for earlier experiments with built-in OpenList. It is not part of the current mainline.
-
-Full acknowledgement notes:
-
-```text
-docs/ACKNOWLEDGEMENTS.md
-```
-
+This project is licensed under the [Apache License 2.0](LICENSE). Third-party dependencies and upstream projects are governed by their own licenses.
