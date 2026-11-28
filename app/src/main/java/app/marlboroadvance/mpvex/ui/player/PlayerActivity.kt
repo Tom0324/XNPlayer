@@ -2254,7 +2254,7 @@ class PlayerActivity :
     val duration = state.lastPosition + state.timeRemaining
     val outroSec = when {
       configuredEnd == null -> duration
-      configuredEnd < 0 -> (duration + configuredEnd).coerceAtLeast(introSec.toDouble()).toInt()
+      configuredEnd < 0 -> (duration + configuredEnd).coerceAtLeast(introSec)
       else -> configuredEnd
     }
 
