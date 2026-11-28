@@ -61,6 +61,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import java.io.File
@@ -435,11 +436,13 @@ class PlayerActivity :
       return
     }
 
+    // BaseMPVView.playFile() only caches filePath; the real loadfile is issued by
+    // surfaceCreated(). Do both synchronously on the main thread here so they
+    // complete before the surface callback runs (a suspend DB query here would
+    // let surfaceCreated fire first and leave mpv idle with a black screen).
     getPlayableUri(intent)?.let { uri ->
-      lifecycleScope.launch(Dispatchers.Main) {
-        applyStartOverrideForSavedPosition(mediaIdentifier)
-        player.playFile(uri)
-      }
+      applyStartOverrideForSavedPosition(mediaIdentifier)
+      player.playFile(uri)
     }
 
     // Only set orientation immediately if NOT in Video mode
@@ -2236,7 +2239,7 @@ class PlayerActivity :
    * This is called for every file (first open, new intent and playlist items) so
    * one episode's start never leaks into the next.
    */
-  private suspend fun applyStartOverrideForSavedPosition(mediaId: String) {
+  private fun applyStartOverrideForSavedPosition(mediaId: String) {
     val (configuredStart, configuredEnd) = readMpvConfStartEnd()
     if (configuredStart == null && configuredEnd == null) return
 
@@ -2248,7 +2251,9 @@ class PlayerActivity :
     MPVLib.setPropertyString("start", introSec.toString())
 
     if (!playerPreferences.savePositionOnQuit.get()) return
-    val state = runCatching { playbackStateRepository.getVideoDataByTitle(mediaId) }.getOrNull()
+    val state = runCatching {
+      runBlocking(Dispatchers.IO) { playbackStateRepository.getVideoDataByTitle(mediaId) }
+    }.getOrNull()
     if (state == null || state.lastPosition <= 0) return
 
     val duration = state.lastPosition + state.timeRemaining
