@@ -24,17 +24,25 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Use 15-line uninit fix AAR
+        run: |
+          set -e
+          curl -fL --retry 3 -o app/libs/mpv-android-avcfix.aar \
+            https://github.com/Tom0324/mpv-android-fongmi/releases/download/native-avcfix-mpv042-iso-uninit-release-order-20261129/app-release.aar
+          echo "e85dbd9f924f9970230e08baabcbb6bf0e9d381c2e25a858c5dc6e3986b106c8  app/libs/mpv-android-avcfix.aar" | sha256sum -c -
+          test -s app/libs/mpv-android-avcfix.aar
+
       - name: Build preview APKs
         run: ./gradlew --no-configuration-cache assembleStandardPreview
 
       - name: Upload unsigned APK to Release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ui-shell-neoplayer-iso-v1.4.6-playlist-resume-key
+          TAG: ui-shell-neoplayer-iso-v1.4.7-uninit-order
         run: |
           set -e
           APK=app/build/outputs/apk/standard/preview/app-standard-arm64-v8a-preview-unsigned.apk
           test -f "$APK"
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --prerelease --title "XNPlayer v1.4.6 playlist resume key unsigned" --notes "XNPlayer v1.4.6: fix playlist/next-episode resume key mismatch. loadPlaylistItemInternal computed mediaIdentifier from the temporary local proxy URI (fileName_<proxy URL hash>) before syncing network extras, while reopening from the folder used the stable network_&lt;connectionId&gt;_&lt;pathHash&gt; key. Now network extras are written to the intent first and getMediaIdentifier(intent, fileName) is used for every playlist item, so saved positions written on autoplay are found again on reopen. Keeps v1.4.5 black-screen fix, v1.4.4 dynamic mpv.conf start/end, v1.4.1 autoscroll/recent playlist and v1.4.0 HW+ configure retry."
+            gh release create "$TAG" --prerelease --title "XNPlayer v1.4.7 uninit release order unsigned" --notes "XNPlayer v1.4.7: apply the 15-line native fix in hwdec_aimagereader.c uninit() - Surface.release / DeleteGlobalRef / AImageReader_delete now run before hwdec_devices_remove / av_buffer_unref, so the previous episode releases its AImageReader surface before the next episode's MediaCodec configure. Keeps all NeoPlayer features (Vulkan, Dolby Vision GPU mapping, HDR colorspace mapping, stale-frame check, retained frames, async image APIs, max_images=5, AImageReader stats) and HW+ default mediacodec,mediacodec-copy,no. Also keeps v1.4.6 stable playlist resume key, v1.4.5 black-screen fix, v1.4.4 dynamic mpv.conf start/end, v1.4.1 autoscroll/recent-playlist fixes and v1.4.0 configure retry."
           gh release upload "$TAG" "$APK" --clobber
